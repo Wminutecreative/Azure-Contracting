@@ -31,17 +31,18 @@ const hasContent = Astro.slots.has('default');
 
 <style>
   .big-heading-root {
-    /* 11.9vw matches the design at 1512 with Avenir; the Figtree fallback runs wider, so allow a little slack */
-    --big-size: min(11.2vw, 11.25rem);
+    /* Claude Design homepage: Urbanist 400, clamp(56px, 10.4vw, 160px) */
+    --big-size: clamp(3.5rem, 10.4vw, 10rem);
   }
   .big-heading {
+    font-family: var(--font-display);
     font-size: var(--big-size);
-    font-weight: 500;
-    line-height: 1.05;
-    letter-spacing: -0.01em;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.02em;
     text-wrap: balance;
     color: transparent;
-    background: linear-gradient(90deg, #d9e2f7 0%, #e6ecf1 40%, #e9efe9 65%, #eef4d6 100%);
+    background: linear-gradient(90deg, #dce3f4 0%, #eef3da 35%, #e4e9f6 65%, #eaf1d3 100%);
     -webkit-background-clip: text;
     background-clip: text;
   }

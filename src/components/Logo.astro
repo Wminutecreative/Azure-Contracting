@@ -11,14 +11,14 @@ const { tone = 'light', class: className = 'text-[2rem]' } = Astro.props;
 
 <span
   class:list={[
-    'inline-flex items-center gap-[0.12em] leading-none',
+    'inline-flex items-start gap-[0.15em] leading-none',
     tone === 'light' ? 'text-white' : 'text-navy',
     className,
   ]}
 >
-  <span class="border-neon block size-[0.84em] shrink-0 rounded-[0.19em] border-[0.055em]" aria-hidden="true"></span>
-  <span class="font-heading">
-    <span class="block text-[1em] font-normal tracking-[-0.02em]">azure</span>
-    <span class="-mt-[0.02em] block text-right text-[0.2em] font-normal tracking-[0.02em] uppercase">Fit Out Specialists</span>
+  <span class="border-neon mt-[0.05em] block size-[0.77em] shrink-0 rounded-[0.17em] border-[0.056em]" aria-hidden="true"></span>
+  <span class="font-display font-light">
+    <span class="block text-[1em] leading-[0.8] tracking-[-0.01em]">azure</span>
+    <span class="mt-[0.11em] block text-right text-[0.19em] tracking-[0.01em] uppercase">Fit Out Specialists</span>
   </span>
 </span>

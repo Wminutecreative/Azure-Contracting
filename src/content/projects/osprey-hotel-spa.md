@@ -1,7 +1,7 @@
 ---
 title: Osprey Hotel Spa
 sector: hospitality
-excerpt: Construction of new Alterations & Upgrade Construction and Fit-Out Works at the Internal Ground, First, Second & Third Floor levels along with works to the Ground Floor External Entrance area.
+excerpt: Construction of new alterations and upgrade construction and fit-out works at the internal ground, first, second and third floor levels, along with works to the ground floor external entrance area.
 cover: ../../assets/projects/osprey-hotel-spa.png
 coverAlt: The Osprey Hotel courtyard with a fountain and pool
 location: Naas, Co. Kildare
@@ -9,6 +9,6 @@ featured: true
 order: 2
 ---
 
-Construction of new Alterations & Upgrade Construction and Fit-Out Works at the Internal Ground, First, Second & Third Floor levels along with works to the Ground Floor External Entrance area.
+Construction of new alterations and upgrade construction and fit-out works at the internal ground, first, second and third floor levels, along with works to the ground floor external entrance area.
 
 TODO: remaining project detail copy and gallery from Figma.

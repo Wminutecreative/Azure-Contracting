@@ -15,7 +15,7 @@ interface Props {
 const {
   testimonials,
   heading = 'Trusted By Builders',
-  subheading = 'Trusted By Builders', // TODO: design repeats the heading here — confirm intended copy
+  subheading = 'What our clients say after handover',
   class: className,
 } = Astro.props;
 const count = testimonials.length;
@@ -25,40 +25,42 @@ const count = testimonials.length;
   count > 0 && (
     <section class:list={['section-y', className]} aria-labelledby="testimonials-heading" data-tslider data-count={count}>
       <div class="container-site">
-        <div class="grid gap-3 lg:h-[31rem] lg:grid-cols-[230fr_563fr_493fr]">
+        <div class="grid gap-3 lg:min-h-[30.875rem] lg:grid-cols-[1fr_2fr_2fr]">
           <!-- Column 1: heading + current photo -->
-          <div class="flex flex-col justify-between gap-6">
-            <div class="lg:px-[1.1rem] lg:pt-7">
-              <h2 id="testimonials-heading" class="text-h2 text-navy">{heading}</h2>
-              <p class="text-p2 text-navy mt-2">{subheading}</p>
+          <div class="flex min-w-0 flex-col justify-between gap-7">
+            <div class="lg:px-[1.125rem] lg:pt-[1.875rem]">
+              <h2 id="testimonials-heading" class="font-body text-navy text-[clamp(2rem,2.8vw,2.5rem)] leading-[1.08] font-normal tracking-[-0.01em]">{heading}</h2>
+              <p class="text-stat-label mt-3.5 text-[0.9375rem]">{subheading}</p>
             </div>
-            <div class="stack hidden aspect-[230/242] lg:grid">
+            <div class="stack hidden aspect-[0.95] max-w-[17.5rem] lg:grid">
               {testimonials.map((t, i) => (
-                <Image src={t.data.photo} alt="" width={460} class:list={['t-item rounded-card size-full object-cover', i === 0 && 'is-active']} data-i={i} />
+                <Image src={t.data.photo} alt="" width={560} class:list={['t-item size-full rounded-[1.375rem] object-cover', i === 0 && 'is-active']} data-i={i} />
               ))}
             </div>
           </div>
 
           <!-- Column 2: quote card -->
-          <div class="stack grid" aria-live="polite" data-swipe>
+          <div class="stack grid min-w-0" aria-live="polite" data-swipe>
             {testimonials.map((t, i) => (
-              <figure class:list={['t-item flex flex-col rounded-3xl bg-white p-8 md:p-10', i === 0 && 'is-active']} data-i={i}>
-                <span class="text-neon font-heading -mb-4 text-7xl leading-none" aria-hidden="true">“</span>
-                <blockquote class="text-h5 text-text-dark mt-6">
-                  <p>{t.data.quote}</p>
-                </blockquote>
-                <div class="text-star mt-10 flex gap-1" role="img" aria-label={`Rated ${t.data.rating} out of 5`}>
-                  {Array.from({ length: t.data.rating }, () => (
-                    <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true">
-                      <path fill="currentColor" d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
-                    </svg>
-                  ))}
+              <figure class:list={['t-item flex flex-col justify-between gap-10 rounded-3xl bg-white px-7 py-9 md:px-10 md:py-11', i === 0 && 'is-active']} data-i={i}>
+                <div class="flex flex-col gap-[1.625rem]">
+                  <span class="text-neon block h-[2.125rem] font-serif text-[4.25rem] leading-[0.5]" aria-hidden="true">“</span>
+                  <blockquote class="text-[clamp(1.25rem,1.8vw,1.5rem)] leading-[1.4] text-pretty text-[#1e2537]">
+                    <p>{t.data.quote}</p>
+                  </blockquote>
+                  <div class="text-star flex gap-1.5" role="img" aria-label={`Rated ${t.data.rating} out of 5`}>
+                    {Array.from({ length: t.data.rating }, () => (
+                      <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="currentColor" d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
+                      </svg>
+                    ))}
+                  </div>
                 </div>
-                <figcaption class="mt-auto flex items-center gap-4 pt-10">
+                <figcaption class="flex items-center gap-4">
                   <Image src={t.data.photo} alt="" width={96} class="size-12 rounded-full object-cover lg:hidden" />
                   <span>
-                    <span class="text-p1 text-text-dark block">{t.data.name}</span>
-                    <span class="text-p3 text-text-medium block">{t.data.role}, {t.data.company}</span>
+                    <span class="text-navy block text-[1.0625rem] font-medium">{t.data.name}</span>
+                    <span class="text-stat-label mt-1 block text-sm">{t.data.role}, {t.data.company}</span>
                   </span>
                 </figcaption>
               </figure>
@@ -66,15 +68,15 @@ const count = testimonials.length;
           </div>
 
           <!-- Column 3: prev / next tiles + next person's photo -->
-          <div class="grid grid-cols-2 gap-3 lg:grid-rows-2">
+          <div class="grid min-w-0 grid-cols-2 gap-3 lg:grid-rows-2">
             <span class="hidden lg:block" aria-hidden="true" />
             <button type="button" class="t-tile flex-col items-start justify-between" data-next aria-label="Next testimonial">
-              <span class="text-h4 text-left" aria-hidden="true">Next<br />Testimonial</span>
+              <span class="text-left" aria-hidden="true">Next Testimonial</span>
               <PlayIcon size={26} class="self-end" />
             </button>
             <button type="button" class="t-tile flex-col items-end justify-between max-lg:order-first" data-prev aria-label="Previous testimonial">
               <PlayIcon size={26} direction="left" class="self-start" />
-              <span class="text-h4 text-right" aria-hidden="true">Previous<br />Testimonial</span>
+              <span class="text-right" aria-hidden="true">Previous Testimonial</span>
             </button>
             <div class="stack hidden lg:grid" aria-hidden="true">
               {testimonials.map((t, i) => (
@@ -82,7 +84,7 @@ const count = testimonials.length;
                   src={t.data.photo}
                   alt=""
                   width={460}
-                  class:list={['t-next rounded-card size-full object-cover', i === 1 % count && 'is-active']}
+                  class:list={['t-next size-full rounded-[1.375rem] object-cover', i === 1 % count && 'is-active']}
                   data-i={i}
                 />
               ))}
@@ -90,7 +92,13 @@ const count = testimonials.length;
           </div>
         </div>
 
-        <div class="mt-12 text-center md:mt-20">
+        {count > 1 && (
+          <div class="mt-10 flex items-center justify-center gap-2.5" aria-hidden="true">
+            {testimonials.map((_, i) => <span class:list={['t-dot', i === 0 && 'is-active']} data-i={i} />)}
+          </div>
+        )}
+
+        <div class="mt-12 text-center">
           <a href="/testimonials" class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
         </div>
       </div>
@@ -116,13 +124,28 @@ const count = testimonials.length;
     visibility: visible;
     transition: opacity 0.45s ease;
   }
+  .t-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background: #c3cad8;
+    transition:
+      width 0.3s ease,
+      background-color 0.3s ease;
+  }
+  .t-dot.is-active {
+    width: 28px;
+    background: var(--color-navy);
+  }
   .t-tile {
     display: flex;
     min-height: 9rem;
-    padding: 1.5rem 2rem;
-    border-radius: 1.5rem;
+    padding: 1.75rem 1.875rem;
+    border-radius: 1.375rem;
     background: var(--color-navy);
-    color: rgb(255 255 255 / 0.8);
+    color: #aeb6cc;
+    font-size: clamp(1.5rem, 2.2vw, 2rem);
+    line-height: 1.2;
     transition:
       background-color 0.3s,
       color 0.3s;
@@ -155,6 +178,7 @@ const count = testimonials.length;
       active = (index + count) % count;
       root.querySelectorAll<HTMLElement>('.t-item').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === active));
       root.querySelectorAll<HTMLElement>('.t-next').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === (active + 1) % count));
+      root.querySelectorAll<HTMLElement>('.t-dot').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === active));
     };
     root.querySelector('[data-next]')?.addEventListener('click', () => show(active + 1));
     root.querySelector('[data-prev]')?.addEventListener('click', () => show(active - 1));

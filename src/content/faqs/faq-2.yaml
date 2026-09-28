@@ -1,5 +1,5 @@
-# TODO: question and answer from Figma "Asked Questions" section
-question: 'Which areas of Ireland do you cover?'
-answer: 'TODO: client copy.'
-pages: [home, about, contact]
+# Copy from the Claude Design homepage (Azure Homepage.dc.html).
+question: 'How long does a typical fit-out take?'
+answer: 'It depends on size and scope. A single-floor office refresh can take a few weeks, while a full hotel refurbishment runs over several months. We agree a programme with fixed milestones before we start and report against it weekly.'
+pages: [home, testimonials, contact]
 order: 2

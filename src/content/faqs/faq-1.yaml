@@ -1,5 +1,5 @@
-# TODO: question and answer from Figma "Asked Questions" section
-question: 'What types of projects do you work on?'
-answer: 'TODO: client copy.'
-pages: [home, about, contact]
+# Copy from the Claude Design homepage (Azure Homepage.dc.html).
+question: 'Can you work in a building that stays open during the fit-out?'
+answer: 'Yes. Most of our office, hospitality and education work happens in live environments. We phase the programme, schedule noisy works out of hours and keep clear, segregated routes so staff, guests or students can carry on as normal.'
+pages: [home, about, testimonials, contact]
 order: 1

@@ -1,9 +1,10 @@
-# Photo from the homepage design (shown as the "next" testimonial). TODO: name, role and quote from Figma.
+# Quote from the Claude Design homepage. The design still uses placeholder attribution
+# ("Client Name", "Facilities Director, Company") — TODO: client copy (real name, role, company).
 name: 'TODO: Client Name'
-role: 'TODO: Role'
+role: 'Facilities Director'
 company: 'TODO: Company'
 photo: ../../assets/testimonials/person-2.png
-quote: 'TODO: client copy — testimonial quote from Figma.'
+quote: 'They worked around a live building for months and our staff barely noticed. Every milestone landed when they said it would, and the finish is better than the drawings.'
 rating: 5
 featured: true
 order: 2

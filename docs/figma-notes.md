@@ -8,6 +8,14 @@ File key: `Eewhz9BDP1JI0jYi3QEwuw` · page **Final Design** (`1:2`) · build fro
   come from that. Images, icons and client logos were cropped from it (1× resolution) — replace with
   Figma exports for retina quality.
 
+- 2026-09-29: Homepage refined to the **Claude Design** file `Azure Homepage.dc.html`
+  (project `a32b8eda-13cb-4240-b22f-95df156ab543`). It supersedes the screenshot measurements below where they differ:
+  Urbanist Light for wordmark / stats / big titles; card titles DM Sans 400; sector cards are links with an arrow chip
+  (22px radius); project image framed in a white 34px panel (16px inset); value cards have descriptions; testimonial
+  subheading "What our clients say after handover" + progress dots; FAQ chip pale `#EEF1F6` "+" → navy "−";
+  hero shade overlay. Real FAQ copy (5), testimonial #2 quote and value descriptions come from that file.
+  **Pending:** `assets/hero-clean.png` (hero photo) — binary files can't be read over the design MCP.
+
 ## Global tokens
 | Item | Value | Source |
 |---|---|---|

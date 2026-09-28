@@ -31,19 +31,20 @@ const label = await Astro.slots.render('default');
 const ariaLabel = compact ? label.replace(/<[^>]*>/g, '').trim() : undefined;
 
 // From the design (194×61, radius 12): primary = navy with a white icon square;
-// outline = navy hairline + bare triangle, fills navy on hover.
+// outline = compact "Know More" (1.5px navy border, 14px medium label, bare triangle), fills navy on hover.
+const solid = 'text-p1 min-h-[3.8rem] min-w-[12.125rem] gap-6 pr-3.5 pl-4';
 const styles: Record<Variant, { root: string; icon: string }> = {
   primary: {
-    root: 'bg-navy text-white hover:bg-[#1a3260]',
-    icon: 'bg-white text-navy',
+    root: `${solid} bg-navy text-white hover:bg-[#1a3260]`,
+    icon: 'size-8 bg-white text-navy',
   },
   outline: {
-    root: 'border border-navy text-navy hover:bg-navy hover:text-white',
-    icon: 'text-navy group-hover:bg-white',
+    root: 'gap-10 border-[1.5px] border-navy py-2.5 pr-3 pl-4 text-sm font-medium text-navy hover:bg-navy hover:text-white',
+    icon: 'size-5 text-current',
   },
   neon: {
-    root: 'bg-neon text-navy hover:bg-white',
-    icon: 'bg-navy text-neon',
+    root: `${solid} bg-neon text-navy hover:bg-white`,
+    icon: 'size-8 bg-navy text-neon',
   },
 };
 const s = styles[variant];
@@ -56,7 +57,7 @@ const Tag = href ? 'a' : 'button';
   data-track={track}
   aria-label={ariaLabel}
   class:list={[
-    'group rounded-btn text-p1 inline-flex min-h-[3.8rem] min-w-[12.125rem] items-center justify-between gap-6 pr-3.5 pl-4 transition-colors duration-300',
+    'group rounded-btn inline-flex items-center justify-between transition-colors duration-300',
     s.root,
     compact && 'max-sm:min-h-12 max-sm:min-w-0 max-sm:gap-0 max-sm:p-2',
     className,
@@ -66,7 +67,7 @@ const Tag = href ? 'a' : 'button';
   <span class:list={[compact && 'max-sm:sr-only']} set:html={label} />
   <span
     class:list={[
-      'inline-grid size-8 shrink-0 place-items-center rounded-md transition-colors duration-300',
+      'inline-grid shrink-0 place-items-center rounded-md transition-colors duration-300',
       s.icon,
     ]}
   >

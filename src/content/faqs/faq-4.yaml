@@ -1,5 +1,5 @@
-# TODO: question and answer from Figma "Asked Questions" section
-question: 'Can you work while our business stays open?'
-answer: 'TODO: client copy.'
-pages: [home, testimonials, about]
+# Copy from the Claude Design homepage (Azure Homepage.dc.html).
+question: 'Which sectors do you work in?'
+answer: 'Offices, hospitality, retail and education. That includes hotels, spas, clinics, restaurants, retail rollouts and campus upgrades.'
+pages: [home, about, testimonials]
 order: 4

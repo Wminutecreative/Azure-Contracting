@@ -33,20 +33,20 @@ const faqSchema = {
     <section class:list={['section-y', className]}>
       <BigOutlineHeading text={heading}>
         <div class="container-site">
-          <div class="mx-auto max-w-4xl space-y-4">
+          <div class="mx-auto max-w-[65rem] space-y-3.5">
             {items.map((item, i) => (
-              <details class="faq card-surface rounded-card" name="faq" open={i === 0} data-accordion>
-                <summary class="text-h5 text-navy flex cursor-pointer list-none items-center justify-between gap-6 p-6 md:px-8">
+              <details class="faq overflow-hidden rounded-[1.375rem] bg-white" name="faq" open={i === 0} data-accordion>
+                <summary class="text-navy flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-6 text-[clamp(1.125rem,1.6vw,1.375rem)] md:px-8 md:py-[1.625rem]">
                   <span>{item.question}</span>
-                  <span class="bg-navy text-neon grid size-10 shrink-0 place-items-center rounded-full" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                      <path d="M5 12h14" />
-                      <path class="faq-icon-v" d="M12 5v14" />
+                  <span class="faq-icon grid size-9 shrink-0 place-items-center rounded-[0.625rem]" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                      <path d="M4 12h16" />
+                      <path class="faq-icon-v" d="M12 4v16" />
                     </svg>
                   </span>
                 </summary>
                 <div class="overflow-hidden" data-accordion-body>
-                  <p class="text-p1 text-text-medium px-6 pb-6 md:px-8 md:pb-8">{item.answer}</p>
+                  <p class="text-stat-label max-w-[51.25rem] px-6 pb-7 text-base leading-[1.65] text-pretty md:px-8 md:pb-[1.875rem]">{item.answer}</p>
                 </div>
               </details>
             ))}
@@ -62,12 +62,24 @@ const faqSchema = {
   .faq summary::-webkit-details-marker {
     display: none;
   }
+  /* Closed: pale chip with "+"; open: navy chip with "−" */
+  .faq-icon {
+    background: #eef1f6;
+    color: var(--color-navy);
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+  .faq[open] .faq-icon {
+    background: var(--color-navy);
+    color: var(--color-white);
+  }
   .faq-icon-v {
     transform-origin: center;
     transition: transform 0.3s ease;
   }
   .faq[open] .faq-icon-v {
-    transform: rotate(90deg);
+    transform: scaleY(0);
   }
 </style>
 

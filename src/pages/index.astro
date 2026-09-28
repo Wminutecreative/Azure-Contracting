@@ -1,6 +1,6 @@
 ---
-// Homepage — Figma 534:1874 (prototype 535:6374).
-// Matched against the full-page design screenshot at 1512px (see docs/figma-notes.md for measurements).
+// Homepage — Figma 534:1874 (prototype 535:6374), refined to the Claude Design file "Azure Homepage.dc.html"
+// (project a32b8eda-13cb-4240-b22f-95df156ab543). See docs/figma-notes.md for measurements.
 import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Logo from '@/components/Logo.astro';
@@ -13,7 +13,7 @@ import TestimonialSlider from '@/components/TestimonialSlider.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects, getTestimonials, getFaqs } from '@/lib/content';
-// TODO: export the hero photo (curved glass building + water feature) from Figma to src/assets/home/hero.jpg
+// TODO: swap for assets/hero-clean.png from the Claude Design project (save as src/assets/home/hero.png)
 import heroImage from '@/assets/placeholders/hero.svg';
 
 const featured = (await getProjects({ featured: true })).slice(0, 3);
@@ -33,31 +33,36 @@ const stats = [
   headerOverlay
   headerLogo={false}
 >
-  <!-- 1. Hero — 1512 × 856 -->
-  <section class="relative isolate grid h-[clamp(34rem,56.6vw,53.5rem)] place-items-center overflow-hidden bg-[#34474f]">
+  <!-- 1. Hero — 56vw tall (560–880px), photo anchored to the bottom, darkened behind the logo -->
+  <section class="relative isolate grid h-[clamp(35rem,56vw,55rem)] place-items-center overflow-hidden bg-[#1b2a36]">
     <Image
       src={heroImage}
       alt=""
-      widths={[768, 1280, 1920]}
+      widths={[768, 1280, 1920, 2560]}
       sizes="100vw"
       loading="eager"
       fetchpriority="high"
-      class="absolute inset-0 -z-10 h-full w-full object-cover"
+      class="absolute inset-0 -z-20 h-full w-full object-cover object-bottom"
     />
+    <div class="hero-shade absolute inset-0 -z-10" aria-hidden="true"></div>
     <h1 class="px-4">
       <span class="sr-only">Azure Contracting — fit-out specialists in construction, refurbishment and fit-out, Kildare, Ireland</span>
-      <span aria-hidden="true"><Logo class="text-[3.5rem] sm:text-[5rem] lg:text-[6.9rem]" /></span>
+      <span aria-hidden="true"><Logo class="text-[clamp(4.5rem,8.2vw,7.75rem)]" /></span>
     </h1>
   </section>
 
   <!-- 2. Intro statement + stats -->
-  <section class="pt-[clamp(4rem,2rem+6vw,7.5rem)]">
+  <section class="pt-[clamp(4.5rem,8vw,8.125rem)]">
     <div class="container-site">
-      <p class="text-h-caps text-text-medium mx-auto max-w-[73rem] text-center" data-reveal>
-        Azure Contracting brings <strong class="text-navy font-medium">hands-on</strong> site experience to construction,
-        refurbishment and fit-out work in <strong class="text-navy font-medium">offices, hospitality, retail and education.</strong>
+      <p
+        class="mx-auto max-w-[76rem] text-center text-[clamp(1.25rem,2.6vw,2.5rem)] leading-[1.45] font-light text-balance text-[#1a2b4f] uppercase"
+        data-reveal
+      >
+        Azure Contracting brings <strong class="font-medium">hands-on</strong> site experience to
+        <strong class="font-medium">construction, refurbishment and fit-out</strong> work in
+        <strong class="font-medium">offices, hospitality, retail and education.</strong>
       </p>
-      <StatRow stats={stats} class="mt-14 md:mt-[5.5rem]" />
+      <StatRow stats={stats} class="mt-[clamp(3rem,6vw,5.625rem)]" />
     </div>
   </section>
 
@@ -98,3 +103,11 @@ const stats = [
   <!-- 8. Client logos (footer follows from BaseLayout) -->
   <LogoStrip />
 </BaseLayout>
+
+<style>
+  .hero-shade {
+    background:
+      radial-gradient(ellipse 40% 28% at 50% 50%, rgb(8 18 40 / 0.45), transparent),
+      linear-gradient(180deg, rgb(8 18 40 / 0.35) 0%, rgb(8 18 40 / 0.15) 40%, rgb(8 18 40 / 0.35) 100%);
+  }
+</style>

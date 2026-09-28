@@ -1,5 +1,5 @@
-# TODO: question and answer from Figma "Asked Questions" section
-question: 'How long does a typical fit-out take?'
-answer: 'TODO: client copy.'
-pages: [home, testimonials, contact]
+# Copy from the Claude Design homepage (Azure Homepage.dc.html).
+question: 'Do you handle design as well as construction?'
+answer: 'We work either way: building to your architect''s design, or taking a design-and-build role where we coordinate the design team, approvals and construction under one contract.'
+pages: [home, about, contact]
 order: 3

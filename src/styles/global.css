@@ -26,6 +26,8 @@
   /* Fonts */
   --font-heading: 'Avenir Next W1G', 'Avenir Next', 'Figtree Variable', system-ui, sans-serif;
   --font-body: 'DM Sans Variable', system-ui, sans-serif;
+  /* Light geometric display face for the wordmark, stats and big section titles (Claude Design homepage) */
+  --font-display: 'Urbanist Variable', system-ui, sans-serif;
 
   /* Breakpoints: mobile < 768, tablet 768–1199, desktop ≥ 1200 */
   --breakpoint-md: 48rem;

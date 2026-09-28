@@ -3,8 +3,8 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Button from './Button.astro';
 
-// Featured-work row from the design: image (610 × 567, 48px radius) beside a white text card (662 wide, 48px radius).
-// `reverse` puts the text card on the left.
+// Featured-work row from the Claude Design homepage: two equal white panels (34px radius, 22px gap).
+// The image sits inside its panel with a 16px frame (24px inner radius); `reverse` puts the text panel on the left.
 interface Props {
   project: CollectionEntry<'projects'>;
   reverse?: boolean;
@@ -16,29 +16,32 @@ const { title, excerpt, cover, coverAlt } = project.data;
 const href = `/projects/${project.id}`;
 ---
 
-<article
-  class:list={[
-    'project-row group grid gap-4 md:gap-8',
-    reverse ? 'md:grid-cols-[662fr_610fr]' : 'md:grid-cols-[610fr_662fr]',
-  ]}
-  data-reveal
->
-  <a href={href} tabindex="-1" aria-hidden="true" class:list={['block overflow-hidden rounded-(--radius-panel)', reverse && 'md:order-2']}>
-    <Image
-      src={cover}
-      alt={coverAlt}
-      widths={[480, 610, 960, 1220]}
-      sizes="(min-width: 1512px) 610px, (min-width: 768px) 45vw, 100vw"
-      loading={eager ? 'eager' : 'lazy'}
-      class="aspect-[610/567] h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-    />
+<article class="project-row group grid gap-[1.375rem] md:grid-cols-2" data-reveal>
+  <a
+    href={href}
+    tabindex="-1"
+    aria-hidden="true"
+    class:list={['block rounded-[2.125rem] bg-white p-3 md:p-4', reverse && 'md:order-2']}
+  >
+    <span class="block overflow-hidden rounded-3xl">
+      <Image
+        src={cover}
+        alt={coverAlt}
+        widths={[480, 640, 960, 1280]}
+        sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
+        loading={eager ? 'eager' : 'lazy'}
+        class="aspect-[1.08] h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+      />
+    </span>
   </a>
   <div
-    class="card-surface flex flex-col justify-between gap-10 rounded-(--radius-panel) p-8 md:px-[clamp(2rem,5vw,4.7rem)] md:py-[clamp(2.5rem,7vw,6.5rem)]"
+    class="flex flex-col justify-between gap-10 rounded-[2.125rem] bg-white px-[clamp(1.75rem,4vw,4.5rem)] py-[clamp(2rem,4vw,4rem)]"
   >
-    <div>
-      <Heading class="text-h3 text-text-dark"><a href={href} class="hover:text-navy">{title}</a></Heading>
-      <p class="text-p1 text-text-medium mt-6 max-w-[32.5rem]">{excerpt}</p>
+    <div class="flex flex-col gap-[1.125rem]">
+      <Heading class="font-body text-navy text-[clamp(1.625rem,2.4vw,2.125rem)] leading-tight font-normal tracking-[-0.01em]">
+        <a href={href} class="hover:text-[#1d3a78]">{title}</a>
+      </Heading>
+      <p class="text-stat-label max-w-[32.5rem] text-base leading-[1.65] text-pretty">{excerpt}</p>
     </div>
     <div>
       <Button variant="outline" href={href} aria-label={`Know more about ${title}`}>Know More</Button>
