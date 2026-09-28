@@ -1,0 +1,25 @@
+---
+export interface Stat {
+  value: string;
+  label: string;
+}
+interface Props {
+  stats: Stat[];
+  class?: string;
+}
+const { stats, class: className } = Astro.props;
+---
+
+<dl class:list={['grid gap-px overflow-hidden sm:grid-cols-3', className]}>
+  {
+    stats.map((stat) => (
+      <div class="border-light flex flex-col-reverse gap-2 border-t py-6 sm:border-t-0 sm:border-l sm:px-8 sm:first:border-l-0 sm:first:pl-0">
+        <dt class="text-p1 text-text-medium">{stat.label}</dt>
+        <dd class="text-h-large text-navy">
+          {stat.value.replace(/[+%]$/, '')}
+          <span class="text-neon">{stat.value.match(/[+%]$/)?.[0]}</span>
+        </dd>
+      </div>
+    ))
+  }
+</dl>

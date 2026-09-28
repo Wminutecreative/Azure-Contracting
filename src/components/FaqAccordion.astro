@@ -1,4 +1,4 @@
-﻿---
+---
 import BigOutlineHeading from './BigOutlineHeading.astro';
 
 export interface FaqItem {
@@ -14,7 +14,7 @@ interface Props {
   class?: string;
 }
 
-// Phase 3: pages pass items from the `faqs` content collection.
+// Pages pass items from the `faqs` collection via getFaqs(page) in src/lib/content.ts.
 const { items, heading = 'Asked Questions', schema = true, class: className } = Astro.props;
 
 const faqSchema = {
@@ -28,33 +28,35 @@ const faqSchema = {
 };
 ---
 
-<section class:list={['section-y', className]}>
-  <div class="container-site">
-    <BigOutlineHeading text={heading}>
-      <div class="faq-list mx-auto max-w-4xl space-y-4">
-        {
-          items.map((item, i) => (
-            <details class="faq rounded-card shadow-card bg-white" name="faq" open={i === 0}>
-              <summary class="text-h5 text-navy flex cursor-pointer list-none items-center justify-between gap-6 p-6 md:px-8">
-                <span>{item.question}</span>
-                <span class="faq-icon bg-navy text-neon grid size-10 shrink-0 place-items-center rounded-full" aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                    <path d="M5 12h14" />
-                    <path class="faq-icon-v" d="M12 5v14" />
-                  </svg>
-                </span>
-              </summary>
-              <div class="faq-body">
-                <p class="text-p1 text-text-medium px-6 pb-6 md:px-8 md:pb-8">{item.answer}</p>
-              </div>
-            </details>
-          ))
-        }
+{
+  items.length > 0 && (
+    <section class:list={['section-y', className]}>
+      <div class="container-site">
+        <BigOutlineHeading text={heading}>
+          <div class="mx-auto max-w-4xl space-y-4">
+            {items.map((item, i) => (
+              <details class="faq rounded-card shadow-card bg-white" name="faq" open={i === 0} data-accordion>
+                <summary class="text-h5 text-navy flex cursor-pointer list-none items-center justify-between gap-6 p-6 md:px-8">
+                  <span>{item.question}</span>
+                  <span class="bg-navy text-neon grid size-10 shrink-0 place-items-center rounded-full" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                      <path d="M5 12h14" />
+                      <path class="faq-icon-v" d="M12 5v14" />
+                    </svg>
+                  </span>
+                </summary>
+                <div class="overflow-hidden" data-accordion-body>
+                  <p class="text-p1 text-text-medium px-6 pb-6 md:px-8 md:pb-8">{item.answer}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </BigOutlineHeading>
       </div>
-    </BigOutlineHeading>
-  </div>
-  {schema && items.length > 0 && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
-</section>
+      {schema && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+    </section>
+  )
+}
 
 <style>
   .faq summary::-webkit-details-marker {
@@ -67,43 +69,8 @@ const faqSchema = {
   .faq[open] .faq-icon-v {
     transform: rotate(90deg);
   }
-  .faq-body {
-    overflow: hidden;
-  }
 </style>
 
 <script>
-  // Progressive enhancement: smooth height animation. Without JS, <details> still works.
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  function animate(details: HTMLDetailsElement, opening: boolean) {
-    const body = details.querySelector<HTMLElement>('.faq-body');
-    if (!body || reduceMotion.matches) {
-      details.open = opening;
-      return;
-    }
-    if (opening) details.open = true;
-    const full = body.scrollHeight;
-    const anim = body.animate(
-      { height: opening ? ['0px', `${full}px`] : [`${full}px`, '0px'], opacity: opening ? [0, 1] : [1, 0] },
-      { duration: 350, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
-    );
-    anim.onfinish = () => {
-      if (!opening) details.open = false;
-    };
-  }
-
-  document.querySelectorAll<HTMLDetailsElement>('details.faq').forEach((details) => {
-    details.querySelector('summary')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      const opening = !details.open;
-      // Exclusive accordion: close the other open item in the same group
-      if (opening && details.name) {
-        document
-          .querySelectorAll<HTMLDetailsElement>(`details.faq[name="${details.name}"][open]`)
-          .forEach((other) => other !== details && animate(other, false));
-      }
-      animate(details, opening);
-    });
-  });
+  import '@/scripts/accordion';
 </script>

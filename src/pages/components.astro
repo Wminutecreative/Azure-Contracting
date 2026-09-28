@@ -5,23 +5,15 @@ import Button from '@/components/Button.astro';
 import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
+import { getFaqs } from '@/lib/content';
 
-// Demo data only — real FAQs come from the `faqs` collection in Phase 3. TODO: client copy.
-const demoFaqs = [
-  {
-    question: 'What types of projects do you work on?',
-    answer: 'TODO: client copy — construction, refurbishment and fit-out for offices, hospitality, retail and education.',
-  },
-  { question: 'Which areas do you cover?', answer: 'TODO: client copy — based in Kildare, working across Ireland.' },
-  { question: 'How long does a typical fit-out take?', answer: 'TODO: client copy.' },
-  { question: 'Can you work while our business stays open?', answer: 'TODO: client copy.' },
-];
+const demoFaqs = await getFaqs('home');
 ---
 
 <BaseLayout title="Components" description="Azure Contracting component library." noindex>
   <div class="container-site section-y space-y-24">
     <header>
-      <p class="text-p3 text-text-medium mb-2 tracking-widest uppercase">Phase 2 · temporary page</p>
+      <p class="text-p3 text-text-medium mb-2 tracking-widest uppercase">Temporary page · remove before launch</p>
       <h1 class="text-h1">Components</h1>
       <p class="text-p1 text-text-medium mt-4 max-w-2xl">
         The header and footer are live on this page. Open the menu with the hamburger (top left) and try Esc and Tab.

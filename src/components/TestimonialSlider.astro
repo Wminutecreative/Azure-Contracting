@@ -1,0 +1,170 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import TestimonialCard from './TestimonialCard.astro';
+import ArrowIcon from './ArrowIcon.astro';
+
+// "Trusted By Builders": the active slide is a white quote card, neighbours show as navy side cards.
+// Native scroll-snap handles touch swipe; mouse drag and prev/next are added by the script.
+// TODO: compare layout with homepage 534:1874 and prototype 535:6374.
+interface Props {
+  testimonials: CollectionEntry<'testimonials'>[];
+  heading?: string;
+  class?: string;
+}
+const { testimonials, heading = 'Trusted By Builders', class: className } = Astro.props;
+---
+
+{
+  testimonials.length > 0 && (
+    <section class:list={['section-y overflow-hidden', className]} aria-labelledby="testimonials-heading" data-slider>
+      <div class="container-site">
+        <div class="mb-10 flex items-end justify-between gap-6 md:mb-14">
+          <h2 id="testimonials-heading" class="text-h2 max-w-[16ch]">{heading}</h2>
+          <div class="flex gap-3">
+            <button type="button" class="slider-btn" data-prev aria-label="Previous testimonial">
+              <ArrowIcon class="rotate-180" />
+            </button>
+            <button type="button" class="slider-btn" data-next aria-label="Next testimonial">
+              <ArrowIcon />
+            </button>
+          </div>
+        </div>
+
+        <ul
+          class="slider-track -mx-(--gutter) flex snap-x snap-mandatory gap-4 overflow-x-auto px-(--gutter) pb-2 md:gap-6"
+          aria-roledescription="carousel"
+          aria-label="Client testimonials"
+          tabindex="0"
+          data-track
+        >
+          {testimonials.map((t, i) => (
+            <li
+              class="slide w-[88%] shrink-0 snap-start md:w-[70%] lg:w-[56%]"
+              data-active={i === 0 ? 'true' : 'false'}
+              aria-roledescription="slide"
+              aria-label={`${i + 1} of ${testimonials.length}`}
+            >
+              <TestimonialCard testimonial={t} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .slider-track {
+    scrollbar-width: none;
+    scroll-padding-inline: var(--gutter);
+  }
+  .slider-track::-webkit-scrollbar {
+    display: none;
+  }
+  .slider-track.is-dragging {
+    scroll-snap-type: none;
+    cursor: grabbing;
+    user-select: none;
+  }
+  /* Inactive slides become navy side cards */
+  .slide[data-active='false'] :global(.testimonial) {
+    background: var(--color-navy);
+    color: var(--color-white);
+    box-shadow: none;
+  }
+  .slide[data-active='false'] :global(.testimonial .text-text-medium) {
+    color: rgb(255 255 255 / 0.65);
+  }
+  .slider-btn {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-navy);
+    color: var(--color-navy);
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      opacity 0.3s;
+  }
+  .slider-btn:hover:not(:disabled) {
+    background: var(--color-navy);
+    color: var(--color-neon);
+  }
+  .slider-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-slider]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-track]')!;
+    const slides = Array.from(track.querySelectorAll<HTMLElement>('.slide'));
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    let active = 0;
+
+    const setActive = (index: number) => {
+      active = index;
+      slides.forEach((s, i) => (s.dataset.active = String(i === index)));
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+    };
+
+    const goTo = (index: number) => {
+      const target = slides[Math.max(0, Math.min(index, slides.length - 1))];
+      track.scrollTo({ left: target.offsetLeft - slides[0].offsetLeft, behavior: 'smooth' });
+    };
+
+    // Active slide = the one closest to the track's left edge
+    const onScroll = () => {
+      const left = track.scrollLeft;
+      let closest = 0;
+      slides.forEach((s, i) => {
+        const d = Math.abs(s.offsetLeft - slides[0].offsetLeft - left);
+        if (d < Math.abs(slides[closest].offsetLeft - slides[0].offsetLeft - left)) closest = i;
+      });
+      // At the far right end the last slide may never reach the left edge
+      if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 4) closest = slides.length - 1;
+      if (closest !== active) setActive(closest);
+    };
+
+    track.addEventListener('scroll', onScroll, { passive: true });
+    prev.addEventListener('click', () => goTo(active - 1));
+    next.addEventListener('click', () => goTo(active + 1));
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(active + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(active - 1); }
+    });
+    slides.forEach((s, i) => s.addEventListener('click', () => i !== active && goTo(i)));
+
+    // Mouse drag (touch uses native swipe)
+    let startX = 0;
+    let startScroll = 0;
+    let dragging = false;
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      dragging = true;
+      startX = e.clientX;
+      startScroll = track.scrollLeft;
+      track.classList.add('is-dragging');
+      track.setPointerCapture(e.pointerId);
+    });
+    track.addEventListener('pointermove', (e) => {
+      if (dragging) track.scrollLeft = startScroll - (e.clientX - startX);
+    });
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('is-dragging');
+      onScroll();
+      goTo(active);
+    };
+    track.addEventListener('pointerup', endDrag);
+    track.addEventListener('pointercancel', endDrag);
+
+    setActive(0);
+  });
+</script>

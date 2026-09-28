@@ -1,0 +1,52 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { sectorLabel } from '@/data/sectors';
+import Button from './Button.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  /** Image on the right instead of the left (desktop) */
+  reverse?: boolean;
+  headingLevel?: 'h2' | 'h3';
+  /** Load the image eagerly (first card above the fold) */
+  eager?: boolean;
+}
+const { project, reverse = false, headingLevel: Heading = 'h3', eager = false } = Astro.props;
+const { title, excerpt, cover, coverAlt, sector, location } = project.data;
+const href = `/projects/${project.id}`;
+---
+
+<article
+  class="project-card group rounded-card shadow-card grid overflow-hidden bg-white transition-transform duration-500 hover:-translate-y-1 md:grid-cols-2"
+  data-reveal
+>
+  <a
+    href={href}
+    tabindex="-1"
+    aria-hidden="true"
+    class:list={['block overflow-hidden', reverse && 'md:order-2']}
+  >
+    <Image
+      src={cover}
+      alt={coverAlt}
+      widths={[480, 720, 960]}
+      sizes="(min-width: 768px) 50vw, 100vw"
+      loading={eager ? 'eager' : 'lazy'}
+      class="aspect-[4/3] h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 md:aspect-auto"
+    />
+  </a>
+  <div class="flex flex-col justify-center gap-5 p-6 md:p-10 lg:p-14">
+    <p class="text-p3 text-text-medium flex flex-wrap gap-2">
+      <span class="bg-bg text-navy rounded-full px-3 py-1">{sectorLabel(sector)}</span>
+      {location && <span class="bg-bg rounded-full px-3 py-1">{location}</span>}
+    </p>
+    <Heading class="text-h3">
+      <a href={href} class="hover:text-navy/80">{title}</a>
+    </Heading>
+    <p class="text-p1 text-text-medium">{excerpt}</p>
+    <div class="pt-2">
+      <Button variant="outline" href={href} aria-label={`Know more about ${title}`}>Know More</Button>
+    </div>
+  </div>
+</article>

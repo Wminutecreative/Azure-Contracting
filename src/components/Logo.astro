@@ -1,20 +1,21 @@
 ---
 // TODO: replace with the Azure Contracting logo SVG exported from Figma.
+// Sized in em: set the size with a font-size class, e.g. class="text-[64px]".
 interface Props {
   tone?: 'dark' | 'light';
   class?: string;
 }
-const { tone = 'dark', class: className } = Astro.props;
+const { tone = 'dark', class: className = 'text-base' } = Astro.props;
 const text = tone === 'light' ? 'text-white' : 'text-navy';
 ---
 
-<span class:list={['inline-flex items-center gap-2.5', text, className]}>
-  <svg width="36" height="36" viewBox="0 0 32 32" aria-hidden="true" class="shrink-0">
+<span class:list={['inline-flex items-center gap-[0.625em]', text, className]}>
+  <svg width="2.25em" height="2.25em" viewBox="0 0 32 32" aria-hidden="true" class="shrink-0">
     <rect width="32" height="32" rx="8" fill={tone === 'light' ? '#FFFFFF' : '#0E1F3D'}></rect>
     <path d="M9 23 16 9l7 14h-3.4L16 15.8 12.4 23Z" fill="#C7D92E"></path>
   </svg>
   <span class="font-heading leading-none">
-    <span class="block text-[1.125rem] font-medium tracking-[0.18em]">AZURE</span>
-    <span class="block text-[0.625rem] font-medium tracking-[0.32em] opacity-70">CONTRACTING</span>
+    <span class="block text-[1.125em] font-medium tracking-[0.18em]">AZURE</span>
+    <span class="block text-[0.625em] font-medium tracking-[0.32em] opacity-70">CONTRACTING</span>
   </span>
 </span>

@@ -1,0 +1,29 @@
+---
+// Precise · Engineered · Versatile. TODO: card copy and icons from Figma.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+
+const values = [
+  { title: 'Precise', text: 'TODO: client copy.', icon: 'M4 12h16M12 4v16M7 7l10 10' },
+  { title: 'Engineered', text: 'TODO: client copy.', icon: 'M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6' },
+  { title: 'Versatile', text: 'TODO: client copy.', icon: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z' },
+];
+---
+
+<ul class:list={['grid gap-6 md:grid-cols-3', className]}>
+  {
+    values.map((v) => (
+      <li class="rounded-card shadow-card flex flex-col gap-6 bg-white p-8 transition-transform duration-500 hover:-translate-y-1 lg:p-10" data-reveal>
+        <span class="bg-navy text-neon grid size-14 place-items-center rounded-2xl" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d={v.icon} />
+          </svg>
+        </span>
+        <h3 class="text-h4">{v.title}</h3>
+        <p class="text-p1 text-text-medium">{v.text}</p>
+      </li>
+    ))
+  }
+</ul>
