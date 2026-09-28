@@ -7,6 +7,8 @@ Record measurements here once they have been fetched, so nothing has to be fetch
 ## Status
 - 2026-09-28: Figma MCP returned "Starter plan tool call limit reached" on the first call.
   None of the design-system frames have been fetched yet.
+- 2026-09-28 (Phases 3–4): still blocked. Content is seeded with names from the brief only; all copy/images are
+  placeholders (`src/assets/placeholders/*.svg`, `TODO` strings). Search the repo for `TODO` to find everything to replace.
 
 ## Design tokens
 Colours and the type scale come from CLAUDE.md §3 and are implemented in `src/styles/global.css`.
