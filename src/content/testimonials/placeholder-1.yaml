@@ -1,9 +1,0 @@
-# TODO: replace with a real testimonial from Figma — placeholder, must not ship
-name: 'TODO: Client Name'
-role: 'TODO: Role'
-company: 'TODO: Company'
-photo: ../../assets/placeholders/portrait.svg
-quote: 'TODO: client copy — testimonial quote from Figma.'
-rating: 5
-featured: true
-order: 1

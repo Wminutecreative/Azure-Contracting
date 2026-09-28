@@ -1,0 +1,21 @@
+---
+import { sectors } from '@/data/sectors';
+
+// Four stacked white cards (1312 × 137 at 1512, 16px radius, 16px gap). TODO: check the prototype (535:6374)
+// for a hover/expand interaction and whether each card should link to filtered projects.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<ul class:list={['space-y-4', className]}>
+  {
+    sectors.map((sector) => (
+      <li class="card-surface rounded-card px-6 py-6 transition-transform duration-500 hover:-translate-y-0.5 md:px-8 md:py-[1.9rem]" data-reveal>
+        <h3 class="text-h3 text-text-dark">{sector.label}</h3>
+        <p class="text-p1 text-text-medium mt-2">{sector.description}</p>
+      </li>
+    ))
+  }
+</ul>

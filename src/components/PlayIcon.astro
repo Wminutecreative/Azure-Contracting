@@ -1,0 +1,19 @@
+---
+// Rounded play triangle used on buttons and the testimonial prev/next tiles.
+interface Props {
+  class?: string;
+  size?: number;
+  direction?: 'right' | 'left';
+}
+const { class: className, size = 14, direction = 'right' } = Astro.props;
+---
+
+<svg
+  class:list={[direction === 'left' && 'rotate-180', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  aria-hidden="true"
+>
+  <path fill="currentColor" d="M6 4.2v15.6a1.6 1.6 0 0 0 2.4 1.4l13-7.8a1.6 1.6 0 0 0 0-2.8l-13-7.8A1.6 1.6 0 0 0 6 4.2Z"></path>
+</svg>

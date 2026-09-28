@@ -1,0 +1,11 @@
+# Copy from the homepage design.
+# ⚠️ TODO before launch: this attributes an Azure-voice quote to a real person (Databricks CEO).
+# Looks like design dummy content — confirm with the client or replace with a genuine testimonial.
+name: Ali Ghodsi
+role: CEO
+company: Databricks
+photo: ../../assets/testimonials/ali-ghodsi.png
+quote: Every Project We Take On Is A Chance To Build Something The Client Will Still Be Proud Of Years From Now. That's What Keeps Us Focused On The Details, From First Site Visit To Final Handover.
+rating: 5
+featured: true
+order: 1

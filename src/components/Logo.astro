@@ -1,21 +1,24 @@
 ---
-// TODO: replace with the Azure Contracting logo SVG exported from Figma.
-// Sized in em: set the size with a font-size class, e.g. class="text-[64px]".
+// Azure logo rebuilt from the design: neon rounded-square outline + "azure" + "FIT OUT SPECIALISTS".
+// TODO: swap for the real logo SVG exported from Figma (the wordmark uses a single-storey "a").
+// Sized in em: set the wordmark size with a font-size class, e.g. class="text-[110px]".
 interface Props {
   tone?: 'dark' | 'light';
   class?: string;
 }
-const { tone = 'dark', class: className = 'text-base' } = Astro.props;
-const text = tone === 'light' ? 'text-white' : 'text-navy';
+const { tone = 'light', class: className = 'text-[2rem]' } = Astro.props;
 ---
 
-<span class:list={['inline-flex items-center gap-[0.625em]', text, className]}>
-  <svg width="2.25em" height="2.25em" viewBox="0 0 32 32" aria-hidden="true" class="shrink-0">
-    <rect width="32" height="32" rx="8" fill={tone === 'light' ? '#FFFFFF' : '#0E1F3D'}></rect>
-    <path d="M9 23 16 9l7 14h-3.4L16 15.8 12.4 23Z" fill="#C7D92E"></path>
-  </svg>
-  <span class="font-heading leading-none">
-    <span class="block text-[1.125em] font-medium tracking-[0.18em]">AZURE</span>
-    <span class="block text-[0.625em] font-medium tracking-[0.32em] opacity-70">CONTRACTING</span>
+<span
+  class:list={[
+    'inline-flex items-center gap-[0.12em] leading-none',
+    tone === 'light' ? 'text-white' : 'text-navy',
+    className,
+  ]}
+>
+  <span class="border-neon block size-[0.84em] shrink-0 rounded-[0.19em] border-[0.055em]" aria-hidden="true"></span>
+  <span class="font-heading">
+    <span class="block text-[1em] font-normal tracking-[-0.02em]">azure</span>
+    <span class="-mt-[0.02em] block text-right text-[0.2em] font-normal tracking-[0.02em] uppercase">Fit Out Specialists</span>
   </span>
 </span>

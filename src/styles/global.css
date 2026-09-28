@@ -19,6 +19,9 @@
   --color-bg: #f4f9fd;
   --color-white: #ffffff;
   --color-black: #161616;
+  --color-card-border: #eceff1; /* hairline around white cards (from homepage screenshot) */
+  --color-star: #f9b115; /* testimonial stars */
+  --color-stat-label: #5b6478;
 
   /* Fonts */
   --font-heading: 'Avenir Next W1G', 'Avenir Next', 'Figtree Variable', system-ui, sans-serif;
@@ -30,10 +33,11 @@
   --breakpoint-xl: 94.5rem; /* 1512 design width */
 
   /* Layout */
-  --container-site: 82.5rem; /* 1320px */
+  --container-site: 82rem; /* 1312px — 100px side margins at the 1512 design width */
 
-  /* Radii & shadow — TODO: verify exact values in Figma */
-  --radius-card: 1.5rem;
+  /* Radii & shadow — measured from the homepage screenshot at 1512px */
+  --radius-card: 1rem; /* sector / value / FAQ cards */
+  --radius-panel: 3rem; /* project images and project text cards */
   --radius-btn: 0.75rem;
   --shadow-card: 0 10px 30px -12px rgb(14 31 61 / 0.12);
 
@@ -53,9 +57,11 @@
   --text-p2: 1rem; /* 16 */
   --text-p3: 0.875rem; /* 14 */
 
-  /* Section padding — TODO: verify against Section Padding frame 307:2057 */
+  /* Section padding — measured from the homepage (~120px between sections at 1512px) */
   --section-y: clamp(3.5rem, 2.4rem + 4.6vw, 7.5rem);
   --gutter: clamp(1rem, 0.4rem + 2.6vw, 3rem);
+  /* Full-bleed edge padding for header/footer (60px / 85px at 1512) */
+  --edge: clamp(1rem, 0.2rem + 3.6vw, 3.75rem);
 }
 
 @layer base {
@@ -113,3 +119,7 @@
   padding-inline: var(--gutter);
 }
 @utility section-y { padding-block: var(--section-y); }
+@utility card-surface {
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+}

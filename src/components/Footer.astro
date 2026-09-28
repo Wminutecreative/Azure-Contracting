@@ -1,65 +1,49 @@
 ---
-import { footerNav, legalNav, contact } from '@/data/site';
+import { footerNav, legalNav } from '@/data/site';
 import Logo from './Logo.astro';
-import Button from './Button.astro';
 
 const year = new Date().getFullYear();
 ---
 
-<footer class="bg-navy text-white">
-  <div class="container-site grid gap-12 py-16 md:py-20 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-    <div class="flex flex-col gap-10">
-      <a href="/" aria-label="Azure Contracting — home" class="self-start"><Logo tone="light" /></a>
+<!-- Measured from the homepage design: 310px tall at 1512, 80px top radius, navy → neon glow on the right -->
+<footer class="footer relative isolate overflow-hidden rounded-t-[2.5rem] text-white md:rounded-t-[5rem]">
+  <span class="footer-outline pointer-events-none absolute hidden lg:block" aria-hidden="true"></span>
 
-      <!-- TODO: footer intro copy from Figma -->
-      <p class="text-p1 max-w-md text-white/70">
-        Construction, refurbishment and fit-out for offices, hospitality, retail and education across Ireland.
-      </p>
-
+  <div class="relative px-[clamp(1rem,0.2rem+5vw,5.3rem)] pt-16 pb-10 lg:pt-[6.1rem] lg:pb-[2.4rem]">
+    <div class="flex max-w-[57.5rem] flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+      <a href="/" aria-label="Azure Contracting — home" class="self-start lg:self-auto">
+        <Logo class="text-[1.9rem]" />
+      </a>
       <nav aria-label="Footer">
-        <ul class="text-p1-medium grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
-          {
-            footerNav.map((link) => (
-              <li>
-                <a href={link.href} class="hover:text-neon transition-colors">
-                  {link.label}
-                </a>
-              </li>
-            ))
-          }
+        <ul class="text-p1 grid grid-cols-2 gap-x-10 gap-y-4 sm:flex sm:flex-wrap">
+          {footerNav.map((link) => <li><a href={link.href} class="hover:text-neon transition-colors">{link.label}</a></li>)}
         </ul>
       </nav>
-
-      <address class="text-p2 not-italic text-white/70">
-        {contact.address.join(', ')}
-        {contact.email && <a class="hover:text-neon mt-1 block" href={`mailto:${contact.email}`}>{contact.email}</a>}
-        {contact.phone && <a class="hover:text-neon block" href={`tel:${contact.phone.replace(/\s/g, '')}`}>{contact.phone}</a>}
-      </address>
     </div>
 
-    <!-- Navy → neon gradient card. TODO: exact copy and layout from Figma -->
-    <div class="footer-card rounded-card relative flex min-h-80 flex-col justify-between gap-10 overflow-hidden p-8 md:min-h-[26rem] md:p-12">
-      <p class="text-h-caps relative max-w-[14ch]">Let's Build Something Great</p>
-      <div class="relative flex flex-wrap items-center justify-between gap-6">
-        <p class="text-p1 max-w-xs text-white/85">Tell us about your next fit-out or refurbishment project.</p>
-        <Button href="/contact" variant="primary" track="cta_click" data-cta-location="footer">Contact Us</Button>
-      </div>
-    </div>
-  </div>
-
-  <div class="border-t border-white/10">
-    <div class="container-site text-p3 flex flex-col gap-4 py-6 text-white/60 md:flex-row md:items-center md:justify-between">
-      <p>© {year} Azure Contracting. All rights reserved.</p>
-      <ul class="flex flex-wrap gap-x-6 gap-y-2">
-        {legalNav.map((link) => <li><a href={link.href} class="hover:text-white transition-colors">{link.label}</a></li>)}
+    <div class="text-p3 mt-14 flex max-w-[57.5rem] flex-col-reverse gap-4 text-white/85 lg:mt-[6.25rem] lg:flex-row lg:items-center lg:justify-between">
+      <p class="text-[0.8125rem]">© {year} Azure Contracting Pvt. Ltd. All rights reserved.</p>
+      <ul class="flex flex-wrap gap-x-6 gap-y-2 text-[0.8125rem]">
+        {legalNav.map((link) => <li><a href={link.href} class="hover:text-neon transition-colors">{link.label}</a></li>)}
       </ul>
     </div>
   </div>
 </footer>
 
 <style>
-  .footer-card {
-    background: var(--gradient-brand);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  .footer {
+    background:
+      radial-gradient(38% 110% at 100% 70%, #dfe83d 0%, rgb(199 217 46 / 0.75) 22%, rgb(199 217 46 / 0) 70%),
+      radial-gradient(40% 90% at 70% 100%, rgb(35 70 90 / 0.6), transparent 70%),
+      linear-gradient(90deg, #061540 0%, #0b1d48 55%, #0e1f3d 100%);
+  }
+  /* Decorative neon outline panel on the right (x 1095 → off-canvas, y +18px, 277px tall at 1512) */
+  .footer-outline {
+    top: 1.125rem;
+    left: 72.4%;
+    width: 36rem;
+    height: 17.3rem;
+    border: 3px solid var(--color-neon);
+    border-radius: 3.75rem;
   }
 </style>

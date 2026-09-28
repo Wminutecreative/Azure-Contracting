@@ -1,51 +1,46 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import { sectorLabel } from '@/data/sectors';
 import Button from './Button.astro';
 
+// Featured-work row from the design: image (610 × 567, 48px radius) beside a white text card (662 wide, 48px radius).
+// `reverse` puts the text card on the left.
 interface Props {
   project: CollectionEntry<'projects'>;
-  /** Image on the right instead of the left (desktop) */
   reverse?: boolean;
   headingLevel?: 'h2' | 'h3';
-  /** Load the image eagerly (first card above the fold) */
   eager?: boolean;
 }
 const { project, reverse = false, headingLevel: Heading = 'h3', eager = false } = Astro.props;
-const { title, excerpt, cover, coverAlt, sector, location } = project.data;
+const { title, excerpt, cover, coverAlt } = project.data;
 const href = `/projects/${project.id}`;
 ---
 
 <article
-  class="project-card group rounded-card shadow-card grid overflow-hidden bg-white transition-transform duration-500 hover:-translate-y-1 md:grid-cols-2"
+  class:list={[
+    'project-row group grid gap-4 md:gap-8',
+    reverse ? 'md:grid-cols-[662fr_610fr]' : 'md:grid-cols-[610fr_662fr]',
+  ]}
   data-reveal
 >
-  <a
-    href={href}
-    tabindex="-1"
-    aria-hidden="true"
-    class:list={['block overflow-hidden', reverse && 'md:order-2']}
-  >
+  <a href={href} tabindex="-1" aria-hidden="true" class:list={['block overflow-hidden rounded-(--radius-panel)', reverse && 'md:order-2']}>
     <Image
       src={cover}
       alt={coverAlt}
-      widths={[480, 720, 960]}
-      sizes="(min-width: 768px) 50vw, 100vw"
+      widths={[480, 610, 960, 1220]}
+      sizes="(min-width: 1512px) 610px, (min-width: 768px) 45vw, 100vw"
       loading={eager ? 'eager' : 'lazy'}
-      class="aspect-[4/3] h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 md:aspect-auto"
+      class="aspect-[610/567] h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
     />
   </a>
-  <div class="flex flex-col justify-center gap-5 p-6 md:p-10 lg:p-14">
-    <p class="text-p3 text-text-medium flex flex-wrap gap-2">
-      <span class="bg-bg text-navy rounded-full px-3 py-1">{sectorLabel(sector)}</span>
-      {location && <span class="bg-bg rounded-full px-3 py-1">{location}</span>}
-    </p>
-    <Heading class="text-h3">
-      <a href={href} class="hover:text-navy/80">{title}</a>
-    </Heading>
-    <p class="text-p1 text-text-medium">{excerpt}</p>
-    <div class="pt-2">
+  <div
+    class="card-surface flex flex-col justify-between gap-10 rounded-(--radius-panel) p-8 md:px-[clamp(2rem,5vw,4.7rem)] md:py-[clamp(2.5rem,7vw,6.5rem)]"
+  >
+    <div>
+      <Heading class="text-h3 text-text-dark"><a href={href} class="hover:text-navy">{title}</a></Heading>
+      <p class="text-p1 text-text-medium mt-6 max-w-[32.5rem]">{excerpt}</p>
+    </div>
+    <div>
       <Button variant="outline" href={href} aria-label={`Know more about ${title}`}>Know More</Button>
     </div>
   </div>

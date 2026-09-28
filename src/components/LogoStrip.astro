@@ -1,29 +1,26 @@
 ---
+import { Image } from 'astro:assets';
 import { clients } from '@/data/site';
 
 interface Props {
-  heading?: string;
   class?: string;
 }
-// TODO: heading copy + logo SVGs from Figma; names render as text placeholders until then.
-const { heading = 'Trusted by leading brands', class: className } = Astro.props;
+const { class: className } = Astro.props;
 ---
 
-<section class:list={['section-y', className]} aria-labelledby="logo-strip-heading">
-  <div class="container-site">
-    <h2 id="logo-strip-heading" class="text-p3 text-text-medium mb-8 text-center tracking-widest uppercase">
-      {heading}
-    </h2>
-    <ul class="border-light grid grid-cols-2 border-t border-l sm:grid-cols-3 lg:grid-cols-6">
-      {
-        clients.map((name) => (
-          <li class="border-light grid min-h-24 place-items-center border-r border-b px-4 md:min-h-28">
-            <span class="font-heading text-text-medium text-center text-lg font-medium tracking-wide opacity-70 grayscale transition-opacity hover:opacity-100">
-              {name}
-            </span>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+<section class:list={['py-12 md:py-[4.5rem]', className]} aria-labelledby="clients-heading">
+  <h2 id="clients-heading" class="sr-only">Clients we have worked with</h2>
+  <ul class="flex flex-wrap items-center justify-center gap-x-10 gap-y-8 px-(--gutter) lg:flex-nowrap lg:justify-between lg:px-9">
+    {
+      clients.map((c) => (
+        <li class="shrink-0">
+          <Image
+            src={c.logo}
+            alt={c.name}
+            class="h-9 w-auto opacity-90 transition-opacity hover:opacity-100 md:h-12 lg:h-auto"
+          />
+        </li>
+      ))
+    }
+  </ul>
 </section>

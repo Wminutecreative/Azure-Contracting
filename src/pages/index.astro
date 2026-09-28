@@ -1,31 +1,29 @@
 ---
 // Homepage — Figma 534:1874 (prototype 535:6374).
-// ⚠️ Built from the CLAUDE.md brief: the Figma MCP limit was reached before any page data could be fetched.
-// Section order and components follow the brief; exact spacing, copy and imagery are TODO against Figma.
+// Matched against the full-page design screenshot at 1512px (see docs/figma-notes.md for measurements).
 import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Logo from '@/components/Logo.astro';
 import StatRow from '@/components/StatRow.astro';
-import SectorAccordion from '@/components/SectorAccordion.astro';
+import SectorList from '@/components/SectorList.astro';
 import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
-import Button from '@/components/Button.astro';
 import ValueCards from '@/components/ValueCards.astro';
 import TestimonialSlider from '@/components/TestimonialSlider.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects, getTestimonials, getFaqs } from '@/lib/content';
-import heroImage from '@/assets/placeholders/landscape.svg'; // TODO: hero image/video from Figma
+// TODO: export the hero photo (curved glass building + water feature) from Figma to src/assets/home/hero.jpg
+import heroImage from '@/assets/placeholders/hero.svg';
 
 const featured = (await getProjects({ featured: true })).slice(0, 3);
 const testimonials = await getTestimonials({ featured: true });
 const faqs = await getFaqs('home');
 
-// TODO: verify values and labels in Figma
 const stats = [
-  { value: '20+', label: 'TODO: label (e.g. years of experience)' },
-  { value: '500+', label: 'TODO: label (e.g. projects delivered)' },
-  { value: '98%', label: 'TODO: label (e.g. client satisfaction)' },
+  { value: '20+', label: 'Years of experience' },
+  { value: '500+', label: 'Projects delivered successfully' },
+  { value: '98%', label: 'Overall client satisfaction rate' },
 ];
 ---
 
@@ -33,9 +31,10 @@ const stats = [
   title="Azure Contracting"
   description="Construction, refurbishment and fit-out for offices, hospitality, retail and education. Based in Kildare, working across Ireland."
   headerOverlay
+  headerLogo={false}
 >
-  <!-- 1. Hero -->
-  <section class="bg-navy relative isolate grid min-h-[80svh] place-items-center overflow-hidden md:min-h-[100svh]">
+  <!-- 1. Hero — 1512 × 856 -->
+  <section class="relative isolate grid h-[clamp(34rem,56.6vw,53.5rem)] place-items-center overflow-hidden bg-[#34474f]">
     <Image
       src={heroImage}
       alt=""
@@ -45,61 +44,57 @@ const stats = [
       fetchpriority="high"
       class="absolute inset-0 -z-10 h-full w-full object-cover"
     />
-    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-navy/50 via-navy/20 to-navy/70" aria-hidden="true"></div>
     <h1 class="px-4">
-      <span class="sr-only">Azure Contracting — construction, refurbishment and fit-out in Kildare, Ireland</span>
-      <Logo tone="light" class="text-[28px] sm:text-[44px] lg:text-[64px]" />
+      <span class="sr-only">Azure Contracting — fit-out specialists in construction, refurbishment and fit-out, Kildare, Ireland</span>
+      <span aria-hidden="true"><Logo class="text-[3.5rem] sm:text-[5rem] lg:text-[6.9rem]" /></span>
     </h1>
   </section>
 
   <!-- 2. Intro statement + stats -->
-  <section class="section-y">
+  <section class="pt-[clamp(4rem,2rem+6vw,7.5rem)]">
     <div class="container-site">
-      <!-- TODO: verify exact copy in Figma -->
-      <p class="text-h-caps text-navy max-w-[40ch]" data-reveal>
-        Azure Contracting brings hands-on site experience to construction, refurbishment and fit-out work in offices,
-        hospitality, retail and education
+      <p class="text-h-caps text-text-medium mx-auto max-w-[73rem] text-center" data-reveal>
+        Azure Contracting brings <strong class="text-navy font-medium">hands-on</strong> site experience to construction,
+        refurbishment and fit-out work in <strong class="text-navy font-medium">offices, hospitality, retail and education.</strong>
       </p>
-      <StatRow stats={stats} class="mt-12 md:mt-16" />
+      <StatRow stats={stats} class="mt-14 md:mt-[5.5rem]" />
     </div>
   </section>
 
   <!-- 3. Sectors -->
-  <section class="section-y pt-0" aria-labelledby="sectors-heading">
+  <section class="pt-[clamp(4rem,2rem+8vw,12.5rem)]" aria-labelledby="sectors-heading">
     <div class="container-site">
       <h2 id="sectors-heading" class="sr-only">Sectors we work in</h2>
-      <SectorAccordion />
+      <SectorList />
     </div>
   </section>
 
   <!-- 4. Featured work -->
-  <section class="section-y">
-    <div class="container-site">
-      <BigOutlineHeading text="Our Featured Work">
-        <div class="space-y-6 md:space-y-8">
-          {featured.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} />)}
-        </div>
-      </BigOutlineHeading>
-      <div class="mt-10 flex justify-center md:mt-14">
-        <Button href="/projects">View All Projects</Button>
+  <section class="pt-[clamp(4rem,2rem+7vw,11rem)]">
+    <BigOutlineHeading text="Our Featured Work">
+      <div class="container-site space-y-4">
+        {featured.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} eager={i === 0} />)}
       </div>
+    </BigOutlineHeading>
+    <div class="mt-12 text-center md:mt-24">
+      <a href="/projects" class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
     </div>
   </section>
 
   <!-- 5. Values -->
-  <section class="section-y" aria-labelledby="values-heading">
+  <section class="pt-[clamp(4rem,2rem+6vw,10.5rem)]" aria-labelledby="values-heading">
     <div class="container-site">
-      <h2 id="values-heading" class="sr-only">Our values</h2>
+      <h2 id="values-heading" class="sr-only">How we work</h2>
       <ValueCards />
     </div>
   </section>
 
   <!-- 6. Testimonials -->
-  <TestimonialSlider testimonials={testimonials} />
+  <TestimonialSlider testimonials={testimonials} class="pt-[clamp(4rem,2rem+8vw,15.5rem)]!" />
 
   <!-- 7. FAQ -->
-  <FaqAccordion items={faqs} />
+  <FaqAccordion items={faqs} class="pb-0!" />
 
-  <!-- 8. Logo strip (footer follows from BaseLayout) -->
+  <!-- 8. Client logos (footer follows from BaseLayout) -->
   <LogoStrip />
 </BaseLayout>

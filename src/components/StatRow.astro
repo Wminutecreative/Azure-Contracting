@@ -10,15 +10,13 @@ interface Props {
 const { stats, class: className } = Astro.props;
 ---
 
-<dl class:list={['grid gap-px overflow-hidden sm:grid-cols-3', className]}>
+<!-- 1046px wide at 1512, columns spaced apart, numbers 80px navy, labels wrap to two lines -->
+<dl class:list={['mx-auto flex max-w-[65.4rem] flex-col gap-10 sm:flex-row sm:justify-between sm:gap-6', className]}>
   {
     stats.map((stat) => (
-      <div class="border-light flex flex-col-reverse gap-2 border-t py-6 sm:border-t-0 sm:border-l sm:px-8 sm:first:border-l-0 sm:first:pl-0">
-        <dt class="text-p1 text-text-medium">{stat.label}</dt>
-        <dd class="text-h-large text-navy">
-          {stat.value.replace(/[+%]$/, '')}
-          <span class="text-neon">{stat.value.match(/[+%]$/)?.[0]}</span>
-        </dd>
+      <div class="flex flex-col-reverse gap-2" data-reveal>
+        <dt class="text-p1 text-stat-label max-w-[9.5rem]">{stat.label}</dt>
+        <dd class="text-h-large text-navy">{stat.value}</dd>
       </div>
     ))
   }

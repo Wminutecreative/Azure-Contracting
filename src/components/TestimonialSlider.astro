@@ -1,170 +1,174 @@
 ---
+import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import TestimonialCard from './TestimonialCard.astro';
-import ArrowIcon from './ArrowIcon.astro';
+import PlayIcon from './PlayIcon.astro';
 
-// "Trusted By Builders": the active slide is a white quote card, neighbours show as navy side cards.
-// Native scroll-snap handles touch swipe; mouse drag and prev/next are added by the script.
-// TODO: compare layout with homepage 534:1874 and prototype 535:6374.
+// "Trusted By Builders" layout from the homepage design (1512px):
+//   [heading + current photo 230w] [quote card 563w] [2×2: _, Next tile / Prev tile, next person's photo]
+// All testimonials are rendered and stacked; the script switches the active one. Without JS the first shows.
 interface Props {
   testimonials: CollectionEntry<'testimonials'>[];
   heading?: string;
+  subheading?: string;
   class?: string;
 }
-const { testimonials, heading = 'Trusted By Builders', class: className } = Astro.props;
+const {
+  testimonials,
+  heading = 'Trusted By Builders',
+  subheading = 'Trusted By Builders', // TODO: design repeats the heading here — confirm intended copy
+  class: className,
+} = Astro.props;
+const count = testimonials.length;
 ---
 
 {
-  testimonials.length > 0 && (
-    <section class:list={['section-y overflow-hidden', className]} aria-labelledby="testimonials-heading" data-slider>
+  count > 0 && (
+    <section class:list={['section-y', className]} aria-labelledby="testimonials-heading" data-tslider data-count={count}>
       <div class="container-site">
-        <div class="mb-10 flex items-end justify-between gap-6 md:mb-14">
-          <h2 id="testimonials-heading" class="text-h2 max-w-[16ch]">{heading}</h2>
-          <div class="flex gap-3">
-            <button type="button" class="slider-btn" data-prev aria-label="Previous testimonial">
-              <ArrowIcon class="rotate-180" />
+        <div class="grid gap-3 lg:h-[31rem] lg:grid-cols-[230fr_563fr_493fr]">
+          <!-- Column 1: heading + current photo -->
+          <div class="flex flex-col justify-between gap-6">
+            <div class="lg:px-[1.1rem] lg:pt-7">
+              <h2 id="testimonials-heading" class="text-h2 text-navy">{heading}</h2>
+              <p class="text-p2 text-navy mt-2">{subheading}</p>
+            </div>
+            <div class="stack hidden aspect-[230/242] lg:grid">
+              {testimonials.map((t, i) => (
+                <Image src={t.data.photo} alt="" width={460} class:list={['t-item rounded-card size-full object-cover', i === 0 && 'is-active']} data-i={i} />
+              ))}
+            </div>
+          </div>
+
+          <!-- Column 2: quote card -->
+          <div class="stack grid" aria-live="polite" data-swipe>
+            {testimonials.map((t, i) => (
+              <figure class:list={['t-item flex flex-col rounded-3xl bg-white p-8 md:p-10', i === 0 && 'is-active']} data-i={i}>
+                <span class="text-neon font-heading -mb-4 text-7xl leading-none" aria-hidden="true">“</span>
+                <blockquote class="text-h5 text-text-dark mt-6">
+                  <p>{t.data.quote}</p>
+                </blockquote>
+                <div class="text-star mt-10 flex gap-1" role="img" aria-label={`Rated ${t.data.rating} out of 5`}>
+                  {Array.from({ length: t.data.rating }, () => (
+                    <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="currentColor" d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
+                    </svg>
+                  ))}
+                </div>
+                <figcaption class="mt-auto flex items-center gap-4 pt-10">
+                  <Image src={t.data.photo} alt="" width={96} class="size-12 rounded-full object-cover lg:hidden" />
+                  <span>
+                    <span class="text-p1 text-text-dark block">{t.data.name}</span>
+                    <span class="text-p3 text-text-medium block">{t.data.role}, {t.data.company}</span>
+                  </span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+
+          <!-- Column 3: prev / next tiles + next person's photo -->
+          <div class="grid grid-cols-2 gap-3 lg:grid-rows-2">
+            <span class="hidden lg:block" aria-hidden="true" />
+            <button type="button" class="t-tile flex-col items-start justify-between" data-next aria-label="Next testimonial">
+              <span class="text-h4 text-left" aria-hidden="true">Next<br />Testimonial</span>
+              <PlayIcon size={26} class="self-end" />
             </button>
-            <button type="button" class="slider-btn" data-next aria-label="Next testimonial">
-              <ArrowIcon />
+            <button type="button" class="t-tile flex-col items-end justify-between max-lg:order-first" data-prev aria-label="Previous testimonial">
+              <PlayIcon size={26} direction="left" class="self-start" />
+              <span class="text-h4 text-right" aria-hidden="true">Previous<br />Testimonial</span>
             </button>
+            <div class="stack hidden lg:grid" aria-hidden="true">
+              {testimonials.map((t, i) => (
+                <Image
+                  src={t.data.photo}
+                  alt=""
+                  width={460}
+                  class:list={['t-next rounded-card size-full object-cover', i === 1 % count && 'is-active']}
+                  data-i={i}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        <ul
-          class="slider-track -mx-(--gutter) flex snap-x snap-mandatory gap-4 overflow-x-auto px-(--gutter) pb-2 md:gap-6"
-          aria-roledescription="carousel"
-          aria-label="Client testimonials"
-          tabindex="0"
-          data-track
-        >
-          {testimonials.map((t, i) => (
-            <li
-              class="slide w-[88%] shrink-0 snap-start md:w-[70%] lg:w-[56%]"
-              data-active={i === 0 ? 'true' : 'false'}
-              aria-roledescription="slide"
-              aria-label={`${i + 1} of ${testimonials.length}`}
-            >
-              <TestimonialCard testimonial={t} />
-            </li>
-          ))}
-        </ul>
+        <div class="mt-12 text-center md:mt-20">
+          <a href="/testimonials" class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
+        </div>
       </div>
     </section>
   )
 }
 
 <style>
-  .slider-track {
-    scrollbar-width: none;
-    scroll-padding-inline: var(--gutter);
+  .stack > :global(*) {
+    grid-area: 1 / 1;
   }
-  .slider-track::-webkit-scrollbar {
-    display: none;
+  .t-item,
+  .t-next {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.45s ease,
+      visibility 0s linear 0.45s;
   }
-  .slider-track.is-dragging {
-    scroll-snap-type: none;
-    cursor: grabbing;
-    user-select: none;
+  .t-item.is-active,
+  .t-next.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.45s ease;
   }
-  /* Inactive slides become navy side cards */
-  .slide[data-active='false'] :global(.testimonial) {
+  .t-tile {
+    display: flex;
+    min-height: 9rem;
+    padding: 1.5rem 2rem;
+    border-radius: 1.5rem;
     background: var(--color-navy);
-    color: var(--color-white);
-    box-shadow: none;
-  }
-  .slide[data-active='false'] :global(.testimonial .text-text-medium) {
-    color: rgb(255 255 255 / 0.65);
-  }
-  .slider-btn {
-    display: grid;
-    place-items: center;
-    width: 3.25rem;
-    height: 3.25rem;
-    border-radius: 9999px;
-    border: 1px solid var(--color-navy);
-    color: var(--color-navy);
+    color: rgb(255 255 255 / 0.8);
     transition:
       background-color 0.3s,
-      color 0.3s,
-      opacity 0.3s;
+      color 0.3s;
   }
-  .slider-btn:hover:not(:disabled) {
-    background: var(--color-navy);
-    color: var(--color-neon);
+  .t-tile:hover {
+    background: #1a3260;
+    color: var(--color-white);
   }
-  .slider-btn:disabled {
-    opacity: 0.35;
-    cursor: default;
+  .t-tile :global(svg) {
+    color: var(--color-white);
+    transition: transform 0.3s ease;
+  }
+  .t-tile[data-next]:hover :global(svg) {
+    transform: translateX(4px);
+  }
+  .t-tile[data-prev]:hover :global(svg) {
+    transform: translateX(-4px) rotate(180deg);
   }
 </style>
 
 <script>
-  document.querySelectorAll<HTMLElement>('[data-slider]').forEach((root) => {
-    const track = root.querySelector<HTMLElement>('[data-track]')!;
-    const slides = Array.from(track.querySelectorAll<HTMLElement>('.slide'));
-    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
-    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+  document.querySelectorAll<HTMLElement>('[data-tslider]').forEach((root) => {
+    const count = Number(root.dataset.count);
+    if (count < 2) {
+      root.querySelectorAll<HTMLButtonElement>('[data-prev],[data-next]').forEach((b) => (b.disabled = true));
+      return;
+    }
     let active = 0;
-
-    const setActive = (index: number) => {
-      active = index;
-      slides.forEach((s, i) => (s.dataset.active = String(i === index)));
-      prev.disabled = index === 0;
-      next.disabled = index === slides.length - 1;
+    const show = (index: number) => {
+      active = (index + count) % count;
+      root.querySelectorAll<HTMLElement>('.t-item').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === active));
+      root.querySelectorAll<HTMLElement>('.t-next').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === (active + 1) % count));
     };
+    root.querySelector('[data-next]')?.addEventListener('click', () => show(active + 1));
+    root.querySelector('[data-prev]')?.addEventListener('click', () => show(active - 1));
 
-    const goTo = (index: number) => {
-      const target = slides[Math.max(0, Math.min(index, slides.length - 1))];
-      track.scrollTo({ left: target.offsetLeft - slides[0].offsetLeft, behavior: 'smooth' });
-    };
-
-    // Active slide = the one closest to the track's left edge
-    const onScroll = () => {
-      const left = track.scrollLeft;
-      let closest = 0;
-      slides.forEach((s, i) => {
-        const d = Math.abs(s.offsetLeft - slides[0].offsetLeft - left);
-        if (d < Math.abs(slides[closest].offsetLeft - slides[0].offsetLeft - left)) closest = i;
-      });
-      // At the far right end the last slide may never reach the left edge
-      if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 4) closest = slides.length - 1;
-      if (closest !== active) setActive(closest);
-    };
-
-    track.addEventListener('scroll', onScroll, { passive: true });
-    prev.addEventListener('click', () => goTo(active - 1));
-    next.addEventListener('click', () => goTo(active + 1));
-    track.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(active + 1); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(active - 1); }
+    // Swipe / drag on the quote card
+    const swipe = root.querySelector<HTMLElement>('[data-swipe]');
+    let startX: number | null = null;
+    swipe?.addEventListener('pointerdown', (e) => (startX = e.clientX));
+    swipe?.addEventListener('pointerup', (e) => {
+      if (startX === null) return;
+      const dx = e.clientX - startX;
+      startX = null;
+      if (Math.abs(dx) > 50) show(active + (dx < 0 ? 1 : -1));
     });
-    slides.forEach((s, i) => s.addEventListener('click', () => i !== active && goTo(i)));
-
-    // Mouse drag (touch uses native swipe)
-    let startX = 0;
-    let startScroll = 0;
-    let dragging = false;
-    track.addEventListener('pointerdown', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      dragging = true;
-      startX = e.clientX;
-      startScroll = track.scrollLeft;
-      track.classList.add('is-dragging');
-      track.setPointerCapture(e.pointerId);
-    });
-    track.addEventListener('pointermove', (e) => {
-      if (dragging) track.scrollLeft = startScroll - (e.clientX - startX);
-    });
-    const endDrag = () => {
-      if (!dragging) return;
-      dragging = false;
-      track.classList.remove('is-dragging');
-      onScroll();
-      goTo(active);
-    };
-    track.addEventListener('pointerup', endDrag);
-    track.addEventListener('pointercancel', endDrag);
-
-    setActive(0);
+    swipe?.addEventListener('pointercancel', () => (startX = null));
   });
 </script>

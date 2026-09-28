@@ -31,11 +31,11 @@ const faqSchema = {
 {
   items.length > 0 && (
     <section class:list={['section-y', className]}>
-      <div class="container-site">
-        <BigOutlineHeading text={heading}>
+      <BigOutlineHeading text={heading}>
+        <div class="container-site">
           <div class="mx-auto max-w-4xl space-y-4">
             {items.map((item, i) => (
-              <details class="faq rounded-card shadow-card bg-white" name="faq" open={i === 0} data-accordion>
+              <details class="faq card-surface rounded-card" name="faq" open={i === 0} data-accordion>
                 <summary class="text-h5 text-navy flex cursor-pointer list-none items-center justify-between gap-6 p-6 md:px-8">
                   <span>{item.question}</span>
                   <span class="bg-navy text-neon grid size-10 shrink-0 place-items-center rounded-full" aria-hidden="true">
@@ -51,8 +51,8 @@ const faqSchema = {
               </details>
             ))}
           </div>
-        </BigOutlineHeading>
-      </div>
+        </div>
+      </BigOutlineHeading>
       {schema && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
     </section>
   )
