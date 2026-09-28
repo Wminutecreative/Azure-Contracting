@@ -1,0 +1,189 @@
+---
+import { mainNav, contact } from '@/data/site';
+import Logo from './Logo.astro';
+import Button from './Button.astro';
+
+interface Props {
+  /** Transparent header with light text, for pages whose hero sits under the header */
+  overlay?: boolean;
+}
+const { overlay = false } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class:list={['z-40', overlay ? 'absolute inset-x-0 top-0' : 'relative']}>
+  <div class="container-site grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-4 md:h-24">
+    <button
+      type="button"
+      class:list={[
+        'menu-toggle group -ml-2 inline-flex items-center gap-3 justify-self-start rounded-lg p-2',
+        overlay ? 'text-white' : 'text-navy',
+      ]}
+      aria-haspopup="dialog"
+      aria-controls="site-menu"
+      aria-expanded="false"
+      data-menu-open
+    >
+      <span class="flex w-7 flex-col gap-1.5" aria-hidden="true">
+        <span class="h-0.5 w-full rounded bg-current transition-all duration-300 group-hover:w-5"></span>
+        <span class="h-0.5 w-5 rounded bg-current transition-all duration-300 group-hover:w-full"></span>
+        <span class="h-0.5 w-full rounded bg-current transition-all duration-300 group-hover:w-5"></span>
+      </span>
+      <span class="text-p1-medium max-md:sr-only">Menu</span>
+    </button>
+
+    <a href="/" aria-label="Azure Contracting — home" class="justify-self-center">
+      <Logo tone={overlay ? 'light' : 'dark'} />
+    </a>
+
+    <div class="justify-self-end">
+      <Button href="/contact" track="cta_click" data-cta-location="header" compact>Contact Us</Button>
+    </div>
+  </div>
+</header>
+
+<!-- Full-screen menu overlay. TODO: compare with Figma menu frames 539:7982 / 539:7992 -->
+<dialog id="site-menu" class="site-menu bg-navy m-0 h-dvh max-h-none w-full max-w-none p-0 text-white" aria-label="Site menu">
+  <div class="flex min-h-full flex-col">
+    <div class="container-site grid h-20 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 md:h-24">
+      <button
+        type="button"
+        class="-ml-2 inline-flex items-center gap-3 justify-self-start rounded-lg p-2 text-white"
+        aria-label="Close menu"
+        data-menu-close
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18"></path>
+        </svg>
+        <span class="text-p1-medium max-md:hidden" aria-hidden="true">Close</span>
+      </button>
+      <a href="/" aria-label="Azure Contracting — home" class="justify-self-center"><Logo tone="light" /></a>
+      <div class="justify-self-end">
+        <Button href="/contact" variant="neon" track="cta_click" data-cta-location="menu" compact>Contact Us</Button>
+      </div>
+    </div>
+
+    <div class="container-site grid flex-1 content-center gap-12 py-10 lg:grid-cols-[2fr_1fr] lg:items-end">
+      <nav aria-label="Main">
+        <ul class="space-y-1 md:space-y-2">
+          {
+            mainNav.map((link, i) => (
+              <li class="menu-item">
+                <a
+                  href={link.href}
+                  aria-current={isCurrent(link.href) ? 'page' : undefined}
+                  class="group text-h1 hover:text-neon aria-[current=page]:text-neon inline-flex items-baseline gap-4 transition-colors md:gap-6"
+                >
+                  <span class="text-p3 font-body text-white/50 tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="transition-transform duration-300 group-hover:translate-x-2">{link.label}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="menu-item text-p2 space-y-6 border-t border-white/15 pt-8 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-10">
+        <div>
+          <p class="text-p3 text-neon mb-2 uppercase tracking-widest">Visit</p>
+          <address class="not-italic text-white/80">{contact.address.map((line) => <span class="block">{line}</span>)}</address>
+        </div>
+        {
+          (contact.email || contact.phone) && (
+            <div>
+              <p class="text-p3 text-neon mb-2 uppercase tracking-widest">Talk to us</p>
+              {contact.email && <a class="block text-white/80 hover:text-white" href={`mailto:${contact.email}`}>{contact.email}</a>}
+              {contact.phone && <a class="block text-white/80 hover:text-white" href={`tel:${contact.phone.replace(/\s/g, '')}`}>{contact.phone}</a>}
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .site-menu {
+    opacity: 0;
+    transform: translateY(-2%);
+    transition:
+      opacity 0.4s ease,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .site-menu::backdrop {
+    background: transparent;
+  }
+  .site-menu.is-open {
+    opacity: 1;
+    transform: none;
+  }
+  .site-menu .menu-item {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity 0.5s ease,
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .site-menu.is-open .menu-item {
+    opacity: 1;
+    transform: none;
+  }
+  /* Stagger the links */
+  .site-menu.is-open .menu-item:nth-child(1) { transition-delay: 0.08s; }
+  .site-menu.is-open .menu-item:nth-child(2) { transition-delay: 0.12s; }
+  .site-menu.is-open .menu-item:nth-child(3) { transition-delay: 0.16s; }
+  .site-menu.is-open .menu-item:nth-child(4) { transition-delay: 0.2s; }
+  .site-menu.is-open .menu-item:nth-child(5) { transition-delay: 0.24s; }
+  .site-menu.is-open .menu-item:nth-child(6) { transition-delay: 0.28s; }
+  .site-menu.is-open .menu-item:nth-child(7) { transition-delay: 0.32s; }
+</style>
+
+<script>
+  // <dialog> + showModal() gives us Esc handling, focus trapping and an inert page behind the menu.
+  const menu = document.getElementById('site-menu') as HTMLDialogElement | null;
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function lockScroll(lock: boolean) {
+    const root = document.documentElement;
+    if (lock) {
+      root.style.paddingRight = `${window.innerWidth - root.clientWidth}px`;
+      root.style.overflow = 'hidden';
+    } else {
+      root.style.overflow = '';
+      root.style.paddingRight = '';
+    }
+  }
+
+  function open() {
+    if (!menu || menu.open) return;
+    menu.showModal();
+    lockScroll(true);
+    openBtn?.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(() => menu.classList.add('is-open'));
+  }
+
+  function close() {
+    if (!menu || !menu.open) return;
+    menu.classList.remove('is-open');
+    const finish = () => {
+      menu.close();
+      lockScroll(false);
+      openBtn?.setAttribute('aria-expanded', 'false');
+      openBtn?.focus();
+    };
+    if (reduceMotion()) finish();
+    else setTimeout(finish, 400);
+  }
+
+  openBtn?.addEventListener('click', open);
+  menu?.querySelectorAll('[data-menu-close]').forEach((el) => el.addEventListener('click', close));
+  // Esc: animate out instead of the instant native close
+  menu?.addEventListener('cancel', (e) => {
+    e.preventDefault();
+    close();
+  });
+  // Same-page links (e.g. current page) should still close the menu
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => close()));
+</script>

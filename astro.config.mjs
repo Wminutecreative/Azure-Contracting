@@ -9,6 +9,7 @@ export default defineConfig({
   output: 'static',
   integrations: [sitemap()],
   vite: {
-    plugins: [tailwindcss()],
+    // Cast: @tailwindcss/vite and Astro can ship different Vite type versions (type-only mismatch)
+    plugins: [/** @type {any} */ (tailwindcss())],
   },
 });

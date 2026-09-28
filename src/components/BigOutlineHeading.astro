@@ -1,0 +1,61 @@
+---
+/**
+ * The very large faded/outlined section title that sits behind content
+ * ("Our Featured Work", "Asked Questions", …). Content passed in the default slot
+ * is pulled up so it overlaps the lower part of the heading.
+ * Scroll animation (fade + rise) is added in Phase 8 via [data-reveal].
+ */
+interface Props {
+  text: string;
+  as?: 'h1' | 'h2' | 'h3';
+  /** Pull the slotted content up over the heading */
+  overlap?: boolean;
+  align?: 'left' | 'center';
+  class?: string;
+}
+const { text, as: Tag = 'h2', overlap = true, align = 'center', class: className } = Astro.props;
+const hasContent = Astro.slots.has('default');
+---
+
+<div class:list={['big-outline-root relative', className]}>
+  <Tag
+    class:list={['big-outline font-heading select-none', align === 'center' ? 'text-center' : 'text-left']}
+    data-reveal
+  >
+    {text}
+  </Tag>
+  {
+    hasContent && (
+      <div class:list={['relative', overlap && 'big-outline-overlap']}>
+        <slot />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .big-outline-root {
+    --big-size: clamp(2.75rem, 0.9rem + 7.9vw, 8.5rem);
+  }
+  .big-outline {
+    font-size: var(--big-size);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgb(14 31 61 / 0.22);
+    background: linear-gradient(180deg, rgb(14 31 61 / 0.14) 0%, rgb(14 31 61 / 0) 85%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  .big-outline-overlap {
+    margin-top: calc(var(--big-size) * -0.35);
+  }
+  @media (forced-colors: active) {
+    .big-outline {
+      color: CanvasText;
+      -webkit-text-stroke: 0;
+    }
+  }
+</style>
