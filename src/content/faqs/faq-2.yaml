@@ -1,0 +1,5 @@
+# TODO: question and answer from Figma "Asked Questions" section
+question: 'Which areas of Ireland do you cover?'
+answer: 'TODO: client copy.'
+pages: [home, about, contact]
+order: 2

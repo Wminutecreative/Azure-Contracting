@@ -1,0 +1,85 @@
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { sectorIds } from '@/data/sectors';
+
+// Entry ids come from file names and are used as URL slugs (e.g. projects/morrison-hotel.md → /projects/morrison-hotel).
+
+const projects = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      sector: z.enum(sectorIds),
+      excerpt: z.string(),
+      cover: image(),
+      coverAlt: z.string(),
+      gallery: z.array(z.object({ src: image(), alt: z.string() })).default([]),
+      location: z.string().optional(),
+      year: z.number().int().optional(),
+      featured: z.boolean().default(false),
+      order: z.number().default(99),
+    }),
+});
+
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      date: z.coerce.date(),
+      author: z.string(),
+      cover: image(),
+      coverAlt: z.string(),
+      excerpt: z.string(),
+      tags: z.array(z.string()).default([]),
+    }),
+});
+
+const testimonials = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/testimonials' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      role: z.string(),
+      company: z.string(),
+      photo: image(),
+      quote: z.string(),
+      rating: z.number().int().min(1).max(5).default(5),
+      featured: z.boolean().default(false),
+      order: z.number().default(99),
+    }),
+});
+
+const services = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/services' }),
+  schema: z.object({
+    category: z.string(),
+    order: z.number(),
+    items: z.array(z.string()).default([]),
+    description: z.string().optional(),
+  }),
+});
+
+const faqs = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/faqs' }),
+  schema: z.object({
+    question: z.string(),
+    answer: z.string(),
+    /** Which pages show this FAQ: home, about, testimonials, contact */
+    pages: z.array(z.string()).default([]),
+    order: z.number().default(99),
+  }),
+});
+
+const team = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/team' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      role: z.string(),
+      photo: image(),
+      order: z.number().default(99),
+    }),
+});
+
+export const collections = { projects, blog, testimonials, services, faqs, team };

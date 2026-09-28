@@ -1,0 +1,5 @@
+# TODO: question and answer from Figma "Asked Questions" section
+question: 'Can you work while our business stays open?'
+answer: 'TODO: client copy.'
+pages: [home, testimonials, about]
+order: 4

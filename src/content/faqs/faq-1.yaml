@@ -1,0 +1,5 @@
+# TODO: question and answer from Figma "Asked Questions" section
+question: 'What types of projects do you work on?'
+answer: 'TODO: client copy.'
+pages: [home, about, contact]
+order: 1
