@@ -1,0 +1,139 @@
+---
+import '@fontsource-variable/dm-sans';
+import '@fontsource-variable/figtree';
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Absolute or root-relative path to the OG image */
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+  /** Extra JSON-LD objects for this page (site-wide LocalBusiness is always included) */
+  schema?: Record<string, unknown>[];
+}
+
+const { title, description, ogImage = '/og-default.jpg', ogType = 'website', noindex = false, schema = [] } =
+  Astro.props;
+
+const siteName = 'Azure Contracting';
+const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+
+const gtmId = import.meta.env.PUBLIC_GTM_ID;
+const clarityId = import.meta.env.PUBLIC_CLARITY_ID;
+
+// Site-wide business schema. TODO: verify address/phone/email against Figma contact page.
+const localBusiness = {
+  '@context': 'https://schema.org',
+  '@type': 'GeneralContractor',
+  name: siteName,
+  url: Astro.site?.toString(),
+  description:
+    'Construction, refurbishment and fit-out for offices, hospitality, retail and education across Ireland.',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Osprey Business Centre',
+    addressLocality: 'Naas',
+    addressRegion: 'Co. Kildare',
+    addressCountry: 'IE',
+  },
+  areaServed: 'Ireland',
+};
+const jsonLd = [localBusiness, ...schema];
+---
+
+<!doctype html>
+<html lang="en-IE">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#0E1F3D" />
+
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content="en_IE" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <slot name="head" />
+
+    {jsonLd.map((item) => <script type="application/ld+json" set:html={JSON.stringify(item)} />)}
+
+    {
+      gtmId && (
+        <script is:inline define:vars={{ gtmId }}>
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+          var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+          j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer',gtmId);
+        </script>
+      )
+    }
+    {
+      clarityId && (
+        <script is:inline define:vars={{ clarityId }}>
+          (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window,document,"clarity","script",clarityId);
+        </script>
+      )
+    }
+  </head>
+  <body class="min-h-dvh overflow-x-hidden">
+    {
+      gtmId && (
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style="display:none;visibility:hidden"
+          />
+        </noscript>
+      )
+    }
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-navy focus:px-4 focus:py-2 focus:text-white"
+      >Skip to content</a
+    >
+
+    <!-- Soft page background — TODO: export arcway-gradient-background-long.png from Figma (68% opacity) -->
+    <div aria-hidden="true" class="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[140vh]"></div>
+
+    <!-- Header (Phase 2) -->
+    <slot name="header" />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <!-- Footer (Phase 2) -->
+    <slot name="footer" />
+  </body>
+</html>
+
+<style>
+  .page-bg {
+    background:
+      radial-gradient(60% 40% at 15% 0%, rgb(199 217 46 / 0.18), transparent 70%),
+      radial-gradient(50% 40% at 90% 10%, rgb(14 31 61 / 0.1), transparent 70%);
+    opacity: 0.68;
+  }
+</style>

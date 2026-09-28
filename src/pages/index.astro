@@ -1,0 +1,64 @@
+---
+// Temporary Phase 1 page: a style guide to check the design tokens. Replaced by the homepage in Phase 4.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const colours = [
+  ['navy', '#0E1F3D'],
+  ['neon', '#C7D92E'],
+  ['text-dark', '#303030'],
+  ['text-medium', '#585858'],
+  ['light', '#E7E7E7'],
+  ['bg', '#F4F9FD'],
+  ['white', '#FFFFFF'],
+  ['black', '#161616'],
+];
+
+const type = [
+  ['text-h-large', 'H-Large · 80'],
+  ['text-h1', 'H1 · 64'],
+  ['text-h2', 'H2 · 40'],
+  ['text-h-caps', 'H-Caps · 40'],
+  ['text-h3', 'H3 · 36'],
+  ['text-h4', 'H4 · 32'],
+  ['text-h5', 'H5 · 24'],
+  ['text-p1', 'P1 · 18 — DM Sans Regular'],
+  ['text-p1-medium', 'P1 Medium · 18'],
+  ['text-p2', 'P2 · 16'],
+  ['text-p3', 'P3 · 14'],
+];
+---
+
+<BaseLayout title="Style guide" description="Azure Contracting design tokens." noindex>
+  <div class="container-site section-y">
+    <h1 class="text-h1 mb-12">Design tokens</h1>
+
+    <h2 class="text-h5 mb-6">Colours</h2>
+    <ul class="mb-16 grid grid-cols-2 gap-4 md:grid-cols-4">
+      {
+        colours.map(([name, hex]) => (
+          <li class="shadow-card rounded-card overflow-hidden bg-white">
+            <div class="border-light h-24 border-b" style={`background:var(--color-${name})`} />
+            <div class="text-p3 p-4">
+              <strong class="block">{name}</strong>
+              {hex}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="rounded-card mb-16 h-32" style="background:var(--gradient-brand)"></div>
+
+    <h2 class="text-h5 mb-6">Typography</h2>
+    <div class="space-y-6">
+      {
+        type.map(([cls, label]) => (
+          <div class="border-light border-b pb-4">
+            <p class="text-p3 text-text-medium mb-1">{label}</p>
+            <p class={`${cls} text-navy`}>Building spaces that work</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>
