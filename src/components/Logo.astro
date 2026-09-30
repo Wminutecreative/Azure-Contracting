@@ -3,7 +3,8 @@
 // TODO: swap for the real logo SVG exported from Figma (the wordmark uses a single-storey "a").
 // Sized in em: set the wordmark size with a font-size class, e.g. class="text-[110px]".
 interface Props {
-  tone?: 'dark' | 'light';
+  /** `inherit` takes the parent's text colour (used by the docking header logo, which switches white → navy) */
+  tone?: 'dark' | 'light' | 'inherit';
   class?: string;
 }
 const { tone = 'light', class: className = 'text-[2rem]' } = Astro.props;
@@ -12,7 +13,8 @@ const { tone = 'light', class: className = 'text-[2rem]' } = Astro.props;
 <span
   class:list={[
     'inline-flex items-start gap-[0.15em] leading-none',
-    tone === 'light' ? 'text-white' : 'text-navy',
+    tone === 'light' && 'text-white',
+    tone === 'dark' && 'text-navy',
     className,
   ]}
 >

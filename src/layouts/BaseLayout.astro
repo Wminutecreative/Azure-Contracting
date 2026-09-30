@@ -11,6 +11,8 @@ interface Props {
   headerOverlay?: boolean;
   /** Show the centre logo in the header (homepage hides it — the hero carries the large logo) */
   headerLogo?: boolean;
+  /** Fixed header whose logo docks from the full-screen hero into the navbar on scroll (homepage) */
+  headerDock?: boolean;
   title: string;
   description: string;
   /** Absolute or root-relative path to the OG image */
@@ -21,7 +23,7 @@ interface Props {
   schema?: Record<string, unknown>[];
 }
 
-const { headerOverlay = false, headerLogo = true, title, description, ogImage = '/og-default.jpg', ogType = 'website', noindex = false, schema = [] } =
+const { headerOverlay = false, headerLogo = true, headerDock = false, title, description, ogImage = '/og-default.jpg', ogType = 'website', noindex = false, schema = [] } =
   Astro.props;
 
 const siteName = 'Azure Contracting';
@@ -57,6 +59,11 @@ const jsonLd = [localBusiness, ...schema];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Before first paint: `js` = scripts run; `motion` = scroll animations allowed (not prefers-reduced-motion) -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+    </script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -124,7 +131,7 @@ const jsonLd = [localBusiness, ...schema];
     <!-- Soft page background — TODO: export arcway-gradient-background-long.png from Figma (68% opacity) -->
     <div aria-hidden="true" class="page-bg pointer-events-none absolute inset-0 -z-10"></div>
 
-    <Header overlay={headerOverlay} showLogo={headerLogo} />
+    <Header overlay={headerOverlay} showLogo={headerLogo} dock={headerDock} />
 
     <main id="main">
       <slot />

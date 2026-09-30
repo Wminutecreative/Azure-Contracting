@@ -10,11 +10,19 @@ interface Props {
   overlay?: boolean;
   /** Centre logo — the homepage hides it because the hero carries the large logo */
   showLogo?: boolean;
+  /**
+   * Homepage: fixed header whose logo starts at hero size in the middle of the full-screen hero, scrolls up with
+   * the page while shrinking, and docks in the navbar centre. Once the hero is passed the bar turns solid.
+   * The hero must carry [data-hero] and the same logo size class as `dockLogoSize`.
+   */
+  dock?: boolean;
 }
-const { overlay = false, showLogo = true } = Astro.props;
+const { overlay = false, showLogo = true, dock = false } = Astro.props;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isCurrent = (href: string) => path.startsWith(href);
-const tone = overlay ? 'text-white' : 'text-navy';
+// In dock mode the foreground colour is driven by CSS (white over the hero → navy on the solid bar)
+const tone = dock ? 'hdr-fg' : overlay ? 'text-white' : 'text-navy';
+const dockLogoSize = 'text-[clamp(4.5rem,8.2vw,7.75rem)]';
 
 const socialIcons: Record<string, string> = {
   LinkedIn:
@@ -23,11 +31,15 @@ const socialIcons: Record<string, string> = {
 };
 ---
 
-<header class:list={['z-40', overlay ? 'absolute inset-x-0 top-0' : 'relative']}>
-  <div class="grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge) md:h-[8.5rem]">
+<header
+  class:list={['site-header z-40', dock ? 'fixed inset-x-0 top-0' : overlay ? 'absolute inset-x-0 top-0' : 'relative']}
+  data-dock={dock ? '' : undefined}
+>
+  <div class="hdr-bar relative grid h-(--hdr-h) grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge)">
     <button
       type="button"
       class:list={['-ml-2 justify-self-start rounded-lg p-2', tone]}
+      data-hdr-control
       aria-haspopup="dialog"
       aria-controls="site-menu"
       aria-expanded="false"
@@ -40,7 +52,7 @@ const socialIcons: Record<string, string> = {
     </button>
 
     {
-      showLogo ? (
+      showLogo && !dock ? (
         <a href="/" aria-label="Azure Contracting — home" class="justify-self-center">
           <Logo tone={overlay ? 'light' : 'dark'} class="text-[1.75rem] md:text-[2.25rem]" />
         </a>
@@ -49,9 +61,18 @@ const socialIcons: Record<string, string> = {
       )
     }
 
-    <div class="justify-self-end">
+    <div class="justify-self-end" data-hdr-control>
       <Button href="/contact" track="cta_click" data-cta-location="header" compact>Contact Us</Button>
     </div>
+
+    <!-- Docking logo: rendered at hero size and scaled down to dock, so it stays crisp at its largest -->
+    {
+      dock && (
+        <a href="/" aria-label="Azure Contracting — home" class="dock-logo hdr-fg" data-dock-logo tabindex="-1">
+          <Logo tone="inherit" class={dockLogoSize} />
+        </a>
+      )
+    }
   </div>
 </header>
 
@@ -63,7 +84,7 @@ const socialIcons: Record<string, string> = {
 -->
 <dialog id="site-menu" class="site-menu m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto bg-transparent p-0" aria-label="Site menu">
   <div class="flex min-h-full flex-col" data-menu-dismiss>
-    <div class="grid h-20 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge) md:h-[8.5rem]" data-menu-dismiss>
+    <div class="grid h-(--hdr-h) shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge)" data-menu-dismiss>
       <button
         type="button"
         class:list={['-ml-2 inline-flex items-center gap-2 justify-self-start rounded-lg p-2', tone]}
@@ -151,6 +172,69 @@ const socialIcons: Record<string, string> = {
   </div>
 </dialog>
 
+<style is:global>
+  /* Header bar height — shared with the menu dialog's bar so the two always line up */
+  :root {
+    --hdr-h: 5rem;
+  }
+  @media (min-width: 48rem) {
+    :root {
+      --hdr-h: 8.5rem;
+    }
+    :root.hdr-solid {
+      --hdr-h: 5.75rem;
+    }
+  }
+  .hdr-bar {
+    transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Dock mode (homepage): white over the hero, navy once the bar turns solid */
+  .hdr-fg {
+    color: var(--color-white);
+    transition: color 0.3s ease;
+  }
+  :root.hdr-solid .hdr-fg {
+    color: var(--color-navy);
+  }
+  .site-header[data-dock] {
+    transition:
+      background-color 0.35s ease,
+      box-shadow 0.35s ease,
+      backdrop-filter 0.35s ease;
+  }
+  :root.hdr-solid .site-header[data-dock] {
+    background-color: rgb(244 249 253 / 0.86);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+    box-shadow: 0 1px 0 rgb(14 31 61 / 0.07);
+  }
+
+  /* Docking logo. Without JS it stays hidden (the hero shows its own logo). With motion, CSS places it over the
+     hero centre before the script runs, so there is no jump on load; the script then drives it from scroll. */
+  .dock-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transform-origin: 50% 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  :root.motion .dock-logo {
+    opacity: 1;
+    pointer-events: auto;
+    will-change: transform;
+    transform: translate(-50%, -50%) translateY(calc(50svh - var(--hdr-h) / 2));
+  }
+  /* Reduced motion: no travel — the small logo simply fades into the solid bar */
+  :root.hdr-solid .dock-logo {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>
+
 <style>
   .site-menu::backdrop {
     background: transparent;
@@ -207,8 +291,10 @@ const socialIcons: Record<string, string> = {
   // <dialog> + showModal() gives Esc handling, focus trapping and an inert page behind the menu.
   const menu = document.getElementById('site-menu') as HTMLDialogElement | null;
   const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
-  // The dialog repeats the header bar ("✕ Menu" + Contact Us) in the same spot, so hide the real one underneath
-  const header = openBtn?.closest('header');
+  // The dialog repeats the header controls ("✕ Menu" + Contact Us) in the same spot, so hide the real ones
+  // underneath. The logo and the solid bar stay visible behind the transparent dialog.
+  const controls = document.querySelectorAll<HTMLElement>('[data-hdr-control]');
+  const setControlsHidden = (hidden: boolean) => controls.forEach((el) => (el.style.visibility = hidden ? 'hidden' : ''));
   const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function lockScroll(lock: boolean) {
@@ -226,7 +312,7 @@ const socialIcons: Record<string, string> = {
     if (!menu || menu.open) return;
     menu.showModal();
     lockScroll(true);
-    if (header) header.style.visibility = 'hidden';
+    setControlsHidden(true);
     openBtn?.setAttribute('aria-expanded', 'true');
     requestAnimationFrame(() => menu.classList.add('is-open'));
   }
@@ -237,7 +323,7 @@ const socialIcons: Record<string, string> = {
     const finish = () => {
       menu.close();
       lockScroll(false);
-      if (header) header.style.visibility = '';
+      setControlsHidden(false);
       openBtn?.setAttribute('aria-expanded', 'false');
       openBtn?.focus();
     };
@@ -257,4 +343,69 @@ const socialIcons: Record<string, string> = {
     if (target === menu || target.hasAttribute('data-menu-dismiss')) close();
   });
   menu?.querySelectorAll('.menu-panel a').forEach((a) => a.addEventListener('click', () => close()));
+</script>
+
+<script>
+  // Docking logo (homepage). Scroll 0 → logo at hero size in the hero centre. As the page scrolls it rises
+  // exactly with the content while scaling down, reaching the navbar centre after (hero − header) / 2 px.
+  // When the hero has fully passed under the header, <html> gets `hdr-solid` (solid bar, navy foreground).
+  const logo = document.querySelector<HTMLElement>('[data-dock-logo]');
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+
+  if (logo && hero) {
+    const root = document.documentElement;
+    const logoInner = logo.firstElementChild as HTMLElement;
+    const md = window.matchMedia('(min-width: 48rem)');
+    const rem = () => parseFloat(getComputedStyle(root).fontSize) || 16;
+
+    let heroH = 0;
+    let barH = 0; // header height over the hero (before it turns solid)
+    let travel = 0;
+    let endScale = 1;
+    let queued = false;
+
+    const measure = () => {
+      heroH = hero.offsetHeight;
+      barH = (md.matches ? 8.5 : 5) * rem();
+      travel = Math.max(1, (heroH - barH) / 2);
+      const docked = (md.matches ? 2.25 : 1.75) * rem(); // same size as the logo on other pages
+      endScale = docked / parseFloat(getComputedStyle(logoInner).fontSize);
+    };
+
+    const update = () => {
+      queued = false;
+      const y = Math.max(0, window.scrollY);
+      root.classList.toggle('hdr-solid', y >= heroH - barH);
+
+      if (root.classList.contains('motion')) {
+        const p = Math.min(y / travel, 1);
+        const scale = 1 + (endScale - 1) * p;
+        logo.style.transform = `translate(-50%, -50%) translateY(${travel * (1 - p)}px) scale(${scale})`;
+      } else {
+        logo.style.transform = `translate(-50%, -50%) scale(${endScale})`;
+      }
+      // Only focusable once it is a small navbar logo
+      logo.tabIndex = y >= travel ? 0 : -1;
+    };
+
+    const queue = () => {
+      if (!queued) {
+        queued = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    measure();
+    update();
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', () => {
+      measure();
+      queue();
+    });
+    // Fonts change the measured size once loaded
+    document.fonts?.ready.then(() => {
+      measure();
+      queue();
+    });
+  }
 </script>
