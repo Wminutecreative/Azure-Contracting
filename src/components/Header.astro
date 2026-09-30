@@ -1,7 +1,9 @@
 ---
-import { mainNav, contact } from '@/data/site';
+import { Image } from 'astro:assets';
+import { menuGroups, social } from '@/data/site';
 import Logo from './Logo.astro';
 import Button from './Button.astro';
+import menuImage from '@/assets/menu/blueprints.png'; // cropped 1× from the open-state design — TODO: Figma export
 
 interface Props {
   /** Transparent header with light icons, for pages whose hero sits under the header */
@@ -11,14 +13,21 @@ interface Props {
 }
 const { overlay = false, showLogo = true } = Astro.props;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const isCurrent = (href: string) => path.startsWith(href);
+const tone = overlay ? 'text-white' : 'text-navy';
+
+const socialIcons: Record<string, string> = {
+  LinkedIn:
+    'M6.94 8.5H4.2V19h2.74zM5.57 4.2a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2M19.8 13.1c0-2.9-1.55-4.8-4.1-4.8-1.35 0-2.27.7-2.66 1.37V8.5h-2.63V19h2.74v-5.3c0-1.4.36-2.6 1.9-2.6 1.52 0 1.53 1.43 1.53 2.7V19h2.74z',
+  X: 'M17.75 3h3.06l-6.69 7.64L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.15-8.18L2 3h6.33l4.37 5.78zm-1.07 16.2h1.7L7.4 4.73H5.58z',
+};
 ---
 
 <header class:list={['z-40', overlay ? 'absolute inset-x-0 top-0' : 'relative']}>
   <div class="grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge) md:h-[8.5rem]">
     <button
       type="button"
-      class:list={['-ml-2 justify-self-start rounded-lg p-2', overlay ? 'text-white' : 'text-navy']}
+      class:list={['-ml-2 justify-self-start rounded-lg p-2', tone]}
       aria-haspopup="dialog"
       aria-controls="site-menu"
       aria-expanded="false"
@@ -46,99 +55,160 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
   </div>
 </header>
 
-<!-- Full-screen menu overlay. TODO: compare with Figma menu frames 539:7982 / 539:7992 -->
-<dialog id="site-menu" class="site-menu bg-navy m-0 h-dvh max-h-none w-full max-w-none p-0 text-white" aria-label="Site menu">
-  <div class="flex min-h-full flex-col">
-    <div class="grid h-20 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge) md:h-[8.5rem]">
-      <button type="button" class="-ml-2 justify-self-start rounded-lg p-2 text-white" aria-label="Close menu" data-menu-close>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+<!--
+  Menu open state (design, 1512px): the header bar stays in place with "✕ Menu", and a white panel
+  (20px radius, 30px padding) drops in below it with three columns:
+  Company card (491, lavender → pale-neon gradient) · Resources (420) + social icons · image (404 × 252).
+  Tablet: two columns, no image. Mobile: stacked, scrolls within the viewport.
+-->
+<dialog id="site-menu" class="site-menu m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto bg-transparent p-0" aria-label="Site menu">
+  <div class="flex min-h-full flex-col" data-menu-dismiss>
+    <div class="grid h-20 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge) md:h-[8.5rem]" data-menu-dismiss>
+      <button
+        type="button"
+        class:list={['-ml-2 inline-flex items-center gap-2 justify-self-start rounded-lg p-2', tone]}
+        aria-label="Close menu"
+        data-menu-close
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <path d="M5 5l14 14M19 5 5 19"></path>
         </svg>
+        <span class="text-p1" aria-hidden="true">Menu</span>
       </button>
-      <a href="/" aria-label="Azure Contracting — home" class="justify-self-center"><Logo class="text-[1.75rem] md:text-[2.25rem]" /></a>
+      <span></span>
       <div class="justify-self-end">
-        <Button href="/contact" variant="neon" track="cta_click" data-cta-location="menu" compact>Contact Us</Button>
+        <Button href="/contact" track="cta_click" data-cta-location="menu" compact>Contact Us</Button>
       </div>
     </div>
 
-    <div class="container-site grid flex-1 content-center gap-12 py-10 lg:grid-cols-[2fr_1fr] lg:items-end">
-      <nav aria-label="Main">
-        <ul class="space-y-1 md:space-y-2">
-          {
-            mainNav.map((link, i) => (
-              <li class="menu-item">
-                <a
-                  href={link.href}
-                  aria-current={isCurrent(link.href) ? 'page' : undefined}
-                  class="group text-h1 hover:text-neon aria-[current=page]:text-neon inline-flex items-baseline gap-4 transition-colors md:gap-6"
-                >
-                  <span class="text-p3 font-body text-white/50 tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-                  <span class="transition-transform duration-300 group-hover:translate-x-2">{link.label}</span>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
-
-      <div class="menu-item text-p2 space-y-6 border-t border-white/15 pt-8 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-10">
-        <div>
-          <p class="text-p3 text-neon mb-2 tracking-widest uppercase">Visit</p>
-          <address class="text-white/80 not-italic">{contact.address.map((line) => <span class="block">{line}</span>)}</address>
-        </div>
+    <div class="menu-panel mx-[clamp(0.75rem,3.5vw,3.3rem)] mb-4 rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-24px_rgb(14_31_61/0.35)] md:-mt-7 md:p-[1.875rem]">
+      <nav aria-label="Main" class="grid gap-3 md:grid-cols-2 md:gap-[0.9375rem] lg:grid-cols-[491fr_420fr_404fr]">
         {
-          (contact.email || contact.phone) && (
-            <div>
-              <p class="text-p3 text-neon mb-2 tracking-widest uppercase">Talk to us</p>
-              {contact.email && <a class="block text-white/80 hover:text-white" href={`mailto:${contact.email}`}>{contact.email}</a>}
-              {contact.phone && <a class="block text-white/80 hover:text-white" href={`tel:${contact.phone.replace(/\s/g, '')}`}>{contact.phone}</a>}
+          menuGroups.map((group, gi) => (
+            <div
+              class:list={[
+                'menu-item flex flex-col rounded-2xl px-3 pt-6 pb-4 md:pt-7 md:pb-5',
+                gi === 0 ? 'menu-company md:px-[1.8rem]' : 'md:px-0 md:pb-0',
+              ]}
+            >
+              <h2 class="text-p2 text-text-dark mb-3 px-5 md:mb-5">{group.title}</h2>
+              <ul class="flex flex-col">
+                {group.links.map((link) => (
+                  <li>
+                    <a
+                      href={link.href}
+                      aria-current={isCurrent(link.href) ? 'page' : undefined}
+                      class:list={[
+                        'menu-link text-p1 text-text-dark flex min-h-[3.375rem] items-center rounded-xl border border-transparent px-5 transition-colors duration-200',
+                        gi === 0 ? 'menu-link-company' : 'menu-link-resources',
+                      ]}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              {gi === 1 && (
+                <ul class="mt-6 flex gap-2 px-5 md:mt-auto md:justify-end md:px-0 md:pt-6" aria-label="Social media">
+                  {social.map((s) => {
+                    const icon =
+                      s.name === 'Instagram' ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                          <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+                          <circle cx="12" cy="12" r="4" />
+                          <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
+                        </svg>
+                      ) : (
+                        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+                          <path fill="currentColor" d={socialIcons[s.name]} />
+                        </svg>
+                      );
+                    const cls = 'grid size-8 place-items-center rounded-full bg-black text-white';
+                    return (
+                      <li>
+                        {s.href ? (
+                          <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`Azure Contracting on ${s.name}`} class={`${cls} transition-transform hover:-translate-y-0.5`}>
+                            {icon}
+                          </a>
+                        ) : (
+                          <span class={cls} title={`${s.name} — link coming soon`}>{icon}</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
-          )
+          ))
         }
-      </div>
+
+        <div class="menu-item hidden overflow-hidden rounded-xl lg:block">
+          <Image src={menuImage} alt="" class="h-full w-full object-cover" loading="lazy" />
+        </div>
+      </nav>
     </div>
   </div>
 </dialog>
 
 <style>
-  .site-menu {
-    opacity: 0;
-    transform: translateY(-2%);
-    transition:
-      opacity 0.4s ease,
-      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  }
   .site-menu::backdrop {
     background: transparent;
   }
-  .site-menu.is-open {
+  .menu-company {
+    background: linear-gradient(90deg, #e9eef9 0%, #eef2f1 50%, #f7f9e6 100%);
+  }
+  /* Hover / focus / current page = white pill (company card) or outlined pill (on the white panel) */
+  .menu-link-company:hover,
+  .menu-link-company:focus-visible,
+  .menu-link-company[aria-current='page'] {
+    background: var(--color-white);
+  }
+  .menu-link-resources:hover,
+  .menu-link-resources:focus-visible,
+  .menu-link-resources[aria-current='page'] {
+    background: var(--color-white);
+    border-color: var(--color-light);
+  }
+  .menu-link:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Open / close animation */
+  .menu-panel {
+    opacity: 0;
+    transform: translateY(-0.75rem) scale(0.985);
+    transform-origin: top center;
+    transition:
+      opacity 0.3s ease,
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .site-menu.is-open .menu-panel {
     opacity: 1;
     transform: none;
   }
-  .site-menu .menu-item {
+  .menu-item {
     opacity: 0;
-    transform: translateY(1.25rem);
+    transform: translateY(0.75rem);
     transition:
-      opacity 0.5s ease,
-      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.4s ease,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .site-menu.is-open .menu-item {
     opacity: 1;
     transform: none;
   }
-  .site-menu.is-open .menu-item:nth-child(1) { transition-delay: 0.08s; }
+  .site-menu.is-open .menu-item:nth-child(1) { transition-delay: 0.06s; }
   .site-menu.is-open .menu-item:nth-child(2) { transition-delay: 0.12s; }
-  .site-menu.is-open .menu-item:nth-child(3) { transition-delay: 0.16s; }
-  .site-menu.is-open .menu-item:nth-child(4) { transition-delay: 0.2s; }
-  .site-menu.is-open .menu-item:nth-child(5) { transition-delay: 0.24s; }
-  .site-menu.is-open .menu-item:nth-child(6) { transition-delay: 0.28s; }
-  .site-menu.is-open .menu-item:nth-child(7) { transition-delay: 0.32s; }
+  .site-menu.is-open .menu-item:nth-child(3) { transition-delay: 0.18s; }
 </style>
 
 <script>
-  // <dialog> + showModal() gives us Esc handling, focus trapping and an inert page behind the menu.
+  // <dialog> + showModal() gives Esc handling, focus trapping and an inert page behind the menu.
   const menu = document.getElementById('site-menu') as HTMLDialogElement | null;
   const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  // The dialog repeats the header bar ("✕ Menu" + Contact Us) in the same spot, so hide the real one underneath
+  const header = openBtn?.closest('header');
   const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function lockScroll(lock: boolean) {
@@ -156,6 +226,7 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     if (!menu || menu.open) return;
     menu.showModal();
     lockScroll(true);
+    if (header) header.style.visibility = 'hidden';
     openBtn?.setAttribute('aria-expanded', 'true');
     requestAnimationFrame(() => menu.classList.add('is-open'));
   }
@@ -166,11 +237,12 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     const finish = () => {
       menu.close();
       lockScroll(false);
+      if (header) header.style.visibility = '';
       openBtn?.setAttribute('aria-expanded', 'false');
       openBtn?.focus();
     };
     if (reduceMotion()) finish();
-    else setTimeout(finish, 400);
+    else setTimeout(finish, 300);
   }
 
   openBtn?.addEventListener('click', open);
@@ -179,5 +251,10 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     e.preventDefault();
     close();
   });
-  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => close()));
+  // Click outside the panel (on the transparent overlay or the empty header area) closes the menu
+  menu?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target === menu || target.hasAttribute('data-menu-dismiss')) close();
+  });
+  menu?.querySelectorAll('.menu-panel a').forEach((a) => a.addEventListener('click', () => close()));
 </script>

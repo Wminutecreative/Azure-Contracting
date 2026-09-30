@@ -14,14 +14,30 @@ export interface NavLink {
   href: string;
 }
 
-export const mainNav: NavLink[] = [
-  { label: 'Home', href: '/' },
-  { label: 'About Us', href: '/about' },
-  { label: 'Services', href: '/services' },
-  { label: 'Projects', href: '/projects' },
-  { label: 'Testimonials', href: '/testimonials' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'Contact Us', href: '/contact' },
+// Menu dropdown (open-state design, 1512px): two link groups + image. Contact lives in the header button.
+export const menuGroups: { title: string; links: NavLink[] }[] = [
+  {
+    title: 'Company',
+    links: [
+      { label: 'Know About Us', href: '/about' },
+      { label: 'Services We Offer', href: '/services' },
+      { label: 'Client testimonials', href: '/testimonials' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Our Projects', href: '/projects' },
+      { label: 'Blogs', href: '/blog' },
+    ],
+  },
+];
+
+// TODO: client to supply profile URLs. Icons render as non-links until a URL is set.
+export const social: { name: 'LinkedIn' | 'Instagram' | 'X'; href: string }[] = [
+  { name: 'LinkedIn', href: '' },
+  { name: 'Instagram', href: '' },
+  { name: 'X', href: '' },
 ];
 
 export const footerNav: NavLink[] = [
