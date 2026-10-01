@@ -10,15 +10,32 @@ interface Props {
   as?: 'h1' | 'h2' | 'h3';
   overlap?: boolean;
   align?: 'left' | 'center';
+  /** Wrap each word in its own span ([data-word]) so it can be animated separately (e.g. FAQ split) */
+  split?: boolean;
   class?: string;
 }
-const { text, as: Tag = 'h2', overlap = false, align = 'center', class: className } = Astro.props;
+const { text, as: Tag = 'h2', overlap = false, align = 'center', split = false, class: className } = Astro.props;
 const hasContent = Astro.slots.has('default');
+const words = text.split(/\s+/);
 ---
 
 <div class:list={['big-heading-root relative', className]}>
-  <Tag class:list={['big-heading font-heading', align === 'center' ? 'text-center' : 'text-left']} data-reveal>
-    {text}
+  <Tag
+    class:list={['big-heading font-heading', split && 'is-split', align === 'center' ? 'text-center' : 'text-left']}
+    data-reveal
+  >
+    {
+      split
+        ? words.map((word, i) => (
+            <>
+              <span class="big-word" data-word>
+                {word}
+              </span>
+              {i < words.length - 1 && ' '}
+            </>
+          ))
+        : text
+    }
   </Tag>
   {
     hasContent && (
@@ -43,6 +60,24 @@ const hasContent = Astro.slots.has('default');
     text-wrap: balance;
     color: transparent;
     background: linear-gradient(90deg, #dce3f4 0%, #eef3da 35%, #e4e9f6 65%, #eaf1d3 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  /* Split words carry their own gradient (a transformed child can't reliably use the parent's text clip) */
+  .big-heading.is-split {
+    background: none;
+  }
+  .big-word {
+    display: inline-block;
+    color: transparent;
+    background: linear-gradient(90deg, #dce3f4 0%, #eef3da 55%, #e4e9f6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    will-change: transform;
+  }
+  .big-word + .big-word,
+  .big-word:nth-child(even) {
+    background: linear-gradient(90deg, #e4e9f6 0%, #eaf1d3 100%);
     -webkit-background-clip: text;
     background-clip: text;
   }

@@ -15,6 +15,12 @@ interface Props {
 }
 
 // Pages pass items from the `faqs` collection via getFaqs(page) in src/lib/content.ts.
+//
+// Scroll animation (desktop/tablet, motion allowed): the stage pins at the top of the viewport showing only
+// the big "Asked Questions" title (design default state). Scrolling then scrubs the first word(s) to the
+// left and the rest to the right while the FAQ cards rise and fade into the gap. After that the section
+// un-pins and scrolls normally; the cards never move once shown, so they stay easy to read and click.
+// Phones / reduced motion / no JS: plain stacked layout (title above the cards).
 const { items, heading = 'Asked Questions', schema = true, class: className } = Astro.props;
 
 const faqSchema = {
@@ -30,9 +36,10 @@ const faqSchema = {
 
 {
   items.length > 0 && (
-    <section class:list={['section-y', className]}>
-      <BigOutlineHeading text={heading}>
-        <div class="container-site">
+    <section class:list={['faq-section section-y', className]} data-faq>
+      <div class="faq-stage" data-faq-stage>
+        <BigOutlineHeading text={heading} split class="faq-heading" />
+        <div class="faq-list container-site" data-faq-list>
           <div class="mx-auto max-w-[65rem] space-y-3.5">
             {items.map((item, i) => (
               <details class="faq overflow-hidden rounded-[1.375rem] bg-white" name="faq" open={i === 0} data-accordion>
@@ -52,13 +59,36 @@ const faqSchema = {
             ))}
           </div>
         </div>
-      </BigOutlineHeading>
+      </div>
       {schema && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
     </section>
   )
 }
 
 <style>
+  /* Static layout: title, then the cards */
+  .faq-stage {
+    display: grid;
+    gap: clamp(2rem, 1rem + 4vw, 5.6rem);
+  }
+  /* Scroll layout (class added by the script): title and cards share one cell, centred in a full-height stage */
+  .faq-section.is-scrub {
+    padding-block: 0;
+  }
+  .faq-section.is-scrub .faq-stage {
+    min-height: 100svh;
+    grid-template: 1fr / 1fr;
+    align-items: center;
+    overflow: hidden;
+    padding-top: var(--hdr-h, 0px); /* keep the centre clear of the fixed header */
+  }
+  .faq-section.is-scrub .faq-stage > :global(*) {
+    grid-area: 1 / 1;
+  }
+  .faq-section.is-scrub .faq-list {
+    position: relative;
+    z-index: 1;
+  }
   .faq summary::-webkit-details-marker {
     display: none;
   }
@@ -85,4 +115,53 @@ const faqSchema = {
 
 <script>
   import '@/scripts/accordion';
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  document.querySelectorAll<HTMLElement>('[data-faq]').forEach((section) => {
+    const stage = section.querySelector<HTMLElement>('[data-faq-stage]');
+    const list = section.querySelector<HTMLElement>('[data-faq-list]');
+    const words = Array.from(section.querySelectorAll<HTMLElement>('[data-word]'));
+    if (!stage || !list || words.length < 2) return;
+
+    // First half of the words go left, the rest go right ("Asked" | "Questions")
+    const half = Math.ceil(words.length / 2);
+    const left = words.slice(0, half);
+    const right = words.slice(half);
+
+    const mm = gsap.matchMedia();
+    // Needs room for the pinned stage: tablet width and up, and a viewport tall enough for the cards
+    mm.add('(min-width: 48rem) and (min-height: 42.5rem) and (prefers-reduced-motion: no-preference)', () => {
+      section.classList.add('is-scrub');
+      // Start with every question closed so the list fits inside the pinned viewport (one open still fits)
+      const firstOpen = section.querySelector<HTMLDetailsElement>('details[open]');
+      firstOpen?.removeAttribute('open');
+      ScrollTrigger.refresh();
+
+      // How far each word travels: towards the stage edges, leaving the centre to the cards
+      const shift = () => Math.min(window.innerWidth * 0.3, 520);
+
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: stage,
+          start: 'top top',
+          end: '+=85%',
+          pin: true,
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+        },
+      });
+      tl.to(left, { x: () => -shift(), opacity: 0.75 }, 0)
+        .to(right, { x: () => shift(), opacity: 0.75 }, 0)
+        .fromTo(list, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.7 }, 0.2);
+
+      return () => {
+        section.classList.remove('is-scrub');
+        firstOpen?.setAttribute('open', '');
+      };
+    });
+  });
 </script>
