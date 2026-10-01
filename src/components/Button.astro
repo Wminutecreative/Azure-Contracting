@@ -38,9 +38,11 @@ const styles: Record<Variant, { root: string; icon: string }> = {
     root: `${solid} bg-navy text-white hover:bg-[#1a3260]`,
     icon: 'size-8 bg-white text-navy',
   },
+  // Hover (design): fills navy, label turns white and the arrow sits in a white rounded square.
+  // The icon box is the same size in both states so nothing shifts.
   outline: {
-    root: 'gap-10 border-[1.5px] border-navy py-2.5 pr-3 pl-4 text-sm font-medium text-navy hover:bg-navy hover:text-white',
-    icon: 'size-5 text-current',
+    root: 'gap-10 border-[1.5px] border-navy py-2.5 pr-2.5 pl-4 text-sm font-medium text-navy hover:bg-navy hover:text-white focus-visible:bg-navy focus-visible:text-white',
+    icon: 'size-7 text-navy group-hover:bg-white group-focus-visible:bg-white',
   },
   neon: {
     root: `${solid} bg-neon text-navy hover:bg-white`,
@@ -67,7 +69,7 @@ const Tag = href ? 'a' : 'button';
   <span class:list={[compact && 'max-sm:sr-only']} set:html={label} />
   <span
     class:list={[
-      'inline-grid shrink-0 place-items-center rounded-md transition-colors duration-300',
+      'flex items-center justify-center shrink-0 place-items-center rounded-md transition-colors duration-300',
       s.icon,
     ]}
   >
