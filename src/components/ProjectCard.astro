@@ -3,8 +3,10 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Button from './Button.astro';
 
-// Featured-work row from the Claude Design homepage: two equal white panels (34px radius, 22px gap).
-// The image sits inside its panel with a 16px frame (24px inner radius); `reverse` puts the text panel on the left.
+// Featured-work row: image panel (16px white frame, 24px inner radius) beside a white text panel (34px radius).
+// On desktop the image panel is 20px shorter top and bottom, so when FeaturedWork merges the panels into one
+// shape (goo layer) the joins get curved notches, as in the design. `reverse` puts the text panel on the left.
+// Inside FeaturedWork the panel backgrounds come from the merged layer; standalone they are plain white cards.
 interface Props {
   project: CollectionEntry<'projects'>;
   reverse?: boolean;
@@ -16,14 +18,15 @@ const { title, excerpt, cover, coverAlt } = project.data;
 const href = `/projects/${project.id}`;
 ---
 
-<article class="project-row group grid gap-[1.375rem] md:grid-cols-2" data-reveal>
+<article class="project-row group grid gap-3 md:grid-cols-2 md:gap-2" data-fw-row>
   <a
     href={href}
     tabindex="-1"
     aria-hidden="true"
-    class:list={['block rounded-[2.125rem] bg-white p-3 md:p-4', reverse && 'md:order-2']}
+    class:list={['fw-panel block rounded-[2.125rem] bg-white p-3 md:my-5 md:p-4', reverse && 'md:order-2']}
+    data-goo-panel
   >
-    <span class="block overflow-hidden rounded-3xl">
+    <span class="block overflow-hidden rounded-3xl" data-fw-img>
       <Image
         src={cover}
         alt={coverAlt}
@@ -35,15 +38,16 @@ const href = `/projects/${project.id}`;
     </span>
   </a>
   <div
-    class="flex flex-col justify-between gap-10 rounded-[2.125rem] bg-white px-[clamp(1.75rem,4vw,4.5rem)] py-[clamp(2rem,4vw,4rem)]"
+    class="fw-panel flex flex-col justify-between gap-10 rounded-[2.125rem] bg-white px-[clamp(1.75rem,4vw,4.5rem)] py-[clamp(2rem,4.5vw,4.5rem)]"
+    data-goo-panel
   >
     <div class="flex flex-col gap-[1.125rem]">
-      <Heading class="font-body text-navy text-[clamp(1.625rem,2.4vw,2.125rem)] leading-tight font-normal tracking-[-0.01em]">
+      <Heading class="font-body text-navy text-[clamp(1.625rem,2.4vw,2.125rem)] leading-tight font-normal tracking-[-0.01em]" data-fw-text>
         <a href={href} class="hover:text-[#1d3a78]">{title}</a>
       </Heading>
-      <p class="text-stat-label max-w-[32.5rem] text-base leading-[1.65] text-pretty">{excerpt}</p>
+      <p class="text-stat-label max-w-[32.5rem] text-base leading-[1.65] text-pretty" data-fw-text>{excerpt}</p>
     </div>
-    <div>
+    <div data-fw-text>
       <Button variant="outline" href={href} aria-label={`Know more about ${title}`}>Know More</Button>
     </div>
   </div>

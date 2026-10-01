@@ -1,0 +1,172 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BigOutlineHeading from './BigOutlineHeading.astro';
+import ProjectCard from './ProjectCard.astro';
+
+// "Our Featured Work" (homepage design): alternating project rows whose image and text panels are merged into
+// one continuous white shape with curved notches at every join, on a soft lavender → lime background.
+//
+// How the merge works: the panels' own backgrounds are switched off and a separate layer of plain white
+// rectangles (positioned by script to match each panel) is drawn behind them through an SVG "goo" filter,
+// which fuses shapes that sit close together. Text and images stay unfiltered on top.
+// Without JS, on mobile, or if anything fails, the panels keep their own white backgrounds.
+//
+// Scroll animation (GSAP ScrollTrigger, once): heading rises in; per row the image wipes up into its frame
+// while settling from a slight zoom, then title / text / button fade up in sequence.
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+  heading?: string;
+  viewAllHref?: string;
+  class?: string;
+}
+const { projects, heading = 'Our Featured Work', viewAllHref, class: className } = Astro.props;
+---
+
+<section class:list={['featured-work relative isolate', className]} data-featured-work>
+  <div class="fw-backdrop pointer-events-none absolute inset-x-0 -top-24 -bottom-24 -z-10" aria-hidden="true"></div>
+
+  <BigOutlineHeading text={heading}>
+    <div class="container-site">
+      <div class="fw-stack relative isolate" data-goo>
+        <!-- Merged background: white rects inside an SVG, fused by an SVG filter applied to the <g>.
+             Keeping the filter inside the SVG (rather than a CSS filter on HTML) avoids Chromium painting
+             problems with the images and fixed header. -->
+        <svg class="fw-goo absolute inset-0 z-0 h-full w-full overflow-visible" aria-hidden="true" focusable="false">
+          <defs>
+            <filter id="fw-goo-filter" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur"></feGaussianBlur>
+              <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 28 -12" result="goo"></feColorMatrix>
+              <feComposite in="SourceGraphic" in2="goo" operator="atop" result="shape"></feComposite>
+              <feDropShadow in="shape" dx="0" dy="0" stdDeviation="0.6" flood-color="#0e1f3d" flood-opacity="0.14"></feDropShadow>
+            </filter>
+          </defs>
+          <g filter="url(#fw-goo-filter)" fill="#fff" data-goo-layer></g>
+        </svg>
+        <!-- Desktop: rows overlap by 10px so each 20px-inset image frame sits 10px from the next row's panel → merges -->
+        <div class="relative z-10 space-y-8 md:space-y-0 md:[&>*+*]:-mt-2.5">
+          {projects.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} eager={i === 0} />)}
+        </div>
+      </div>
+    </div>
+  </BigOutlineHeading>
+
+  {
+    viewAllHref && (
+      <div class="mt-12 text-center md:mt-24" data-fw-fade>
+        <a href={viewAllHref} class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  /* Soft section background from the design: lavender at the edges, pale lime through the middle */
+  .fw-backdrop {
+    background:
+      radial-gradient(38% 30% at 0% 22%, rgb(140 160 230 / 0.28), transparent 70%),
+      radial-gradient(36% 28% at 100% 48%, rgb(140 160 230 / 0.26), transparent 70%),
+      radial-gradient(40% 30% at 8% 78%, rgb(199 217 46 / 0.16), transparent 70%),
+      radial-gradient(42% 32% at 92% 92%, rgb(199 217 46 / 0.14), transparent 70%),
+      radial-gradient(60% 40% at 50% 55%, rgb(255 255 255 / 0.5), transparent 75%);
+  }
+
+  .fw-goo {
+    opacity: 0;
+  }
+  /* Merge on: the shared layer paints the panels */
+  .fw-stack.is-merged .fw-goo {
+    opacity: 1;
+  }
+  .fw-stack.is-merged :global(.fw-panel) {
+    background: transparent;
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const desktop = window.matchMedia('(min-width: 48rem)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-featured-work]').forEach((section) => {
+    const stack = section.querySelector<HTMLElement>('[data-goo]');
+    const layer = section.querySelector<SVGGElement>('[data-goo-layer]');
+    const panels = Array.from(section.querySelectorAll<HTMLElement>('[data-goo-panel]'));
+
+    // ---- Merged background layer -------------------------------------------------------------------
+    if (stack && layer && panels.length) {
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      const shapes = panels.map(() => layer.appendChild(document.createElementNS(SVG_NS, 'rect')));
+
+      const layout = () => {
+        if (!desktop.matches) {
+          stack.classList.remove('is-merged');
+          return;
+        }
+        const origin = stack.getBoundingClientRect();
+        panels.forEach((panel, i) => {
+          const r = panel.getBoundingClientRect();
+          const rect = shapes[i];
+          rect.setAttribute('x', String(r.left - origin.left));
+          rect.setAttribute('y', String(r.top - origin.top));
+          rect.setAttribute('width', String(r.width));
+          rect.setAttribute('height', String(r.height));
+          rect.setAttribute('rx', String(parseFloat(getComputedStyle(panel).borderTopLeftRadius) || 0));
+        });
+        stack.classList.add('is-merged');
+      };
+
+      layout();
+      const ro = new ResizeObserver(layout);
+      ro.observe(stack);
+      panels.forEach((p) => ro.observe(p));
+      desktop.addEventListener('change', layout);
+    }
+
+    // ---- Scroll animation ---------------------------------------------------------------------------
+    if (reduceMotion.matches) return;
+
+    const heading = section.querySelector('[data-reveal]');
+    if (heading) {
+      gsap.from(heading, {
+        y: 60,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: heading, start: 'top 85%', once: true },
+      });
+    }
+
+    section.querySelectorAll<HTMLElement>('[data-fw-row]').forEach((row) => {
+      const imgWrap = row.querySelector<HTMLElement>('[data-fw-img]');
+      const img = imgWrap?.querySelector('img');
+      const texts = row.querySelectorAll('[data-fw-text]');
+
+      const tl = gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 78%', once: true } });
+      if (imgWrap) {
+        tl.fromTo(
+          imgWrap,
+          { clipPath: 'inset(100% 0% 0% 0% round 24px)' },
+          { clipPath: 'inset(0% 0% 0% 0% round 24px)', duration: 1.15, ease: 'expo.inOut' },
+          0,
+        );
+      }
+      if (img) tl.fromTo(img, { scale: 1.25 }, { scale: 1, duration: 1.6, ease: 'expo.out', clearProps: 'transform' }, 0.15);
+      tl.from(texts, { y: 34, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.1 }, 0.35);
+    });
+
+    const viewAll = section.querySelector('[data-fw-fade]');
+    if (viewAll) {
+      gsap.from(viewAll, {
+        y: 20,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: viewAll, start: 'top 92%', once: true },
+      });
+    }
+  });
+</script>
