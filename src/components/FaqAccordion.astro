@@ -154,8 +154,9 @@ const faqSchema = {
           invalidateOnRefresh: true,
         },
       });
-      tl.to(left, { x: () => -shift(), opacity: 0.75 }, 0)
-        .to(right, { x: () => shift(), opacity: 0.75 }, 0)
+      // Transform only — no opacity on the gradient-clipped words (see BigOutlineHeading)
+      tl.to(left, { x: () => -shift() }, 0)
+        .to(right, { x: () => shift() }, 0)
         .fromTo(list, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.7 }, 0.2);
 
       return () => {

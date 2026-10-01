@@ -28,8 +28,8 @@ const words = text.split(/\s+/);
       split
         ? words.map((word, i) => (
             <>
-              <span class="big-word" data-word>
-                {word}
+              <span class="big-word-move" data-word>
+                <span class="big-word">{word}</span>
               </span>
               {i < words.length - 1 && ' '}
             </>
@@ -63,9 +63,14 @@ const words = text.split(/\s+/);
     -webkit-background-clip: text;
     background-clip: text;
   }
-  /* Split words carry their own gradient (a transformed child can't reliably use the parent's text clip) */
+  /* Split words: each word carries its own gradient (a moved child can't use the parent's text clip).
+     Animations move the outer .big-word-move wrapper only — transforming or fading the background-clip:text
+     element itself makes Chromium stop painting the text mid-animation. */
   .big-heading.is-split {
     background: none;
+  }
+  .big-word-move {
+    display: inline-block;
   }
   .big-word {
     display: inline-block;
@@ -73,10 +78,8 @@ const words = text.split(/\s+/);
     background: linear-gradient(90deg, #dce3f4 0%, #eef3da 55%, #e4e9f6 100%);
     -webkit-background-clip: text;
     background-clip: text;
-    will-change: transform;
   }
-  .big-word + .big-word,
-  .big-word:nth-child(even) {
+  .big-word-move + .big-word-move .big-word {
     background: linear-gradient(90deg, #e4e9f6 0%, #eaf1d3 100%);
     -webkit-background-clip: text;
     background-clip: text;
