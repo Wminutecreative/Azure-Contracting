@@ -3,16 +3,16 @@ import type { CollectionEntry } from 'astro:content';
 import BigOutlineHeading from './BigOutlineHeading.astro';
 import ProjectCard from './ProjectCard.astro';
 
-// "Our Featured Work" (homepage design): alternating project rows whose image and text panels are merged into
-// one continuous white shape with curved notches at every join, on a soft lavender → lime background.
+// "Our Featured Work" (homepage design). Desktop: the white text cards of the rows alternate right / left,
+// overlap each other by 12px at the corners, and are drawn as ONE continuous white shape with a hairline
+// border — rounded outer corners, curved "pocket" corners around each photo. The photos sit on the page
+// background in those pockets. Soft lavender → lime section background.
 //
-// How the merge works: the panels' own backgrounds are switched off and a separate layer of plain white
-// rectangles (positioned by script to match each panel) is drawn behind them through an SVG "goo" filter,
-// which fuses shapes that sit close together. Text and images stay unfiltered on top.
-// Without JS, on mobile, or if anything fails, the panels keep their own white backgrounds.
+// The shape is an SVG path computed from the cards' boxes (union of rectangles → outline → rounded corners),
+// recalculated on resize. Without JS, and on mobile, each card simply keeps its own white rounded box.
 //
-// Scroll animation (GSAP ScrollTrigger, once): heading rises in; per row the image wipes up into its frame
-// while settling from a slight zoom, then title / text / button fade up in sequence.
+// Scroll animation (GSAP ScrollTrigger, once): heading rises in; per row the photo wipes up while settling
+// from a slight zoom, then title / text / button fade up in sequence.
 interface Props {
   projects: CollectionEntry<'projects'>[];
   heading?: string;
@@ -27,23 +27,12 @@ const { projects, heading = 'Our Featured Work', viewAllHref, class: className }
 
   <BigOutlineHeading text={heading}>
     <div class="container-site">
-      <div class="fw-stack relative isolate" data-goo>
-        <!-- Merged background: white rects inside an SVG, fused by an SVG filter applied to the <g>.
-             Keeping the filter inside the SVG (rather than a CSS filter on HTML) avoids Chromium painting
-             problems with the images and fixed header. -->
-        <svg class="fw-goo absolute inset-0 z-0 h-full w-full overflow-visible" aria-hidden="true" focusable="false">
-          <defs>
-            <filter id="fw-goo-filter" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur"></feGaussianBlur>
-              <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 28 -12" result="goo"></feColorMatrix>
-              <feComposite in="SourceGraphic" in2="goo" operator="atop" result="shape"></feComposite>
-              <feDropShadow in="shape" dx="0" dy="0" stdDeviation="0.6" flood-color="#0e1f3d" flood-opacity="0.14"></feDropShadow>
-            </filter>
-          </defs>
-          <g filter="url(#fw-goo-filter)" fill="#fff" data-goo-layer></g>
+      <div class="fw-stack relative isolate" data-fw-stack>
+        <svg class="fw-shape pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible" aria-hidden="true" focusable="false">
+          <path fill="#fff" stroke="#e6e9eb" stroke-width="1" data-fw-path></path>
         </svg>
-        <!-- Desktop: rows overlap by 10px so each 20px-inset image frame sits 10px from the next row's panel → merges -->
-        <div class="relative z-10 space-y-8 md:space-y-0 md:[&>*+*]:-mt-2.5">
+        <!-- Desktop: each row overlaps the previous by 12px so the cards join into one shape -->
+        <div class="relative z-10 space-y-10 md:space-y-0 md:[&>*+*]:-mt-3">
           {projects.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} eager={i === 0} />)}
         </div>
       </div>
@@ -69,16 +58,16 @@ const { projects, heading = 'Our Featured Work', viewAllHref, class: className }
       radial-gradient(42% 32% at 92% 92%, rgb(199 217 46 / 0.14), transparent 70%),
       radial-gradient(60% 40% at 50% 55%, rgb(255 255 255 / 0.5), transparent 75%);
   }
-
-  .fw-goo {
-    opacity: 0;
+  .fw-shape {
+    display: none;
   }
-  /* Merge on: the shared layer paints the panels */
-  .fw-stack.is-merged .fw-goo {
-    opacity: 1;
+  /* Shape on: the SVG paints the cards */
+  .fw-stack.is-shaped .fw-shape {
+    display: block;
   }
-  .fw-stack.is-merged :global(.fw-panel) {
+  .fw-stack.is-shaped :global(.fw-card) {
     background: transparent;
+    border-color: transparent;
   }
 </style>
 
@@ -91,38 +80,114 @@ const { projects, heading = 'Our Featured Work', viewAllHref, class: className }
   const desktop = window.matchMedia('(min-width: 48rem)');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  type Rect = { x0: number; y0: number; x1: number; y1: number };
+  type Pt = [number, number];
+
+  /** Outline (clockwise, screen coords) of the union of axis-aligned rectangles that form one connected region. */
+  function unionOutline(rects: Rect[]): Pt[] {
+    const xs = [...new Set(rects.flatMap((r) => [r.x0, r.x1]))].sort((a, b) => a - b);
+    const ys = [...new Set(rects.flatMap((r) => [r.y0, r.y1]))].sort((a, b) => a - b);
+    const covered = (i: number, j: number) => {
+      if (i < 0 || j < 0 || i >= xs.length - 1 || j >= ys.length - 1) return false;
+      const cx = (xs[i] + xs[i + 1]) / 2;
+      const cy = (ys[j] + ys[j + 1]) / 2;
+      return rects.some((r) => cx > r.x0 && cx < r.x1 && cy > r.y0 && cy < r.y1);
+    };
+    // Directed boundary edges of covered cells, clockwise around each cell
+    const next = new Map<string, Pt>();
+    const key = (p: Pt) => `${p[0]},${p[1]}`;
+    for (let i = 0; i < xs.length - 1; i++) {
+      for (let j = 0; j < ys.length - 1; j++) {
+        if (!covered(i, j)) continue;
+        const [x0, x1, y0, y1] = [xs[i], xs[i + 1], ys[j], ys[j + 1]];
+        if (!covered(i, j - 1)) next.set(key([x0, y0]), [x1, y0]); // top →
+        if (!covered(i + 1, j)) next.set(key([x1, y0]), [x1, y1]); // right ↓
+        if (!covered(i, j + 1)) next.set(key([x1, y1]), [x0, y1]); // bottom ←
+        if (!covered(i - 1, j)) next.set(key([x0, y1]), [x0, y0]); // left ↑
+      }
+    }
+    // Chain the edges into one loop, then drop collinear points
+    const start = next.keys().next().value;
+    if (!start) return [];
+    const loop: Pt[] = [];
+    let k: string | undefined = start;
+    let guard = 0;
+    while (k && guard++ < 10000) {
+      const [x, y] = k.split(',').map(Number);
+      loop.push([x, y]);
+      const n = next.get(k);
+      if (!n) break;
+      k = key(n);
+      if (k === start) break;
+    }
+    return loop.filter((p, i) => {
+      const a = loop[(i - 1 + loop.length) % loop.length];
+      const b = loop[(i + 1) % loop.length];
+      return !((a[0] === p[0] && p[0] === b[0]) || (a[1] === p[1] && p[1] === b[1]));
+    });
+  }
+
+  /** SVG path with rounded corners: `outer` radius on convex corners, `inner` on concave (pocket) corners. */
+  function roundedPath(pts: Pt[], outer: number, inner: number): string {
+    const n = pts.length;
+    const corners = pts.map((v, i) => {
+      const p = pts[(i - 1 + n) % n];
+      const q = pts[(i + 1) % n];
+      const d1: Pt = [v[0] - p[0], v[1] - p[1]];
+      const d2: Pt = [q[0] - v[0], q[1] - v[1]];
+      const convex = d1[0] * d2[1] - d1[1] * d2[0] > 0; // clockwise turn in screen coords
+      const len1 = Math.hypot(...d1);
+      const len2 = Math.hypot(...d2);
+      const r = Math.min(convex ? outer : inner, len1 / 2, len2 / 2);
+      const a: Pt = [v[0] - (d1[0] / len1) * r, v[1] - (d1[1] / len1) * r];
+      const b: Pt = [v[0] + (d2[0] / len2) * r, v[1] + (d2[1] / len2) * r];
+      return { a, b, r, sweep: convex ? 1 : 0 };
+    });
+    const f = (x: number) => Math.round(x * 10) / 10;
+    let d = `M${f(corners[0].b[0])},${f(corners[0].b[1])}`;
+    for (let i = 1; i <= n; i++) {
+      const c = corners[i % n];
+      d += `L${f(c.a[0])},${f(c.a[1])}A${f(c.r)},${f(c.r)} 0 0 ${c.sweep} ${f(c.b[0])},${f(c.b[1])}`;
+    }
+    return `${d}Z`;
+  }
+
   document.querySelectorAll<HTMLElement>('[data-featured-work]').forEach((section) => {
-    const stack = section.querySelector<HTMLElement>('[data-goo]');
-    const layer = section.querySelector<SVGGElement>('[data-goo-layer]');
-    const panels = Array.from(section.querySelectorAll<HTMLElement>('[data-goo-panel]'));
+    const stack = section.querySelector<HTMLElement>('[data-fw-stack]');
+    const path = section.querySelector<SVGPathElement>('[data-fw-path]');
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('[data-shape-rect]'));
 
-    // ---- Merged background layer -------------------------------------------------------------------
-    if (stack && layer && panels.length) {
-      const SVG_NS = 'http://www.w3.org/2000/svg';
-      const shapes = panels.map(() => layer.appendChild(document.createElementNS(SVG_NS, 'rect')));
-
+    // ---- Merged card shape --------------------------------------------------------------------------
+    if (stack && path && cards.length) {
       const layout = () => {
         if (!desktop.matches) {
-          stack.classList.remove('is-merged');
+          stack.classList.remove('is-shaped');
           return;
         }
-        const origin = stack.getBoundingClientRect();
-        panels.forEach((panel, i) => {
-          const r = panel.getBoundingClientRect();
-          const rect = shapes[i];
-          rect.setAttribute('x', String(r.left - origin.left));
-          rect.setAttribute('y', String(r.top - origin.top));
-          rect.setAttribute('width', String(r.width));
-          rect.setAttribute('height', String(r.height));
-          rect.setAttribute('rx', String(parseFloat(getComputedStyle(panel).borderTopLeftRadius) || 0));
+        const o = stack.getBoundingClientRect();
+        const rects = cards.map((c) => {
+          const r = c.getBoundingClientRect();
+          return {
+            x0: Math.round(r.left - o.left),
+            y0: Math.round(r.top - o.top),
+            x1: Math.round(r.right - o.left),
+            y1: Math.round(r.bottom - o.top),
+          };
         });
-        stack.classList.add('is-merged');
+        const outline = unionOutline(rects);
+        if (outline.length < 4) {
+          stack.classList.remove('is-shaped');
+          return;
+        }
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        path.setAttribute('d', roundedPath(outline, 3.125 * rem, 3.5 * rem));
+        stack.classList.add('is-shaped');
       };
 
       layout();
       const ro = new ResizeObserver(layout);
       ro.observe(stack);
-      panels.forEach((p) => ro.observe(p));
+      cards.forEach((c) => ro.observe(c));
       desktop.addEventListener('change', layout);
     }
 
@@ -144,13 +209,14 @@ const { projects, heading = 'Our Featured Work', viewAllHref, class: className }
       const imgWrap = row.querySelector<HTMLElement>('[data-fw-img]');
       const img = imgWrap?.querySelector('img');
       const texts = row.querySelectorAll('[data-fw-text]');
+      const radius = imgWrap ? getComputedStyle(imgWrap).borderTopLeftRadius : '0px';
 
       const tl = gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 78%', once: true } });
       if (imgWrap) {
         tl.fromTo(
           imgWrap,
-          { clipPath: 'inset(100% 0% 0% 0% round 24px)' },
-          { clipPath: 'inset(0% 0% 0% 0% round 24px)', duration: 1.15, ease: 'expo.inOut' },
+          { clipPath: `inset(100% 0% 0% 0% round ${radius})` },
+          { clipPath: `inset(0% 0% 0% 0% round ${radius})`, duration: 1.15, ease: 'expo.inOut', clearProps: 'clipPath' },
           0,
         );
       }

@@ -3,10 +3,11 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Button from './Button.astro';
 
-// Featured-work row: image panel (16px white frame, 24px inner radius) beside a white text panel (34px radius).
-// On desktop the image panel is 20px shorter top and bottom, so when FeaturedWork merges the panels into one
-// shape (goo layer) the joins get curved notches, as in the design. `reverse` puts the text panel on the left.
-// Inside FeaturedWork the panel backgrounds come from the merged layer; standalone they are plain white cards.
+// Featured-work row (design, desktop): a white text card a little wider than half the row, with the photo
+// sitting on the page background beside it, ~30px clear of the card and flush with the outer edge.
+// Inside FeaturedWork the text cards of consecutive rows overlap slightly and are drawn as ONE white
+// zig-zag shape (SVG path) with curved pocket corners around each photo. Mobile: photo above a white card.
+// `reverse` puts the text card on the left.
 interface Props {
   project: CollectionEntry<'projects'>;
   reverse?: boolean;
@@ -18,34 +19,38 @@ const { title, excerpt, cover, coverAlt } = project.data;
 const href = `/projects/${project.id}`;
 ---
 
-<article class="project-row group grid gap-3 md:grid-cols-2 md:gap-2" data-fw-row>
+<article class="fw-row group relative" data-fw-row>
   <a
     href={href}
     tabindex="-1"
     aria-hidden="true"
-    class:list={['fw-panel block rounded-[2.125rem] bg-white p-3 md:my-5 md:p-4', reverse && 'md:order-2']}
-    data-goo-panel
+    class:list={[
+      'fw-img block overflow-hidden rounded-[2rem] md:absolute md:top-[2.55rem] md:bottom-[2.55rem] md:w-[calc(50%-2.375rem)] md:rounded-[2.75rem]',
+      reverse ? 'md:right-0' : 'md:left-0',
+    ]}
+    data-fw-img
   >
-    <span class="block overflow-hidden rounded-3xl" data-fw-img>
-      <Image
-        src={cover}
-        alt={coverAlt}
-        widths={[480, 640, 960, 1280]}
-        sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
-        loading={eager ? 'eager' : 'lazy'}
-        class="aspect-[1.08] h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-      />
-    </span>
+    <Image
+      src={cover}
+      alt={coverAlt}
+      widths={[480, 640, 960, 1280]}
+      sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
+      loading={eager ? 'eager' : 'lazy'}
+      class="aspect-[1.08] h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] md:aspect-auto"
+    />
   </a>
   <div
-    class="fw-panel flex flex-col justify-between gap-10 rounded-[2.125rem] bg-white px-[clamp(1.75rem,4vw,4.5rem)] py-[clamp(2rem,4.5vw,4.5rem)]"
-    data-goo-panel
+    class:list={[
+      'fw-card mt-3 flex flex-col justify-between gap-10 rounded-[2rem] border border-[#e6e9eb] bg-white px-[clamp(1.75rem,4.5vw,4.1rem)] py-[clamp(2rem,6vw,6.25rem)] md:mt-0 md:min-h-[clamp(28rem,44vw,41rem)] md:w-[calc(50%+0.5rem)] md:pb-[clamp(2rem,5.5vw,5.5rem)]',
+      !reverse && 'md:ml-auto',
+    ]}
+    data-shape-rect
   >
     <div class="flex flex-col gap-[1.125rem]">
-      <Heading class="font-body text-navy text-[clamp(1.625rem,2.4vw,2.125rem)] leading-tight font-normal tracking-[-0.01em]" data-fw-text>
-        <a href={href} class="hover:text-[#1d3a78]">{title}</a>
+      <Heading class="font-body text-text-dark text-[clamp(1.5rem,2.2vw,2rem)] leading-tight font-normal tracking-[-0.01em]" data-fw-text>
+        <a href={href} class="hover:text-navy">{title}</a>
       </Heading>
-      <p class="text-stat-label max-w-[32.5rem] text-base leading-[1.65] text-pretty" data-fw-text>{excerpt}</p>
+      <p class="text-text-medium max-w-[28rem] text-base leading-[1.35] text-pretty" data-fw-text>{excerpt}</p>
     </div>
     <div data-fw-text>
       <Button variant="outline" href={href} aria-label={`Know more about ${title}`}>Know More</Button>
