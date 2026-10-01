@@ -363,13 +363,16 @@ const socialIcons: Record<string, string> = {
     let travel = 0;
     let endScale = 1;
     let queued = false;
+    const DOCK_W = 184;
 
     const measure = () => {
       heroH = hero.offsetHeight;
       barH = (md.matches ? 8.5 : 5) * rem();
       travel = Math.max(1, (heroH - barH) / 2);
-      const docked = (md.matches ? 2.25 : 1.75) * rem(); // same size as the logo on other pages
-      endScale = docked / parseFloat(getComputedStyle(logoInner).fontSize);
+      // Docked logo is 184px wide (design spec: 184 × 49). offsetWidth ignores the transform, so this is the
+      // logo's full hero width. The rebuilt CSS logo is slightly taller in proportion than the real one, so it
+      // lands at ~184 × 55 — swapping in the real logo SVG makes it exactly 184 × 49.
+      endScale = DOCK_W / logoInner.offsetWidth;
     };
 
     const update = () => {
