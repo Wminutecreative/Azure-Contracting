@@ -1,8 +1,7 @@
 ---
-import { Image } from 'astro:assets';
-import precise from '@/assets/icons/precise.png';
-import engineered from '@/assets/icons/engineered.png';
-import versatile from '@/assets/icons/versatile.png';
+import precise from '@/assets/icons/value-precise.png';
+import engineered from '@/assets/icons/value-engineered.png';
+import versatile from '@/assets/icons/value-versatile.png';
 
 // Three tall white cards (min 490px, 52px gap at desktop): icon top-left, title bottom-left.
 // Hover (design): the card fills with a white → olive gradient, the icon turns near-black, and the description
@@ -30,7 +29,12 @@ const values = [
   {
     values.map((v) => (
       <li class="value-card relative isolate flex min-h-72 flex-col justify-between gap-10 overflow-hidden rounded-xl border border-transparent bg-white px-[1.375rem] py-6 sm:min-h-96 lg:min-h-[30.625rem]" tabindex="0" data-reveal>
-        <Image src={v.icon} alt="" class="value-icon h-auto w-24 md:w-[8.125rem]" />
+        <span
+          class="value-icon block w-24 md:w-[8.125rem]"
+          style={`--icon: url(${v.icon.src}); aspect-ratio: ${v.icon.width} / ${v.icon.height}`}
+          aria-hidden="true"
+        />
+
         <div>
           <h3 class="value-title font-body text-[clamp(1.5rem,2.2vw,2rem)] leading-tight font-normal">{v.title}</h3>
           <div class="value-desc">
@@ -56,8 +60,12 @@ const values = [
     opacity: 0;
     transition: opacity 0.45s ease;
   }
+  /* The icon PNG is used only as a shape mask and filled with colour, so no background can ever show */
   .value-icon {
-    transition: filter 0.45s ease;
+    background-color: #656565;
+    -webkit-mask: var(--icon) center / contain no-repeat;
+    mask: var(--icon) center / contain no-repeat;
+    transition: background-color 0.45s ease;
   }
   .value-title {
     color: #4a4a4a;
@@ -104,7 +112,7 @@ const values = [
   }
   .value-card:hover .value-icon,
   .value-card:focus-visible .value-icon {
-    filter: brightness(0.4);
+    background-color: #262626;
   }
   .value-card:hover .value-title,
   .value-card:focus-visible .value-title {
