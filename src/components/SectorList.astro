@@ -35,10 +35,10 @@ const images: Record<SectorId, ImageMetadata> = { offices, hospitality, retail, 
             </p>
           </div>
           <span
-            class="text-navy group-hover:text-white group-focus-visible:text-white grid size-11 shrink-0 place-items-center rounded-xl border border-[#d6dbe6] transition-[color,border-color] duration-300 group-hover:border-transparent group-focus-visible:border-transparent"
+            class="opacity-0 group-hover:opacity-100 text-white size-11 shrink-0 place-items-center rounded-xl transition-[color,border-color] duration-300 group-hover:border-transparent group-focus-visible:border-transparent"
             aria-hidden="true"
           >
-            <PlayIcon class="sector-arrow translate-x-px" />
+            <PlayIcon class="sector-arrow translate-x-px" size={45} />
           </span>
 
           <Image
@@ -68,7 +68,7 @@ const images: Record<SectorId, ImageMetadata> = { offices, hospitality, retail, 
     position: absolute;
     top: 50%;
     left: 60%;
-    width: clamp(15rem, 22vw, 18.75rem);
+    width: clamp(15rem, 22vw, 26.75rem);
     aspect-ratio: 3 / 2;
     object-fit: cover;
     border-radius: 0.875rem;

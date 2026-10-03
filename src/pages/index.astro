@@ -6,15 +6,14 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Logo from '@/components/Logo.astro';
 import StatRow from '@/components/StatRow.astro';
 import SectorList from '@/components/SectorList.astro';
-import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
-import ProjectCard from '@/components/ProjectCard.astro';
+import FeaturedWork from '@/components/FeaturedWork.astro';
 import ValueCards from '@/components/ValueCards.astro';
 import TestimonialSlider from '@/components/TestimonialSlider.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects, getTestimonials, getFaqs } from '@/lib/content';
 // TODO: swap for assets/hero-clean.png from the Claude Design project (save as src/assets/home/hero.png)
-import heroImage from '@/assets/placeholders/hero.svg';
+import heroImage from '@/assets/placeholders/Macbook Air Mockup copy 1.png';
 
 const featured = (await getProjects({ featured: true })).slice(0, 3);
 const testimonials = await getTestimonials({ featured: true });
@@ -30,11 +29,12 @@ const stats = [
 <BaseLayout
   title="Azure Contracting"
   description="Construction, refurbishment and fit-out for offices, hospitality, retail and education. Based in Kildare, working across Ireland."
-  headerOverlay
-  headerLogo={false}
+  headerDock
 >
-  <!-- 1. Hero — 56vw tall (560–880px), photo anchored to the bottom, darkened behind the logo -->
-  <section class="relative isolate grid h-[clamp(35rem,56vw,55rem)] place-items-center overflow-hidden bg-[#1b2a36]">
+  <!-- 1. Hero — full viewport, photo anchored to the bottom, darkened behind the logo.
+       With JS + motion, the visible logo is the header's docking logo (see Header.astro); this one is the
+       no-JS / reduced-motion fallback and must keep the same size class. -->
+  <section class="relative isolate grid h-[100svh] place-items-center overflow-hidden bg-[#1b2a36]" data-hero>
     <Image
       src={heroImage}
       alt=""
@@ -47,7 +47,7 @@ const stats = [
     <div class="hero-shade absolute inset-0 -z-10" aria-hidden="true"></div>
     <h1 class="px-4">
       <span class="sr-only">Azure Contracting — fit-out specialists in construction, refurbishment and fit-out, Kildare, Ireland</span>
-      <span aria-hidden="true"><Logo class="text-[clamp(4.5rem,8.2vw,7.75rem)]" /></span>
+      <span aria-hidden="true" class="hero-logo"><Logo class="text-[clamp(4.5rem,8.2vw,7.75rem)]" /></span>
     </h1>
   </section>
 
@@ -75,16 +75,7 @@ const stats = [
   </section>
 
   <!-- 4. Featured work -->
-  <section class="pt-[clamp(4rem,2rem+7vw,11rem)]">
-    <BigOutlineHeading text="Our Featured Work">
-      <div class="container-site space-y-4">
-        {featured.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} eager={i === 0} />)}
-      </div>
-    </BigOutlineHeading>
-    <div class="mt-12 text-center md:mt-24">
-      <a href="/projects" class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
-    </div>
-  </section>
+  <FeaturedWork projects={featured} viewAllHref="/projects" class="pt-[clamp(4rem,2rem+7vw,11rem)]" />
 
   <!-- 5. Values -->
   <section class="pt-[clamp(4rem,2rem+6vw,10.5rem)]" aria-labelledby="values-heading">
@@ -105,6 +96,10 @@ const stats = [
 </BaseLayout>
 
 <style>
+  /* The header's docking logo takes over when scroll animation is on */
+  :global(.motion) .hero-logo {
+    visibility: hidden;
+  }
   .hero-shade {
     background:
       radial-gradient(ellipse 40% 28% at 50% 50%, rgb(8 18 40 / 0.45), transparent),
