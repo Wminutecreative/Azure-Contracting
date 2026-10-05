@@ -12,16 +12,27 @@ import ProjectCard from './ProjectCard.astro';
 interface Props {
   projects: CollectionEntry<'projects'>[];
   heading?: string;
+  /** h1 when the section is the page's main heading (Projects page) */
+  headingAs?: 'h1' | 'h2';
   viewAllHref?: string;
+  /** Scroll animation (homepage). The Projects page turns it off — static title and rows. */
+  animated?: boolean;
   class?: string;
 }
-const { projects, heading = 'Our Featured Work', viewAllHref, class: className } = Astro.props;
+const {
+  projects,
+  heading = 'Our Featured Work',
+  headingAs = 'h2',
+  viewAllHref,
+  animated = true,
+  class: className,
+} = Astro.props;
 ---
 
-<section class:list={['featured-work relative isolate', className]} data-featured-work>
+<section class:list={['featured-work relative isolate', className]} data-featured-work={animated ? '' : undefined}>
   <div class="fw-backdrop pointer-events-none absolute inset-x-0 -top-24 -bottom-24 -z-10" aria-hidden="true"></div>
 
-  <BigOutlineHeading text={heading}>
+  <BigOutlineHeading text={heading} as={headingAs}>
     <div class="container-site">
       <ConnectedStack>
         {projects.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} eager={i === 0} />)}

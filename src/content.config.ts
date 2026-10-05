@@ -7,15 +7,17 @@ import { sectorIds } from '@/data/sectors';
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
   schema: ({ image }) =>
+    // Edited in Keystatic (keystatic.config.ts) — keep the two schemas in sync.
+    // Keystatic writes empty optional fields as '' / null, hence the nullish handling.
     z.object({
       title: z.string(),
       sector: z.enum(sectorIds),
       excerpt: z.string(),
       cover: image(),
       coverAlt: z.string(),
-      gallery: z.array(z.object({ src: image(), alt: z.string() })).default([]),
-      location: z.string().optional(),
-      year: z.number().int().optional(),
+      gallery: z.array(z.object({ src: image(), alt: z.string() })).nullish().transform((g) => g ?? []),
+      location: z.string().nullish().transform((v) => v || undefined),
+      year: z.number().int().nullish().transform((v) => v ?? undefined),
       featured: z.boolean().default(false),
       order: z.number().default(99),
     }),

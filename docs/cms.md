@@ -1,6 +1,6 @@
 # Managing content with Keystatic
 
-Admin panel: **`/keystatic`** — currently manages **Testimonials** (more collections can be added in
+Admin panel: **`/keystatic`** — manages **Projects** and **Testimonials** (more collections can be added in
 `keystatic.config.ts`).
 
 ## Option A — edit on your computer (works now)
@@ -28,6 +28,22 @@ Keystatic can commit straight to GitHub from the deployed `/keystatic` page.
    you pick → Vercel redeploys in ~1 minute.
 
 Never commit `.env` — it holds secrets (it is already git-ignored).
+
+## Project fields
+
+Files: `src/content/projects/<url>.md` and `src/assets/projects/<url>/…` (photos).
+
+| Field | Notes |
+|---|---|
+| Project name / Page URL | URL becomes `/projects/<url>` — avoid changing it once the page is live |
+| Sector | Offices · Hospitality · Retail · Education |
+| Summary | Shown on the project cards (Projects page + homepage) |
+| Cover photo + description | Main photo; description is for screen readers and Google |
+| Gallery | Extra photos for the project page |
+| Location, Year completed | Optional |
+| Show on the homepage | Tick to include it in "Our Featured Work" on the homepage |
+| Order | Lower numbers first (Projects page and homepage) |
+| Project description | Full write-up for the project page |
 
 ## Testimonial fields
 
