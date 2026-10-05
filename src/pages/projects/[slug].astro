@@ -1,0 +1,139 @@
+---
+// Project detail — Figma 534:1796 (prototype 535:6296).
+// Title · two columns: photos (cover + gallery, stacked) | sticky "Introduction" panel (description + Client /
+// Location / Role) · "Other Similar Works" in the connected-box layout · client logos → footer.
+// All content comes from the Projects collection in Keystatic.
+import { Image, getImage } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import FeaturedWork from '@/components/FeaturedWork.astro';
+import LogoStrip from '@/components/LogoStrip.astro';
+import { getProjects } from '@/lib/content';
+import { sectorLabel } from '@/data/sectors';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project, all: projects } }));
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  all: CollectionEntry<'projects'>[];
+}
+const { project, all } = Astro.props;
+const { title, excerpt, cover, coverAlt, gallery, client, location, role, year, sector } = project.data;
+const { Content } = await render(project);
+
+const photos = [{ src: cover, alt: coverAlt }, ...gallery];
+const meta = [
+  { label: 'Client', value: client },
+  { label: 'Location', value: location },
+  { label: 'Role', value: role },
+  { label: 'Completed', value: year?.toString() },
+].filter((m): m is { label: string; value: string } => Boolean(m.value));
+
+// Other Similar Works: same sector first, then the rest — 2 projects, never the current one
+const others = all.filter((p) => p.id !== project.id);
+const similar = [...others.filter((p) => p.data.sector === sector), ...others.filter((p) => p.data.sector !== sector)].slice(0, 2);
+
+const og = await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+const pageUrl = new URL(`/projects/${project.id}`, Astro.site).toString();
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: title,
+    description: excerpt,
+    image: new URL(og.src, Astro.site).toString(),
+    url: pageUrl,
+    genre: `${sectorLabel(sector)} fit-out`,
+    ...(location && { locationCreated: { '@type': 'Place', name: location } }),
+    creator: { '@type': 'GeneralContractor', name: 'Azure Contracting' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 2, name: 'Projects', item: new URL('/projects', Astro.site).toString() },
+      { '@type': 'ListItem', position: 3, name: title, item: pageUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout title={title} description={excerpt.length > 158 ? `${excerpt.slice(0, 155).trimEnd()}…` : excerpt} ogImage={og.src} ogType="article" schema={schema}>
+  <article class="container-site pt-[clamp(1.5rem,1rem+2vw,3rem)]">
+    <h1 class="text-navy font-body text-[clamp(2rem,1.4rem+2vw,2.75rem)] leading-tight font-normal tracking-[-0.01em]">{title}</h1>
+
+    <div class="mt-8 grid gap-8 md:mt-10 md:grid-cols-[1.5fr_1fr] md:gap-[clamp(2rem,4vw,3.5rem)]">
+      <!-- Photos: cover first, then the gallery -->
+      <div class="flex flex-col gap-4 md:gap-5">
+        {
+          photos.map((photo, i) => (
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              widths={[640, 960, 1280, 1600]}
+              sizes="(min-width: 1340px) 780px, (min-width: 768px) 58vw, 100vw"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
+              class="aspect-[5/3] w-full rounded-2xl object-cover md:rounded-[1.25rem]"
+            />
+          ))
+        }
+      </div>
+
+      <!-- Introduction: stays in view while the photos scroll past -->
+      <aside class="md:sticky md:top-[calc(var(--hdr-h)+1.5rem)] md:self-start" aria-labelledby="intro-heading">
+        <h2 id="intro-heading" class="text-navy font-body text-[clamp(1.375rem,1.2rem+0.6vw,1.75rem)] font-normal">Introduction</h2>
+        <div class="project-body text-text-medium mt-5 text-[0.9375rem] leading-[1.6]">
+          <Content />
+        </div>
+        {
+          meta.length > 0 && (
+            <dl class="mt-8 text-[0.9375rem]">
+              {meta.map((m) => (
+                <div class="border-light flex gap-2 border-b py-3.5 first:border-t">
+                  <dt class="text-text-dark font-medium">{m.label}:</dt>
+                  <dd class="text-text-medium">{m.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )
+        }
+      </aside>
+    </div>
+  </article>
+
+  {
+    similar.length > 0 && (
+      <FeaturedWork projects={similar} heading="Other Similar Works" animated={false} class="pt-[clamp(4rem,2rem+7vw,10rem)]" />
+    )
+  }
+
+  <LogoStrip class="mt-[clamp(3rem,6vw,6rem)]" />
+</BaseLayout>
+
+<style>
+  .project-body :global(p + p) {
+    margin-top: 1em;
+  }
+  .project-body :global(h2),
+  .project-body :global(h3) {
+    margin: 1.5em 0 0.5em;
+    color: var(--color-navy);
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+  .project-body :global(ul) {
+    margin-top: 0.75em;
+    padding-left: 1.2em;
+    list-style: disc;
+  }
+  .project-body :global(a) {
+    color: var(--color-navy);
+    text-decoration: underline;
+  }
+</style>

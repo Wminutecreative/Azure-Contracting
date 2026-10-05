@@ -61,8 +61,8 @@ const socialIcons: Record<string, string> = {
     {
       showLogo && !dock ? (
         <a href="/" aria-label="Azure Contracting — home" class="justify-self-center">
-          {/* 3.45rem → 184px wide, the same size as the docked homepage logo */}
-          <Logo tone={overlay ? 'light' : 'dark'} class="text-[3.45rem]" />
+          {/* 3.45rem → 184px wide (2.6rem → 140px on phones), the same size as the docked homepage logo */}
+          <Logo tone={overlay ? 'light' : 'dark'} class="text-[2.6rem] md:text-[3.45rem]" />
         </a>
       ) : (
         <span />
@@ -373,7 +373,8 @@ const socialIcons: Record<string, string> = {
     let travel = 0;
     let endScale = 1;
     let queued = false;
-    const DOCK_W = 184;
+    // Docked logo width: 184px (design spec) from tablet up, 140px on phones so it clears the menu + button
+    const dockW = () => (md.matches ? 184 : 140);
 
     const measure = () => {
       heroH = hero.offsetHeight;
@@ -382,7 +383,7 @@ const socialIcons: Record<string, string> = {
       // Docked logo is 184px wide (design spec: 184 × 49). offsetWidth ignores the transform, so this is the
       // logo's full hero width. The rebuilt CSS logo is slightly taller in proportion than the real one, so it
       // lands at ~184 × 55 — swapping in the real logo SVG makes it exactly 184 × 49.
-      endScale = DOCK_W / logoInner.offsetWidth;
+      endScale = dockW() / logoInner.offsetWidth;
     };
 
     const update = () => {

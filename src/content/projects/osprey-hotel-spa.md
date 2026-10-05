@@ -11,4 +11,4 @@ order: 2
 
 Construction of new alterations and upgrade construction and fit-out works at the internal ground, first, second and third floor levels, along with works to the ground floor external entrance area.
 
-TODO: remaining project detail copy and gallery from Figma.
+<!-- TODO: remaining project detail copy and gallery from Figma. -->
