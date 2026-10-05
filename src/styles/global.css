@@ -67,9 +67,10 @@
 }
 
 @layer base {
+  /* No global `scroll-behavior: smooth`: it breaks GSAP ScrollTrigger (its refresh measurements and the pinned
+     FAQ section) — ScrollTrigger needs instant scrolling. */
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-behavior: smooth;
   }
   body {
     background-color: var(--color-bg);
@@ -91,7 +92,6 @@
   }
   img { max-width: 100%; height: auto; }
   @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;

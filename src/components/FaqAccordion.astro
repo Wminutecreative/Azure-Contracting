@@ -122,6 +122,9 @@ const faqSchema = {
 
   gsap.registerPlugin(ScrollTrigger);
 
+  // Web fonts can finish after `load` and change the height of everything above the FAQ — re-measure the pin then.
+  document.fonts?.ready.then(() => ScrollTrigger.refresh());
+
   document.querySelectorAll<HTMLElement>('[data-faq]').forEach((section) => {
     const stage = section.querySelector<HTMLElement>('[data-faq-stage]');
     const list = section.querySelector<HTMLElement>('[data-faq-list]');
