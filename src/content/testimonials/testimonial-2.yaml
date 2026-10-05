@@ -6,6 +6,6 @@ company: 'TODO: Company'
 photo: ../../assets/testimonials/testimonial-2/photo.png
 quote: 'They worked around a live building for months and our staff barely noticed. Every milestone landed when they said it would, and the finish is better than the drawings.'
 rating: 5
-showOnPage: false # homepage design content only
+showOnPage: true
 featured: true
-order: 2
+order: 5
