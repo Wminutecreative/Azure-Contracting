@@ -1,0 +1,10 @@
+name: Pat Kennedy
+role: ''
+company: Carroll & Crowley Architects & Interior Designers
+# TODO: upload the real photo in Keystatic (placeholder for now)
+photo: ../../assets/testimonials/pat-kennedy/photo.svg
+quote: Azure have created a great working environment that is both functional and stylish. We are very happy with their high level of service, as they have fulfilled our every requirement. They have been very cooperative and professional throughout the whole build process. We will certainly use them for any future work and happily recommend them to any company seeking a quality project.
+rating: 5
+showOnPage: true
+featured: false
+order: 2

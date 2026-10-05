@@ -1,0 +1,10 @@
+name: Eanna Murtagh
+role: Development Manager
+company: MHL Hotel Collection
+# TODO: upload the real photo in Keystatic (placeholder for now)
+photo: ../../assets/testimonials/eanna-murtagh/photo.svg
+quote: It is refreshing to work with a team with a professional yet friendly approach and a 'can do' attitude. Azure performed their works to a high standard in a live 5-star hotel environment, which is always a challenge. I would have no hesitation in recommending Azure Contracting or working with them again in the future.
+rating: 5
+showOnPage: true
+featured: false
+order: 1

@@ -4,8 +4,9 @@
 name: Ali Ghodsi
 role: CEO
 company: Databricks
-photo: ../../assets/testimonials/ali-ghodsi.png
+photo: ../../assets/testimonials/ali-ghodsi/photo.png
 quote: Every project we take on is a chance to build something the client will still be proud of years from now. That's what keeps us focused on the details, from first site visit to final handover.
 rating: 5
+showOnPage: false # homepage design content only
 featured: true
 order: 1

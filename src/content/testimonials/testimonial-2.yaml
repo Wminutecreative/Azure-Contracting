@@ -3,8 +3,9 @@
 name: 'TODO: Client Name'
 role: 'Facilities Director'
 company: 'TODO: Company'
-photo: ../../assets/testimonials/person-2.png
+photo: ../../assets/testimonials/testimonial-2/photo.png
 quote: 'They worked around a live building for months and our staff barely noticed. Every milestone landed when they said it would, and the finish is better than the drawings.'
 rating: 5
+showOnPage: false # homepage design content only
 featured: true
 order: 2

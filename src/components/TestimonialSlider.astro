@@ -60,7 +60,7 @@ const count = testimonials.length;
                   <Image src={t.data.photo} alt="" width={96} class="size-12 rounded-full object-cover lg:hidden" />
                   <span>
                     <span class="text-navy block text-[1.0625rem] font-medium">{t.data.name}</span>
-                    <span class="text-stat-label mt-1 block text-sm">{t.data.role}, {t.data.company}</span>
+                    <span class="text-stat-label mt-1 block text-sm">{t.data.role ? `${t.data.role}, ${t.data.company}` : t.data.company}</span>
                   </span>
                 </figcaption>
               </figure>

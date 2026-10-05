@@ -1,0 +1,46 @@
+---
+// Testimonials — Figma 534:1361 (prototype 535:5862).
+// Big title (static — no header/title animation on this page), testimonial rows in the connected-box layout
+// shared with Our Featured Work, then FAQ → client logos → footer.
+// Testimonials are managed in Keystatic (/keystatic → Testimonials); "Show on the Testimonials page" controls
+// which appear here and "Order" sets the sequence.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
+import ConnectedStack from '@/components/ConnectedStack.astro';
+import TestimonialRow from '@/components/TestimonialRow.astro';
+import FaqAccordion from '@/components/FaqAccordion.astro';
+import LogoStrip from '@/components/LogoStrip.astro';
+import { getTestimonials, getFaqs } from '@/lib/content';
+
+const testimonials = await getTestimonials({ page: true });
+const faqs = await getFaqs('testimonials');
+
+const breadcrumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+    { '@type': 'ListItem', position: 2, name: 'Client Testimonials', item: new URL('/testimonials', Astro.site).toString() },
+  ],
+};
+---
+
+<BaseLayout
+  title="Client Testimonials"
+  description="What hotel groups, architects and businesses across Ireland say about working with Azure Contracting on their construction, refurbishment and fit-out projects."
+  schema={[breadcrumbs]}
+>
+  <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
+    <BigOutlineHeading text="Client Testimonials" as="h1">
+      <div class="container-site">
+        <ConnectedStack>
+          {testimonials.map((t, i) => <TestimonialRow testimonial={t} reverse={i % 2 === 1} eager={i === 0} />)}
+        </ConnectedStack>
+      </div>
+    </BigOutlineHeading>
+  </section>
+
+  <FaqAccordion items={faqs} class="mt-[clamp(3rem,6vw,6rem)]" />
+
+  <LogoStrip />
+</BaseLayout>

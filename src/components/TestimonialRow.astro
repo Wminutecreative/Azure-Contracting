@@ -1,0 +1,60 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+// Testimonials page row (design): photo beside a white quote card — same geometry as ProjectCard so it slots
+// into ConnectedStack's connected-box shape. Card: star rating, quote, then name + role/company at the bottom.
+// `reverse` puts the quote card on the left.
+interface Props {
+  testimonial: CollectionEntry<'testimonials'>;
+  reverse?: boolean;
+  eager?: boolean;
+}
+const { testimonial, reverse = false, eager = false } = Astro.props;
+const { name, role, company, photo, quote, rating } = testimonial.data;
+const byline = role ? `${role} at ${company}` : company;
+---
+
+<figure class="t-row relative">
+  <div
+    class:list={[
+      'block overflow-hidden rounded-[2rem] md:absolute md:top-[2.55rem] md:bottom-[2.55rem] md:w-[calc(50%-2.375rem)] md:rounded-[2.75rem]',
+      reverse ? 'md:right-0' : 'md:left-0',
+    ]}
+  >
+    <Image
+      src={photo}
+      alt={`${name}, ${byline}`}
+      widths={[480, 640, 960, 1280]}
+      sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
+      loading={eager ? 'eager' : 'lazy'}
+      class="aspect-[1.08] h-full w-full object-cover object-top md:aspect-auto"
+    />
+  </div>
+  <div
+    class:list={[
+      'mt-3 flex flex-col justify-between gap-10 rounded-[2rem] border border-[#e6e9eb] bg-white px-[clamp(1.75rem,4.5vw,4.1rem)] py-[clamp(2rem,5vw,4.5rem)] md:mt-0 md:min-h-[clamp(28rem,40vw,38rem)] md:w-[calc(50%+0.5rem)]',
+      !reverse && 'md:ml-auto',
+    ]}
+    data-shape-rect
+  >
+    <div class="flex flex-col gap-6">
+      <div class="flex gap-1.5" role="img" aria-label={`Rated ${rating} out of 5`}>
+        {
+          Array.from({ length: 5 }, (_, i) => (
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class={i < rating ? 'text-[#d3d6db]' : 'text-[#eceef1]'}>
+              <path fill="currentColor" d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
+            </svg>
+          ))
+        }
+      </div>
+      <blockquote class="text-text-medium max-w-[28rem] text-base leading-[1.5] text-pretty">
+        <p>“{quote}”</p>
+      </blockquote>
+    </div>
+    <figcaption>
+      <span class="text-text-dark block text-base font-medium">{name}</span>
+      <span class="text-stat-label mt-1 block text-[0.8125rem]">{byline}</span>
+    </figcaption>
+  </div>
+</figure>

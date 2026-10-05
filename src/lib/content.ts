@@ -13,8 +13,12 @@ export async function getPosts() {
   return all.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
-export async function getTestimonials({ featured }: { featured?: boolean } = {}) {
-  const all = await getCollection('testimonials', ({ data }) => (featured ? data.featured : true));
+/** `featured`: homepage slider entries. `page`: entries shown on the Testimonials page. (Both set in Keystatic.) */
+export async function getTestimonials({ featured, page }: { featured?: boolean; page?: boolean } = {}) {
+  const all = await getCollection(
+    'testimonials',
+    ({ data }) => (featured ? data.featured : true) && (page ? data.showOnPage : true),
+  );
   return all.sort(byOrder);
 }
 

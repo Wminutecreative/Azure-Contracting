@@ -1,0 +1,44 @@
+# Managing content with Keystatic
+
+Admin panel: **`/keystatic`** — currently manages **Testimonials** (more collections can be added in
+`keystatic.config.ts`).
+
+## Option A — edit on your computer (works now)
+
+1. `npm run dev`
+2. Open <http://localhost:4321/keystatic> → **Testimonials**
+3. Add / edit / delete a testimonial, upload the photo, **Save**
+4. Keystatic writes the files into the repo:
+   - `src/content/testimonials/<name>.yaml`
+   - `src/assets/testimonials/<name>/photo.<ext>`
+5. Commit + push in GitHub Desktop → Vercel redeploys (push to `Development` for the dev site, `main` for live).
+
+## Option B — edit on the live site (no computer setup)
+
+Keystatic can commit straight to GitHub from the deployed `/keystatic` page.
+
+1. Add `PUBLIC_KEYSTATIC_STORAGE=github` to a local `.env`, run `npm run dev`, open
+   <http://localhost:4321/keystatic> and follow Keystatic's **Create GitHub App** wizard. It creates the app and
+   writes `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET` and
+   `PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` into `.env`.
+2. Install the new GitHub App on the `Wminutecreative/Azure-Contracting` repo.
+3. Copy `PUBLIC_KEYSTATIC_STORAGE` and those 4 variables into **Vercel → Settings → Environment Variables**
+   (Production + Preview) and redeploy.
+4. Open `https://<your-site>/keystatic`, sign in with GitHub, edit, **Save** → Keystatic commits to the branch
+   you pick → Vercel redeploys in ~1 minute.
+
+Never commit `.env` — it holds secrets (it is already git-ignored).
+
+## Testimonial fields
+
+| Field | Notes |
+|---|---|
+| Name | Also becomes the file name |
+| Job title | Optional — shown as "Job title at Company" |
+| Company | Required |
+| Photo | Landscape or square, ≥ 1200px wide |
+| Quote | No surrounding quotation marks — added automatically |
+| Star rating | 1–5 |
+| Show on the Testimonials page | Tick to list it on /testimonials |
+| Show in the homepage slider | Tick to include it in "Trusted By Builders" |
+| Order | Lower numbers first |

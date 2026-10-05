@@ -39,12 +39,14 @@ const testimonials = defineCollection({
   loader: glob({ pattern: '**/*.yaml', base: './src/content/testimonials' }),
   schema: ({ image }) =>
     z.object({
+      // Edited in Keystatic (keystatic.config.ts) — keep the two schemas in sync
       name: z.string(),
-      role: z.string(),
+      role: z.string().default(''),
       company: z.string(),
       photo: image(),
       quote: z.string(),
       rating: z.number().int().min(1).max(5).default(5),
+      showOnPage: z.boolean().default(true),
       featured: z.boolean().default(false),
       order: z.number().default(99),
     }),

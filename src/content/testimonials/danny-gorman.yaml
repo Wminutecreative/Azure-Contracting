@@ -1,0 +1,10 @@
+name: Danny Gorman
+role: Director
+company: Hamilton Young Architects
+# TODO: upload the real photo in Keystatic (placeholder for now)
+photo: ../../assets/testimonials/danny-gorman/photo.svg
+quote: After speaking to numerous fit-out companies, we confidently engaged Azure to design and construct our new offices. They listened to our requirements, discussed the options and developed a fantastic design. The construction was painless. Azure were a pleasure to work with – professional, consultative, efficient and above all trustworthy.
+rating: 5
+showOnPage: true
+featured: false
+order: 3
