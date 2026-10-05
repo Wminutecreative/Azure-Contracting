@@ -31,9 +31,16 @@ const socialIcons: Record<string, string> = {
 };
 ---
 
+<!--
+  Sticky on every page, same look everywhere:
+  - Homepage (dock): transparent over the hero, logo docks from the hero, frosted bar once the hero has passed.
+  - Other pages: transparent at the top, frosted bar (and shorter on desktop) as soon as the page scrolls.
+  The frosted state is the `hdr-solid` class on <html>, set by the scripts below.
+-->
 <header
-  class:list={['site-header z-40', dock ? 'fixed inset-x-0 top-0' : overlay ? 'absolute inset-x-0 top-0' : 'relative']}
+  class:list={['site-header z-40', overlay && !dock ? 'absolute inset-x-0 top-0' : 'fixed inset-x-0 top-0']}
   data-dock={dock ? '' : undefined}
+  data-sticky={!overlay || dock ? '' : undefined}
 >
   <div class="hdr-bar relative grid h-(--hdr-h) grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge)">
     <button
@@ -54,7 +61,8 @@ const socialIcons: Record<string, string> = {
     {
       showLogo && !dock ? (
         <a href="/" aria-label="Azure Contracting — home" class="justify-self-center">
-          <Logo tone={overlay ? 'light' : 'dark'} class="text-[1.75rem] md:text-[2.25rem]" />
+          {/* 3.45rem → 184px wide, the same size as the docked homepage logo */}
+          <Logo tone={overlay ? 'light' : 'dark'} class="text-[3.45rem]" />
         </a>
       ) : (
         <span />
@@ -75,6 +83,8 @@ const socialIcons: Record<string, string> = {
     }
   </div>
 </header>
+<!-- Fixed header takes no space: reserve its (unscrolled) height so page content starts below it -->
+{!overlay && !dock && <div class="h-20 md:h-[8.5rem]" aria-hidden="true"></div>}
 
 <!--
   Menu open state (design, 1512px): the header bar stays in place with "✕ Menu", and a white panel
@@ -197,13 +207,13 @@ const socialIcons: Record<string, string> = {
   :root.hdr-solid .hdr-fg {
     color: var(--color-navy);
   }
-  .site-header[data-dock] {
+  .site-header[data-sticky] {
     transition:
       background-color 0.35s ease,
       box-shadow 0.35s ease,
       backdrop-filter 0.35s ease;
   }
-  :root.hdr-solid .site-header[data-dock] {
+  :root.hdr-solid .site-header[data-sticky] {
     background-color: rgb(244 249 253 / 0.86);
     -webkit-backdrop-filter: blur(14px) saturate(1.4);
     backdrop-filter: blur(14px) saturate(1.4);
@@ -410,5 +420,29 @@ const socialIcons: Record<string, string> = {
       measure();
       queue();
     });
+  }
+</script>
+
+<script>
+  // Sticky header on pages without the docking hero: frosted bar as soon as the page is scrolled.
+  const sticky = document.querySelector<HTMLElement>('.site-header[data-sticky]:not([data-dock])');
+  if (sticky) {
+    const root = document.documentElement;
+    let queued = false;
+    const update = () => {
+      queued = false;
+      root.classList.toggle('hdr-solid', window.scrollY > 8);
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    update();
   }
 </script>
