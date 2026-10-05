@@ -159,11 +159,15 @@ const faqSchema = {
           invalidateOnRefresh: true,
         },
       });
-      // Words slide apart and fade out completely as the cards come in. Both tweens act on the outer
-      // [data-word] wrapper, never on the gradient-clipped text itself (see BigOutlineHeading).
-      tl.to(left, { x: () => -shift(), opacity: 0 }, 0)
-        .to(right, { x: () => shift(), opacity: 0 }, 0)
-        .fromTo(list, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.7 }, 0.2);
+      // Timeline (0 → 1 = the pinned scroll distance):
+      //   0    → 1    "Asked" slides left, "Questions" slides right — fully visible so the move reads clearly
+      //   0.7  → 1    both words fade to 0 at the end of their travel
+      //   0.25 → 0.95 the FAQ cards rise and fade in
+      // All tweens act on the outer [data-word] wrapper, never on the gradient-clipped text itself.
+      tl.to(left, { x: () => -shift(), duration: 1 }, 0)
+        .to(right, { x: () => shift(), duration: 1 }, 0)
+        .to([...left, ...right], { opacity: 0, duration: 0.3, ease: 'power1.in' }, 0.7)
+        .fromTo(list, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.7 }, 0.25);
 
       return () => {
         section.classList.remove('is-scrub');
