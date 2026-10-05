@@ -11,6 +11,8 @@ interface Props {
   heading?: string;
   /** Output FAQPage JSON-LD for these items */
   schema?: boolean;
+  /** Pinned scroll animation (title splits, cards rise in). On by default on every page that uses the FAQ. */
+  animated?: boolean;
   class?: string;
 }
 
@@ -21,7 +23,7 @@ interface Props {
 // left and the rest to the right while the FAQ cards rise and fade into the gap. After that the section
 // un-pins and scrolls normally; the cards never move once shown, so they stay easy to read and click.
 // Phones / reduced motion / no JS: plain stacked layout (title above the cards).
-const { items, heading = 'Asked Questions', schema = true, class: className } = Astro.props;
+const { items, heading = 'Asked Questions', schema = true, animated = true, class: className } = Astro.props;
 
 const faqSchema = {
   '@context': 'https://schema.org',
@@ -36,7 +38,7 @@ const faqSchema = {
 
 {
   items.length > 0 && (
-    <section class:list={['faq-section section-y', className]} data-faq>
+    <section class:list={['faq-section section-y', className]} data-faq={animated ? '' : undefined}>
       <div class="faq-stage" data-faq-stage>
         <BigOutlineHeading text={heading} split class="faq-heading" />
         <div class="faq-list container-site" data-faq-list>
