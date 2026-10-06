@@ -57,16 +57,64 @@ const schema = [
 </BaseLayout>
 
 <script>
-  // Read More / Read Less: collapse long lists to their first items, toggle on click.
+  // Read More / Read Less: collapse long lists to their first items; open and close with a smooth height
+  // animation while the extra items fade in / out. Reduced motion: instant toggle.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
   document.querySelectorAll<HTMLButtonElement>('[data-svc-toggle]').forEach((btn) => {
     const list = document.getElementById(btn.getAttribute('aria-controls') ?? '');
     if (!list) return;
+    const visible = Number(list.dataset.visible) || 5;
+    const extras = Array.from(list.children).slice(visible) as HTMLElement[];
+    let running: Animation | null = null;
+
     list.classList.add('is-collapsed');
     btn.hidden = false;
-    btn.addEventListener('click', () => {
-      const open = list.classList.toggle('is-collapsed') === false;
+
+    const setOpen = (open: boolean) => {
       btn.setAttribute('aria-expanded', String(open));
       btn.textContent = open ? 'Read Less…' : 'Read More…';
+    };
+
+    btn.addEventListener('click', () => {
+      const opening = list.classList.contains('is-collapsed');
+      setOpen(opening);
+
+      if (reduceMotion.matches) {
+        list.classList.toggle('is-collapsed', !opening);
+        return;
+      }
+
+      // Start from the current on-screen height (also mid-animation, if the user clicks again)
+      const from = list.getBoundingClientRect().height;
+      running?.cancel();
+
+      // Measure the target height in the final state
+      list.classList.toggle('is-collapsed', !opening);
+      const to = list.getBoundingClientRect().height;
+      // While closing, keep the extra items visible until the list has shrunk
+      if (!opening) list.classList.remove('is-collapsed');
+
+      list.style.overflow = 'hidden';
+      running = list.animate({ height: [`${from}px`, `${to}px`] }, { duration: 450, easing: EASE });
+      extras.forEach((li, i) =>
+        li.animate(
+          opening
+            ? { opacity: [0, 1], transform: ['translateY(6px)', 'none'] }
+            : { opacity: [1, 0] },
+          opening
+            ? { duration: 350, delay: 60 + i * 25, easing: EASE, fill: 'backwards' }
+            : { duration: 200, easing: 'ease-out', fill: 'forwards' },
+        ),
+      );
+
+      running.onfinish = () => {
+        list.style.overflow = '';
+        if (!opening) list.classList.add('is-collapsed');
+        extras.forEach((li) => li.getAnimations().forEach((a) => a.cancel()));
+        running = null;
+      };
     });
   });
 </script>
