@@ -1,0 +1,11 @@
+category: Data Wiring and Cabling Services
+order: 5
+items:
+  - 'Fibre optic backbones'
+  - 'Multicore backbones'
+  - 'Cable management systems'
+  - 'UPS systems'
+  - 'Wireless (WiFi) networks'
+# TODO: real photo from Figma/client - upload in Keystatic
+image: ../../assets/services/data-wiring-and-cabling-services/image.svg
+imageAlt: Technician installing cabling in an open-plan office ceiling

@@ -1,0 +1,17 @@
+category: Design Service
+order: 1
+items:
+  - 'Initial consultation'
+  - 'Company research'
+  - 'Site survey'
+  - 'Space planning and layouts'
+  - 'Conceptual design'
+  - 'Design development, incl. mood boards, finishes and selections'
+  - 'Detailed design presentation'
+  - 'Drawing packs for design, tender and construction phases'
+  - '3D visuals'
+  - 'Specifications and schedules'
+  - 'Final finishes and styling'
+# TODO: real photo from Figma/client - upload in Keystatic
+image: ../../assets/services/design-service/image.svg
+imageAlt: Designer comparing carpet, fabric and stone samples

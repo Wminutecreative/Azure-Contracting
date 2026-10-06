@@ -1,0 +1,11 @@
+category: Commercial Service
+order: 2
+items:
+  - 'Budgets and estimates'
+  - 'Detailed quotations and breakdown of works'
+  - 'Project programming'
+  - 'Project management'
+  - 'Cost control management'
+# TODO: real photo from Figma/client - upload in Keystatic
+image: ../../assets/services/commercial-service/image.svg
+imageAlt: Hand annotating drawings in a project notebook

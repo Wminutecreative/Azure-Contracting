@@ -1,0 +1,72 @@
+---
+// Services — Figma 534:1449 (prototype 535:5950).
+// Big title "Services We Offer" (static) · one card per service (name, bullet list with Read More, photo) ·
+// client logos → footer. Services are managed in Keystatic (/keystatic → Services).
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
+import ServiceCard from '@/components/ServiceCard.astro';
+import LogoStrip from '@/components/LogoStrip.astro';
+import { getServices } from '@/lib/content';
+
+const services = await getServices();
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Services We Offer',
+    itemListElement: services.map((s, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Service',
+        name: s.data.category,
+        description: s.data.items.join(', '),
+        provider: { '@type': 'GeneralContractor', name: 'Azure Contracting' },
+        areaServed: 'Ireland',
+      },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 2, name: 'Services', item: new URL('/services', Astro.site).toString() },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Services We Offer"
+  description="Design, commercial management, fit-out and refurbishment, M&E, data cabling, audio visual, furniture and joinery — the full range of construction and fit-out services from Azure Contracting."
+  schema={schema}
+>
+  <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
+    <BigOutlineHeading text="Services We Offer" as="h1">
+      <div class="container-site">
+        <div class="mx-auto max-w-[70rem] space-y-3.5 md:space-y-4">
+          {services.map((service, i) => <ServiceCard service={service} eager={i === 0} />)}
+        </div>
+      </div>
+    </BigOutlineHeading>
+  </section>
+
+  <LogoStrip class="mt-[clamp(3rem,6vw,6rem)]" />
+</BaseLayout>
+
+<script>
+  // Read More / Read Less: collapse long lists to their first items, toggle on click.
+  document.querySelectorAll<HTMLButtonElement>('[data-svc-toggle]').forEach((btn) => {
+    const list = document.getElementById(btn.getAttribute('aria-controls') ?? '');
+    if (!list) return;
+    list.classList.add('is-collapsed');
+    btn.hidden = false;
+    btn.addEventListener('click', () => {
+      const open = list.classList.toggle('is-collapsed') === false;
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Read Less…' : 'Read More…';
+    });
+  });
+</script>

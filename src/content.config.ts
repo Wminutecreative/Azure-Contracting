@@ -58,12 +58,16 @@ const testimonials = defineCollection({
 
 const services = defineCollection({
   loader: glob({ pattern: '**/*.yaml', base: './src/content/services' }),
-  schema: z.object({
-    category: z.string(),
-    order: z.number(),
-    items: z.array(z.string()).default([]),
-    description: z.string().optional(),
-  }),
+  // Edited in Keystatic (keystatic.config.ts) — keep the two schemas in sync
+  schema: ({ image }) =>
+    z.object({
+      category: z.string(),
+      order: z.number().default(99),
+      items: z.array(z.string()).default([]),
+      description: z.string().nullish().transform((v) => v || undefined),
+      image: image(),
+      imageAlt: z.string().default(''),
+    }),
 });
 
 const faqs = defineCollection({

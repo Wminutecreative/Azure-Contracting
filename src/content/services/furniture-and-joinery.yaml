@@ -1,0 +1,11 @@
+category: Furniture and Joinery
+order: 7
+items:
+  - 'Client consultation and brief'
+  - 'Design and visuals'
+  - 'Selection'
+  - 'Supply and installation'
+  - 'Custom joinery'
+# TODO: real photo from Figma/client - upload in Keystatic
+image: ../../assets/services/furniture-and-joinery/image.svg
+imageAlt: Joiner assembling a custom desk unit

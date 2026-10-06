@@ -1,0 +1,11 @@
+category: Mechanical and Electrical Services
+order: 4
+items:
+  - 'Electrics'
+  - 'Air conditioning and ventilation'
+  - 'Fire alarm'
+  - 'Sprinkler systems'
+  - 'Fire suppression systems'
+# TODO: real photo from Figma/client - upload in Keystatic
+image: ../../assets/services/mechanical-and-electrical-services/image.svg
+imageAlt: Engineers inspecting ceiling services on site

@@ -1,0 +1,11 @@
+category: Fit-out and Refurbishment
+order: 3
+items:
+  - 'Partitions'
+  - 'Glazing, internal and external'
+  - 'Acoustic solutions'
+  - 'MF ceiling and bulkheads'
+  - 'Suspended ceiling'
+# TODO: real photo from Figma/client - upload in Keystatic
+image: ../../assets/services/fit-out-and-refurbishment/image.svg
+imageAlt: Site team in hi-vis reviewing a fit-out

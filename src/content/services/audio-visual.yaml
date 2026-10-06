@@ -1,0 +1,10 @@
+category: Audio Visual
+order: 6
+items:
+  - 'Video conferencing'
+  - 'Audio systems'
+  - 'Control systems'
+  - 'Lighting controllers'
+# TODO: real photo from Figma/client - upload in Keystatic
+image: ../../assets/services/audio-visual/image.svg
+imageAlt: Boardroom with a large table and wall-mounted screen

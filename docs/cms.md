@@ -1,7 +1,7 @@
 # Managing content with Keystatic
 
-Admin panel: **`/keystatic`** — manages **Projects** and **Testimonials** (more collections can be added in
-`keystatic.config.ts`).
+Admin panel: **`/keystatic`** — manages **Projects**, **Services** and **Testimonials** (more collections can be
+added in `keystatic.config.ts`).
 
 ## Option A — edit on your computer (works now)
 
@@ -44,6 +44,17 @@ Files: `src/content/projects/<url>.md` and `src/assets/projects/<url>/…` (phot
 | Show on the homepage | Tick to include it in "Our Featured Work" on the homepage |
 | Order | Lower numbers first (Projects page and homepage) |
 | Project description | Full write-up for the project page |
+
+## Service fields
+
+Files: `src/content/services/<name>.yaml` and `src/assets/services/<name>/…` (photo).
+
+| Field | Notes |
+|---|---|
+| Service name | Card title on /services |
+| What it includes | One line per item. First 5 show; longer lists get "Read More…" |
+| Photo + description | Landscape, ≥ 1200px wide |
+| Order | Lower numbers first |
 
 ## Testimonial fields
 

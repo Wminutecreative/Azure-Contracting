@@ -74,6 +74,32 @@ export default config({
       },
     }),
 
+    // Must match the `services` schema in src/content.config.ts
+    services: collection({
+      label: 'Services',
+      slugField: 'category',
+      path: 'src/content/services/*',
+      format: { data: 'yaml' },
+      columns: ['order'],
+      schema: {
+        category: fields.slug({ name: { label: 'Service name', validation: { isRequired: true } } }),
+        items: fields.array(fields.text({ label: 'Item' }), {
+          label: 'What it includes',
+          description: 'One line each. The first 5 show on the card; longer lists get a "Read More…" toggle.',
+          itemLabel: (props) => props.value || 'Item',
+        }),
+        image: fields.image({
+          label: 'Photo',
+          description: 'Landscape, at least 1200px wide.',
+          directory: 'src/assets/services',
+          publicPath: '../../assets/services/',
+          validation: { isRequired: true },
+        }),
+        imageAlt: fields.text({ label: 'Photo description', description: 'What the photo shows (for screen readers and Google).' }),
+        order: fields.integer({ label: 'Order', description: 'Lower numbers appear first.', defaultValue: 10 }),
+      },
+    }),
+
     // Must match the `testimonials` schema in src/content.config.ts
     testimonials: collection({
       label: 'Testimonials',

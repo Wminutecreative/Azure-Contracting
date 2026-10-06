@@ -1,0 +1,55 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+// Services page card (design): white rounded card — name + bullet list + "Read More…" on the left, photo on
+// the right. Lists longer than VISIBLE items collapse with a Read More / Read Less toggle (enhanced by the
+// script on the Services page; without JS every item shows and the toggle stays hidden).
+interface Props {
+  service: CollectionEntry<'services'>;
+  eager?: boolean;
+}
+const VISIBLE = 5;
+const { service, eager = false } = Astro.props;
+const { category, items, image, imageAlt } = service.data;
+const collapsible = items.length > VISIBLE;
+const listId = `svc-${service.id}`;
+---
+
+<article class="svc-card grid gap-6 rounded-[1.25rem] bg-white p-5 md:grid-cols-[1fr_minmax(0,0.85fr)] md:items-start md:gap-10 md:p-7">
+  <div class="md:py-2">
+    <h2 class="text-text-dark font-body text-[clamp(1.5rem,1.25rem+0.9vw,2rem)] leading-tight font-normal">{category}</h2>
+    <ul id={listId} class="svc-list text-text-medium mt-4 list-disc space-y-1 pl-5 text-[0.9375rem] leading-[1.45]" data-svc-list data-visible={VISIBLE}>
+      {items.map((item) => <li>{item}</li>)}
+    </ul>
+    {
+      collapsible && (
+        <button
+          type="button"
+          class="text-navy mt-5 text-sm underline underline-offset-4 hover:no-underline"
+          aria-controls={listId}
+          aria-expanded="false"
+          data-svc-toggle
+          hidden
+        >
+          Read More…
+        </button>
+      )
+    }
+  </div>
+  <Image
+    src={image}
+    alt={imageAlt}
+    widths={[480, 720, 960]}
+    sizes="(min-width: 1200px) 480px, (min-width: 768px) 42vw, 100vw"
+    loading={eager ? 'eager' : 'lazy'}
+    class="aspect-[16/10] w-full rounded-2xl object-cover max-md:order-first"
+  />
+</article>
+
+<style>
+  /* Collapsed (set by the script): hide items after the first VISIBLE (5) */
+  .svc-list.is-collapsed > :global(li:nth-child(n + 6)) {
+    display: none;
+  }
+</style>

@@ -1,0 +1,11 @@
+category: Other Services
+order: 8
+items:
+  - 'Access control systems'
+  - 'Security cameras'
+  - 'Signage and branding'
+  - 'Ground works'
+  - 'Roof works'
+# TODO: real photo from Figma/client - upload in Keystatic
+image: ../../assets/services/other-services/image.svg
+imageAlt: Office interior with a plant and wall-mounted screen
