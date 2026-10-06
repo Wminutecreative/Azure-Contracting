@@ -2,25 +2,86 @@
 import { Image } from 'astro:assets';
 import { clients } from '@/data/site';
 
+// Client logos above the footer (every page): an endless marquee scrolling right → left.
+// The list is rendered twice side by side and the track slides by exactly one list width (-50%), so the loop
+// is seamless. Pauses on hover; edges fade out. Reduced motion: no scrolling, logos sit centred and wrap.
 interface Props {
   class?: string;
 }
 const { class: className } = Astro.props;
 ---
 
-<section class:list={['py-12 md:py-[4.5rem]', className]} aria-labelledby="clients-heading">
+<section class:list={['logo-strip py-12 md:py-[4.5rem]', className]} aria-labelledby="clients-heading">
   <h2 id="clients-heading" class="sr-only">Clients we have worked with</h2>
-  <ul class="flex flex-wrap items-center justify-center gap-x-10 gap-y-8 px-(--gutter) lg:flex-nowrap lg:justify-between lg:px-9">
-    {
-      clients.map((c) => (
-        <li class="shrink-0">
-          <Image
-            src={c.logo}
-            alt={c.name}
-            class="h-9 w-auto opacity-90 transition-opacity hover:opacity-100 md:h-12 lg:h-auto"
-          />
-        </li>
-      ))
-    }
-  </ul>
+  <div class="marquee">
+    <div class="marquee-track">
+      {
+        [0, 1].map((copy) => (
+          <ul class="marquee-list" aria-hidden={copy === 1 ? 'true' : undefined}>
+            {clients.map((c) => (
+              <li class="shrink-0">
+                <Image
+                  src={c.logo}
+                  alt={copy === 1 ? '' : c.name}
+                  class="h-9 w-auto opacity-90 transition-opacity hover:opacity-100 md:h-12 lg:h-[3.4rem]"
+                />
+              </li>
+            ))}
+          </ul>
+        ))
+      }
+    </div>
+  </div>
 </section>
+
+<style>
+  .marquee {
+    --gap: clamp(2.5rem, 1.5rem + 4vw, 6rem);
+    overflow: hidden;
+    /* Fade the logos in/out at the edges */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 40s linear infinite;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+  .marquee-list {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    /* Same spacing after the last logo so the two copies join seamlessly */
+    padding-right: var(--gap);
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Reduced motion: a still, centred, wrapping row (the duplicate copy is hidden) */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .marquee-track {
+      width: auto;
+      animation: none;
+      justify-content: center;
+    }
+    .marquee-list {
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 2rem;
+      padding-inline: var(--gutter);
+    }
+    .marquee-list[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>
