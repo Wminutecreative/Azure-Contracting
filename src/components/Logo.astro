@@ -8,6 +8,8 @@ interface Props {
   class?: string;
 }
 const { tone = 'light', class: className = 'text-[2rem]' } = Astro.props;
+import logo from "../assets/icons/logo.png";
+
 ---
 
 <span
@@ -18,7 +20,7 @@ const { tone = 'light', class: className = 'text-[2rem]' } = Astro.props;
     className,
   ]}
 >
-<img class=" mt-[0.05em] block size-[0.77em] shrink-0" src="/src/assets/icons/logo.png" alt="">
+<img class=" mt-[0.05em] block size-[0.77em] shrink-0" src={logo.src} alt="">
   <!-- <span class="border-neon mt-[0.05em] block size-[0.77em] shrink-0 rounded-[0.17em] border-[0.056em]" aria-hidden="true"></span> -->
   <span class="font-display font-light">
     <span class="block text-[1em] leading-[0.8] tracking-[-0.01em]">azure</span>
