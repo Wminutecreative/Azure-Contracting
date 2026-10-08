@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import PlayIcon from './PlayIcon.astro';
+import NavArrow from './NavArrow.astro';
 
 // "Trusted By Builders" layout from the homepage design (1512px):
 //   [heading + current photo 230w] [quote card 563w] [2×2: _, Next tile / Prev tile, next person's photo]
@@ -69,18 +69,21 @@ const count = testimonials.length;
             ))}
           </div>
 
-          <!-- Column 3: prev / next tiles + next person's photo -->
-          <div class="grid min-w-0 grid-cols-2 gap-3 lg:grid-rows-2">
-            <span class="hidden lg:block" aria-hidden="true" />
-            <button type="button" class="t-tile flex-col items-start justify-between" data-next aria-label="Next testimonial">
-              <span class="text-left" aria-hidden="true">Next Testimonial</span>
-              <PlayIcon size={26} class="self-end" />
+          <!-- Column 3 (desktop): Next tile top-right + Previous tile bottom-left, joined into one stepped navy
+               shape with curved inner corners; the next person's photo sits in the pocket bottom-right.
+               Below desktop: two tiles side by side. -->
+          <div class="t-nav grid min-w-0 grid-cols-2 gap-3">
+            <button type="button" class="t-tile t-tile-next flex-col items-start justify-between" data-next aria-label="Next testimonial">
+              <span class="text-left" aria-hidden="true">Next<br />Testimonial</span>
+              <NavArrow class="self-end" />
             </button>
-            <button type="button" class="t-tile flex-col items-end justify-between max-lg:order-first" data-prev aria-label="Previous testimonial">
-              <PlayIcon size={26} direction="left" class="self-start" />
-              <span class="text-right" aria-hidden="true">Previous Testimonial</span>
+            <button type="button" class="t-tile t-tile-prev flex-col items-end justify-between max-lg:order-first" data-prev aria-label="Previous testimonial">
+              <NavArrow direction="left" class="self-start" />
+              <span class="text-right" aria-hidden="true">Previous<br />Testimonial</span>
             </button>
-            <div class="stack hidden lg:grid" aria-hidden="true">
+            <span class="t-fillet t-fillet-a" aria-hidden="true"></span>
+            <span class="t-fillet t-fillet-b" aria-hidden="true"></span>
+            <div class="t-photo stack hidden lg:grid" aria-hidden="true">
               {testimonials.map((t, i) => (
                 <Image
                   src={t.data.photo}
@@ -152,13 +155,67 @@ const count = testimonials.length;
       background-color 0.3s,
       color 0.3s;
   }
-  .t-tile:hover {
-    background: #1a3260;
+  /* Hover changes the text and arrow only — the background stays navy so the joined shape has no seams */
+  .t-tile:hover,
+  .t-tile:focus-visible {
     color: var(--color-white);
   }
   .t-tile :global(svg) {
     color: var(--color-white);
     transition: transform 0.3s ease;
+  }
+  .t-fillet {
+    display: none;
+  }
+
+  /* Desktop: joined tiles. --o = how far each tile reaches past the centre (they overlap there),
+     --r = radius of the curved inner corners, --g = gap between the shape and the photo. */
+  @media (min-width: 75rem) {
+    .t-nav {
+      --o: 0.75rem;
+      --r: 2.125rem;
+      --g: 0.75rem;
+      display: block;
+      position: relative;
+    }
+    .t-nav > * {
+      position: absolute;
+    }
+    .t-tile-next {
+      left: calc(50% - var(--o));
+      right: 0;
+      top: 0;
+      bottom: calc(50% - var(--o));
+    }
+    .t-tile-prev {
+      left: 0;
+      right: calc(50% - var(--o));
+      top: calc(50% - var(--o));
+      bottom: 0;
+    }
+    .t-photo {
+      left: calc(50% + var(--o) + var(--g));
+      right: 0;
+      top: calc(50% + var(--o) + var(--g));
+      bottom: 0;
+    }
+    /* Curved inner corners: navy squares with a quarter circle cut out */
+    .t-fillet {
+      display: block;
+      width: var(--r);
+      height: var(--r);
+      pointer-events: none;
+    }
+    .t-fillet-a {
+      left: calc(50% - var(--o) - var(--r));
+      top: calc(50% - var(--o) - var(--r));
+      background: radial-gradient(circle at 0 0, transparent calc(var(--r) - 0.5px), var(--color-navy) var(--r));
+    }
+    .t-fillet-b {
+      left: calc(50% + var(--o));
+      top: calc(50% + var(--o));
+      background: radial-gradient(circle at 100% 100%, transparent calc(var(--r) - 0.5px), var(--color-navy) var(--r));
+    }
   }
   .t-tile[data-next]:hover :global(svg) {
     transform: translateX(4px);

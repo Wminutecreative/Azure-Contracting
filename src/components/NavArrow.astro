@@ -1,0 +1,23 @@
+---
+// Soft rounded triangle arrow (testimonial prev / next tiles). Uses currentColor, no background.
+interface Props {
+  class?: string;
+  size?: number;
+  direction?: 'right' | 'left';
+}
+const { class: className, size = 28, direction = 'right' } = Astro.props;
+---
+
+<svg
+  class:list={[direction === 'left' && 'rotate-180', className]}
+  width={size}
+  height={size}
+  viewBox="9.4 9.4 12.8 14"
+  fill="none"
+  aria-hidden="true"
+>
+  <path
+    fill="currentColor"
+    d="M11.4201 10.0312C11.8701 9.95117 12.0301 10.0612 12.4101 10.1812C14.0001 10.7012 18.5301 13.1412 19.9601 14.1312C21.6601 15.3212 22.3501 17.1612 20.4701 18.5912C19.6401 19.2212 13.5901 22.4912 12.6701 22.7812C11.6101 23.1212 10.6501 23.0912 10.1801 21.9112C9.63007 20.5412 10.5001 20.0912 10.8201 18.9212C11.3001 17.1512 11.3801 16.0012 10.8701 14.2212C10.5301 13.0212 8.92007 10.4712 11.4201 10.0312Z"
+  ></path>
+</svg>

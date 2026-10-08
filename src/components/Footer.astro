@@ -10,9 +10,9 @@ const year = new Date().getFullYear();
   <span class="footer-outline pointer-events-none absolute hidden lg:block" aria-hidden="true"></span>
 
   <div class="relative px-[clamp(1rem,0.2rem+5vw,5.3rem)] pt-16 pb-10 lg:pt-[6.1rem] lg:pb-[2.4rem]">
-    <div class="flex max-w-[57.5rem] flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex max-w-[66%] flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
       <a href="/" aria-label="Azure Contracting — home" class="self-start lg:self-auto">
-        <Logo class="text-[1.9rem]" />
+        <Logo class="text-[2.25rem]" />
       </a>
       <nav aria-label="Footer">
         <ul class="text-p1 grid grid-cols-2 gap-x-10 gap-y-4 sm:flex sm:flex-wrap">
@@ -21,7 +21,7 @@ const year = new Date().getFullYear();
       </nav>
     </div>
 
-    <div class="text-p3 mt-14 flex max-w-[57.5rem] flex-col-reverse gap-4 text-white/85 lg:mt-[6.25rem] lg:flex-row lg:items-center lg:justify-between">
+    <div class="text-p3 mt-14 flex max-w-[66%] flex-col-reverse gap-4 text-white/85 lg:mt-[6.25rem] lg:flex-row lg:items-center lg:justify-between">
       <p class="text-[0.8125rem]">© {year} Azure Contracting Pvt. Ltd. All rights reserved.</p>
       <ul class="flex flex-wrap gap-x-6 gap-y-2 text-[0.8125rem]">
         {legalNav.map((link) => <li><a href={link.href} class="hover:text-neon transition-colors">{link.label}</a></li>)}
