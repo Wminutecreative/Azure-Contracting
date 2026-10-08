@@ -7,8 +7,6 @@ import Button from './Button.astro';
 // dataLayer event on success.
 const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
 
-console.log('Contact form endpoint:', endpoint);
-
 const fields = [
   { name: 'name', label: 'Your name', type: 'text', autocomplete: 'name', required: true },
   { name: 'email', label: 'Your email', type: 'email', autocomplete: 'email', required: true },
@@ -17,6 +15,8 @@ const fields = [
 ] as const;
 ---
 
+<!-- Form and success panel share one grid cell; on success the form fades out and the panel fades in -->
+<div class="cf-wrap" data-cf-wrap>
 <form class="contact-form" novalidate data-contact-form data-endpoint={endpoint}>
   <div class="space-y-5">
     {
@@ -59,7 +59,105 @@ const fields = [
   <p class="cf-status text-p2 mt-4" role="status" aria-live="polite" data-cf-status></p>
 </form>
 
+<div class="cf-success" hidden data-cf-success>
+  <div class="cf-success-icon" aria-hidden="true">
+    <svg viewBox="0 0 52 52" width="52" height="52">
+      <circle class="cf-ring" cx="26" cy="26" r="24" fill="none" stroke="currentColor" stroke-width="2"></circle>
+      <path class="cf-tick" d="M15 27l7 7 15-16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </div>
+  <h3 class="text-navy font-body mt-6 text-[clamp(1.5rem,1.25rem+0.9vw,2rem)] leading-tight font-normal" tabindex="-1" data-cf-success-title>
+    Thank you!
+  </h3>
+  <p class="text-text-medium mt-3 max-w-[26rem] text-[0.9375rem] leading-[1.6]">
+    Your message is on its way to our team. We'll review your project details and get back to you shortly.
+  </p>
+  <p class="text-stat-label mt-2 text-sm" data-cf-success-email></p>
+  <button type="button" class="text-navy mt-7 text-sm underline underline-offset-4 hover:no-underline cursor-pointer" data-cf-again>
+    Send another message
+  </button>
+</div>
+</div>
+
 <style>
+  .cf-wrap {
+    display: grid;
+  }
+  .cf-wrap > * {
+    grid-area: 1 / 1;
+  }
+  .contact-form,
+  .cf-success {
+    transition:
+      opacity 0.45s ease,
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cf-wrap.is-done .contact-form {
+    opacity: 0;
+    transform: translateY(-0.75rem);
+    pointer-events: none;
+  }
+  .cf-success {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  .cf-success[hidden] {
+    display: none;
+  }
+  .cf-wrap.is-done .cf-success {
+    opacity: 1;
+    transform: none;
+  }
+  .cf-success-icon {
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 9999px;
+    background: var(--color-neon);
+    color: var(--color-navy);
+    transform: scale(0.6);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
+  }
+  .cf-wrap.is-done .cf-success-icon {
+    transform: scale(1);
+  }
+  /* Ring and tick draw themselves in */
+  .cf-ring {
+    stroke-dasharray: 151;
+    stroke-dashoffset: 151;
+    opacity: 0.35;
+  }
+  .cf-tick {
+    stroke-dasharray: 36;
+    stroke-dashoffset: 36;
+  }
+  .cf-wrap.is-done .cf-ring {
+    animation: cf-draw 0.6s ease-out 0.25s forwards;
+  }
+  .cf-wrap.is-done .cf-tick {
+    animation: cf-draw 0.45s ease-out 0.6s forwards;
+  }
+  @keyframes cf-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  [data-cf-success-title]:focus {
+    outline: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cf-ring,
+    .cf-tick {
+      stroke-dashoffset: 0;
+      animation: none !important;
+    }
+  }
+
   .cf-input {
     width: 100%;
     border: 0;
@@ -115,6 +213,34 @@ const fields = [
     const endpoint = form.dataset.endpoint ?? '';
     const status = form.querySelector<HTMLElement>('[data-cf-status]')!;
     const submit = form.querySelector<HTMLButtonElement>('[data-cf-submit]');
+    const submitLabel = submit?.querySelector('span');
+    const wrap = form.closest<HTMLElement>('[data-cf-wrap]');
+    const success = wrap?.querySelector<HTMLElement>('[data-cf-success]');
+    const successTitle = success?.querySelector<HTMLElement>('[data-cf-success-title]');
+    const successEmail = success?.querySelector<HTMLElement>('[data-cf-success-email]');
+
+    const showSuccess = (name: string, email: string) => {
+      if (!wrap || !success) return setStatus('success', 'Thank you — your message has been sent.');
+      const first = name.split(/\s+/)[0];
+      if (successTitle) successTitle.textContent = first ? `Thank you, ${first}!` : 'Thank you!';
+      if (successEmail) successEmail.textContent = `We'll reply to ${email}.`;
+      success.hidden = false;
+      form.setAttribute('aria-hidden', 'true');
+      form.inert = true;
+      requestAnimationFrame(() => requestAnimationFrame(() => wrap.classList.add('is-done')));
+      successTitle?.focus({ preventScroll: true });
+    };
+
+    wrap?.querySelector('[data-cf-again]')?.addEventListener('click', () => {
+      wrap.classList.remove('is-done');
+      form.removeAttribute('aria-hidden');
+      form.inert = false;
+      setStatus('', '');
+      window.setTimeout(() => {
+        if (success) success.hidden = true;
+        (form.elements.namedItem('name') as HTMLInputElement)?.focus();
+      }, 450);
+    });
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const setError = (input: HTMLInputElement | HTMLTextAreaElement, msg: string) => {
@@ -163,21 +289,26 @@ const fields = [
       data.append('page', window.location.href);
 
       submit?.setAttribute('disabled', '');
-      setStatus('sending', 'Sending…');
+      if (submitLabel) submitLabel.textContent = 'Sending…';
+      setStatus('sending', '');
       try {
         // Form-encoded POST = no CORS preflight, which Google Apps Script web apps need
         const res = await fetch(endpoint, { method: 'POST', body: data });
         const json = await res.json().catch(() => ({ ok: res.ok }));
         if (!res.ok || !json.ok) throw new Error('rejected');
 
+        const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
+        const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
         form.reset();
-        setStatus('success', 'Thank you — your message has been sent. We will be in touch shortly.');
+        setStatus('', '');
+        showSuccess(name, email);
         const w = window as unknown as DL;
         (w.dataLayer ??= []).push({ event: 'generate_lead', form_name: 'contact', page_location: window.location.href });
       } catch {
         setStatus('error', 'Sorry, something went wrong sending your message. Please try again, or email us directly.');
       } finally {
         submit?.removeAttribute('disabled');
+        if (submitLabel) submitLabel.textContent = 'Contact Us';
       }
     });
   });
