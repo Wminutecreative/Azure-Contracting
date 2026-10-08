@@ -1,5 +1,5 @@
 ---
-import BigOutlineHeading from './BigOutlineHeading.astro';
+import BigOutlineHeading from "./BigOutlineHeading.astro";
 
 export interface FaqItem {
   question: string;
@@ -23,46 +23,83 @@ interface Props {
 // left and the rest to the right while the FAQ cards rise and fade into the gap. After that the section
 // un-pins and scrolls normally; the cards never move once shown, so they stay easy to read and click.
 // Phones / reduced motion / no JS: plain stacked layout (title above the cards).
-const { items, heading = 'Asked Questions', schema = true, animated = true, class: className } = Astro.props;
+const {
+  items,
+  heading = "Asked Questions",
+  schema = true,
+  animated = true,
+  class: className,
+} = Astro.props;
 
 const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
   mainEntity: items.map((item) => ({
-    '@type': 'Question',
+    "@type": "Question",
     name: item.question,
-    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
   })),
 };
 ---
 
 {
   items.length > 0 && (
-    <section class:list={['faq-section section-y', className]} data-faq={animated ? '' : undefined}>
+    <section
+      class:list={["faq-section section-y", className]}
+      data-faq={animated ? "" : undefined}
+    >
       <div class="faq-stage" data-faq-stage>
         <BigOutlineHeading text={heading} split class="faq-heading" />
         <div class="faq-list container-site" data-faq-list>
-          <div class="mx-auto max-w-[65rem] space-y-3.5">
+          <div class="mx-auto max-w-[41rem] space-y-3.5">
             {items.map((item, i) => (
-              <details class="faq overflow-hidden rounded-[1.375rem] bg-white" name="faq" open={i === 0} data-accordion>
-                <summary class="text-navy flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-6 text-[clamp(1.125rem,1.6vw,1.375rem)] md:px-8 md:py-[1.625rem]">
+              <details
+                class="faq overflow-hidden rounded-[1.375rem] bg-white border  px-4 py-4 md:px-6 md:py-6"
+                name="faq"
+                open={i === 0}
+                data-accordion
+              >
+                <summary
+                  class="text-navy flex cursor-pointer list-none font-medium items-center justify-between gap-6 text-[clamp(1rem, 0.96rem + 0.18vw, 1.125rem)]"
+                  data-accordion-trigger
+                >
                   <span>{item.question}</span>
-                  <span class="faq-icon grid size-9 shrink-0 place-items-center rounded-[0.625rem]" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <span
+                    class="faq-icon grid size-6 shrink-0 place-items-center rounded-[0.625rem]"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    >
                       <path d="M4 12h16" />
                       <path class="faq-icon-v" d="M12 4v16" />
                     </svg>
+
                   </span>
                 </summary>
                 <div class="overflow-hidden" data-accordion-body>
-                  <p class="text-stat-label max-w-[51.25rem] px-6 pb-7 text-base leading-[1.65] text-pretty md:px-8 md:pb-[1.875rem]">{item.answer}</p>
+                  <p class="text-[#161616] max-w-[51.25rem] text-p3 leading-[1.65] text-pretty pt-2.5 md:pt-3">
+                    {item.answer}
+                  </p>
                 </div>
               </details>
             ))}
           </div>
         </div>
       </div>
-      {schema && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+      {schema && (
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={JSON.stringify(faqSchema)}
+        />
+      )}
     </section>
   )
 }
@@ -82,7 +119,10 @@ const faqSchema = {
     grid-template: 1fr / 1fr;
     align-items: center;
     overflow: hidden;
-    padding-top: var(--hdr-h, 0px); /* keep the centre clear of the fixed header */
+    padding-top: var(
+      --hdr-h,
+      0px
+    ); /* keep the centre clear of the fixed header */
   }
   .faq-section.is-scrub .faq-stage > :global(*) {
     grid-area: 1 / 1;
@@ -102,9 +142,11 @@ const faqSchema = {
       background-color 0.3s ease,
       color 0.3s ease;
   }
-  .faq[open] .faq-icon {
-    /* background: var(--color-navy);
-    color: var(--color-white); */
+   .faq {
+    border-color: transparent;
+  }
+  .faq[open] {
+    border-color: #C7D92E;
   }
   .faq-icon-v {
     transform-origin: center;
@@ -116,9 +158,9 @@ const faqSchema = {
 </style>
 
 <script>
-  import '@/scripts/accordion';
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import "@/scripts/accordion";
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -140,10 +182,12 @@ const faqSchema = {
     }).observe(document.body);
   }
 
-  document.querySelectorAll<HTMLElement>('[data-faq]').forEach((section) => {
-    const stage = section.querySelector<HTMLElement>('[data-faq-stage]');
-    const list = section.querySelector<HTMLElement>('[data-faq-list]');
-    const words = Array.from(section.querySelectorAll<HTMLElement>('[data-word]'));
+  document.querySelectorAll<HTMLElement>("[data-faq]").forEach((section) => {
+    const stage = section.querySelector<HTMLElement>("[data-faq-stage]");
+    const list = section.querySelector<HTMLElement>("[data-faq-list]");
+    const words = Array.from(
+      section.querySelectorAll<HTMLElement>("[data-word]"),
+    );
     if (!stage || !list || words.length < 2) return;
 
     // First half of the words go left, the rest go right ("Asked" | "Questions")
@@ -153,41 +197,54 @@ const faqSchema = {
 
     const mm = gsap.matchMedia();
     // Needs room for the pinned stage: tablet width and up, and a viewport tall enough for the cards
-    mm.add('(min-width: 48rem) and (min-height: 42.5rem) and (prefers-reduced-motion: no-preference)', () => {
-      section.classList.add('is-scrub');
-      // Start with every question closed so the list fits inside the pinned viewport (one open still fits)
-      const firstOpen = section.querySelector<HTMLDetailsElement>('details[open]');
-      firstOpen?.removeAttribute('open');
-      ScrollTrigger.refresh();
+    mm.add(
+      "(min-width: 48rem) and (min-height: 42.5rem) and (prefers-reduced-motion: no-preference)",
+      () => {
+        section.classList.add("is-scrub");
+        // Start with every question closed so the list fits inside the pinned viewport (one open still fits)
+        const firstOpen =
+          section.querySelector<HTMLDetailsElement>("details[open]");
+        firstOpen?.removeAttribute("open");
+        ScrollTrigger.refresh();
 
-      // How far each word travels: towards the stage edges, leaving the centre to the cards
-      const shift = () => Math.min(window.innerWidth * 0.3, 520);
+        // How far each word travels: towards the stage edges, leaving the centre to the cards
+        const shift = () => Math.min(window.innerWidth * 0.3, 520);
 
-      const tl = gsap.timeline({
-        defaults: { ease: 'none' },
-        scrollTrigger: {
-          trigger: stage,
-          start: 'top top',
-          end: '+=85%',
-          pin: true,
-          scrub: 0.8,
-          invalidateOnRefresh: true,
-        },
-      });
-      // Timeline (0 → 1 = the pinned scroll distance):
-      //   0    → 1    "Asked" slides left, "Questions" slides right — fully visible so the move reads clearly
-      //   0.7  → 1    both words fade to 0 at the end of their travel
-      //   0.25 → 0.95 the FAQ cards rise and fade in
-      // All tweens act on the outer [data-word] wrapper, never on the gradient-clipped text itself.
-      tl.to(left, { x: () => -shift(), duration: 1 }, 0)
-        .to(right, { x: () => shift(), duration: 1 }, 0)
-        .to([...left, ...right], { opacity: 0, duration: 0.3, ease: 'power1.in' }, 0.7)
-        .fromTo(list, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.7 }, 0.25);
+        const tl = gsap.timeline({
+          defaults: { ease: "none" },
+          scrollTrigger: {
+            trigger: stage,
+            start: "top top",
+            end: "+=85%",
+            pin: true,
+            scrub: 0.8,
+            invalidateOnRefresh: true,
+          },
+        });
+        // Timeline (0 → 1 = the pinned scroll distance):
+        //   0    → 1    "Asked" slides left, "Questions" slides right — fully visible so the move reads clearly
+        //   0.7  → 1    both words fade to 0 at the end of their travel
+        //   0.25 → 0.95 the FAQ cards rise and fade in
+        // All tweens act on the outer [data-word] wrapper, never on the gradient-clipped text itself.
+        tl.to(left, { x: () => -shift(), duration: 1 }, 0)
+          .to(right, { x: () => shift(), duration: 1 }, 0)
+          .to(
+            [...left, ...right],
+            { opacity: 0, duration: 0.3, ease: "power1.in" },
+            0.7,
+          )
+          .fromTo(
+            list,
+            { autoAlpha: 0, y: 140 },
+            { autoAlpha: 1, y: 0, ease: "power2.out", duration: 0.7 },
+            0.25,
+          );
 
-      return () => {
-        section.classList.remove('is-scrub');
-        firstOpen?.setAttribute('open', '');
-      };
-    });
+        return () => {
+          section.classList.remove("is-scrub");
+          firstOpen?.setAttribute("open", "");
+        };
+      },
+    );
   });
 </script>

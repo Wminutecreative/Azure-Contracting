@@ -7,6 +7,8 @@ import Button from './Button.astro';
 // dataLayer event on success.
 const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
 
+console.log('Contact form endpoint:', endpoint);
+
 const fields = [
   { name: 'name', label: 'Your name', type: 'text', autocomplete: 'name', required: true },
   { name: 'email', label: 'Your email', type: 'email', autocomplete: 'email', required: true },
