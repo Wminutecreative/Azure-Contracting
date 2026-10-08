@@ -96,15 +96,15 @@ const faqSchema = {
   }
   /* Closed: pale chip with "+"; open: navy chip with "−" */
   .faq-icon {
-    background: #eef1f6;
+    /* background: #eef1f6; */
     color: var(--color-navy);
     transition:
       background-color 0.3s ease,
       color 0.3s ease;
   }
   .faq[open] .faq-icon {
-    background: var(--color-navy);
-    color: var(--color-white);
+    /* background: var(--color-navy);
+    color: var(--color-white); */
   }
   .faq-icon-v {
     transform-origin: center;
@@ -122,8 +122,23 @@ const faqSchema = {
 
   gsap.registerPlugin(ScrollTrigger);
 
-  // Web fonts can finish after `load` and change the height of everything above the FAQ — re-measure the pin then.
+  // The pin position is measured once; anything above the FAQ that changes height afterwards (web fonts, lazy
+  // images, sliders, layout edits) would leave it pinning in the wrong place. So re-measure whenever the page
+  // height changes — debounced, and ignoring the change ScrollTrigger's own refresh causes.
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
+  {
+    let lastHeight = document.documentElement.scrollHeight;
+    let timer = 0;
+    new ResizeObserver(() => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        const h = document.documentElement.scrollHeight;
+        if (Math.abs(h - lastHeight) < 2) return;
+        ScrollTrigger.refresh();
+        lastHeight = document.documentElement.scrollHeight;
+      }, 150);
+    }).observe(document.body);
+  }
 
   document.querySelectorAll<HTMLElement>('[data-faq]').forEach((section) => {
     const stage = section.querySelector<HTMLElement>('[data-faq-stage]');
