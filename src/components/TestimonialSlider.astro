@@ -73,17 +73,17 @@ const count = testimonials.length;
                shape with curved inner corners; the next person's photo sits in the pocket bottom-right.
                Below desktop: two tiles side by side. -->
           <div class="t-nav grid min-w-0 grid-cols-2 gap-3">
-            <button type="button" class="t-tile t-tile-next flex-col items-start justify-between" data-next aria-label="Next testimonial">
+            <button type="button" class="t-tile t-tile-next flex-col items-start justify-between cursor-pointer" data-next aria-label="Next testimonial">
               <span class="text-left" aria-hidden="true">Next<br />Testimonial</span>
               <NavArrow class="self-end" />
             </button>
-            <button type="button" class="t-tile t-tile-prev flex-col items-end justify-between max-lg:order-first" data-prev aria-label="Previous testimonial">
+            <button type="button" class="t-tile t-tile-prev flex-col items-end justify-between max-lg:order-first cursor-pointer" data-prev aria-label="Previous testimonial">
               <NavArrow direction="left" class="self-start" />
               <span class="text-right" aria-hidden="true">Previous<br />Testimonial</span>
             </button>
             <span class="t-fillet t-fillet-a" aria-hidden="true"></span>
             <span class="t-fillet t-fillet-b" aria-hidden="true"></span>
-            <div class="t-photo stack hidden lg:grid" aria-hidden="true">
+            <div class="t-photo stack hidden lg:grid overflow-hidden rounded-[1.375rem]" aria-hidden="true">
               {testimonials.map((t, i) => (
                 <Image
                   src={t.data.photo}
