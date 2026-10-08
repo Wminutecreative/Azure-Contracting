@@ -56,10 +56,13 @@ export const legalNav: NavLink[] = [
 ];
 
 export const contact = {
-  // TODO: email and phone from Figma contact page — left empty so nothing invented ships.
-  email: '',
+  // From the Contact Us design. TODO: confirm email; phone (and the Eircode) were unreadable in the design export —
+  // add them here and they appear on the Contact page, menu and footer automatically.
+  email: 'info@azurecontracting.ie',
   phone: '',
-  address: ['Osprey Business Centre', 'Naas, Co. Kildare', 'Ireland'], // TODO: verify in Figma
+  address: ['Osprey Business Centre, Block C', 'Naas West, Naas', 'Co. Kildare, Ireland'],
+  // Used for the Google Maps embed and directions link
+  mapQuery: 'Osprey Business Centre, Naas West, Naas, Co. Kildare, Ireland',
 };
 
 // Logos cropped from the homepage design at 1:1. TODO: replace with SVG/hi-res exports from Figma.

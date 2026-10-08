@@ -1,0 +1,93 @@
+---
+// Contact Us — Figma 534:1707 (prototype 535:6207).
+// Big title "Be In Touch With Us" (static) · card: "Connect With Us" (email, phone) + form · map with an
+// address card · FAQ (scroll animation) · client logos → footer.
+// Form submissions: Google Sheet + email via Google Apps Script — see docs/contact-form.md.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
+import ContactForm from '@/components/ContactForm.astro';
+import FaqAccordion from '@/components/FaqAccordion.astro';
+import LogoStrip from '@/components/LogoStrip.astro';
+import { contact } from '@/data/site';
+import { getFaqs } from '@/lib/content';
+
+const faqs = await getFaqs('contact');
+const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(contact.mapQuery)}&z=15&output=embed`;
+const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(contact.mapQuery)}`;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Contact Azure Contracting',
+    url: new URL('/contact', Astro.site).toString(),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 2, name: 'Contact Us', item: new URL('/contact', Astro.site).toString() },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Contact Us"
+  description="Talk to Azure Contracting about your fit-out, refurbishment or construction project. Based at the Osprey Business Centre, Naas, Co. Kildare — working across Ireland."
+  schema={schema}
+>
+  <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
+    <BigOutlineHeading text="Be In Touch With Us" as="h1">
+      <div class="container-site">
+        <div class="mx-auto max-w-[70rem] space-y-4">
+          <!-- Connect With Us + form -->
+          <div class="grid gap-10 rounded-[1.25rem] bg-white p-7 md:grid-cols-2 md:gap-16 md:p-[clamp(2rem,4vw,3.5rem)]">
+            <div>
+              <h2 class="text-navy font-body text-[clamp(1.625rem,1.3rem+1vw,2.125rem)] font-normal">Connect With Us</h2>
+              <ul class="text-text-dark mt-6 space-y-2.5 text-[0.9375rem]">
+                {
+                  contact.email && (
+                    <li>
+                      <a href={`mailto:${contact.email}`} class="hover:text-navy underline underline-offset-4">{contact.email}</a>
+                    </li>
+                  )
+                }
+                {
+                  contact.phone && (
+                    <li>
+                      <a href={`tel:${contact.phone.replace(/\s/g, '')}`} class="hover:text-navy">{contact.phone}</a>
+                    </li>
+                  )
+                }
+              </ul>
+            </div>
+            <ContactForm />
+          </div>
+
+          <!-- Map + address card -->
+          <div class="relative overflow-hidden rounded-[1.25rem] bg-white">
+            <iframe
+              title="Map showing Azure Contracting at the Osprey Business Centre, Naas"
+              src={mapSrc}
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              class="block h-[22rem] w-full border-0 md:h-[clamp(24rem,32vw,30rem)]"></iframe>
+            <div class="border-neon/60 bg-white p-5 max-md:border-t md:absolute md:right-5 md:bottom-5 md:max-w-[22rem] md:rounded-2xl md:border md:shadow-[0_12px_30px_-12px_rgb(14_31_61/0.25)]">
+              <h2 class="text-text-dark font-body text-lg font-normal">Address</h2>
+              <address class="text-text-medium mt-1.5 text-sm not-italic">{contact.address.join(', ')}</address>
+              <a href={directions} target="_blank" rel="noopener noreferrer" class="text-navy mt-3 inline-block text-sm underline underline-offset-4 hover:no-underline">
+                Get directions
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </BigOutlineHeading>
+  </section>
+
+  <FaqAccordion items={faqs} class="mt-[clamp(3rem,6vw,6rem)]" />
+
+  <LogoStrip />
+</BaseLayout>

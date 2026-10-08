@@ -1,0 +1,182 @@
+---
+import Button from './Button.astro';
+
+// Contact form (design: underlined fields on white). Submissions go to the Google Apps Script web app set in
+// PUBLIC_FORM_ENDPOINT, which adds a row to the Google Sheet and emails the team (see docs/contact-form.md).
+// Client-side validation, a hidden honeypot field for spam, success / error states, and a `generate_lead`
+// dataLayer event on success.
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
+
+const fields = [
+  { name: 'name', label: 'Your name', type: 'text', autocomplete: 'name', required: true },
+  { name: 'email', label: 'Your email', type: 'email', autocomplete: 'email', required: true },
+  { name: 'phone', label: 'Phone', type: 'tel', autocomplete: 'tel', required: false },
+  { name: 'subject', label: 'Subject', type: 'text', autocomplete: 'off', required: false },
+] as const;
+---
+
+<form class="contact-form" novalidate data-contact-form data-endpoint={endpoint}>
+  <div class="space-y-5">
+    {
+      fields.map((f) => (
+        <div class="field">
+          <label for={`cf-${f.name}`} class="sr-only">
+            {f.label}
+            {f.required ? ' (required)' : ''}
+          </label>
+          <input
+            id={`cf-${f.name}`}
+            name={f.name}
+            type={f.type}
+            autocomplete={f.autocomplete}
+            placeholder={f.label}
+            required={f.required}
+            aria-describedby={`cf-${f.name}-err`}
+            class="cf-input"
+          />
+          <p id={`cf-${f.name}-err`} class="cf-error" aria-live="polite" />
+        </div>
+      ))
+    }
+    <div class="field">
+      <label for="cf-message" class="sr-only">Message (required)</label>
+      <textarea id="cf-message" name="message" rows="1" placeholder="Message" required aria-describedby="cf-message-err" class="cf-input cf-textarea"></textarea>
+      <p id="cf-message-err" class="cf-error" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <!-- Spam trap: hidden from people, bots fill it in -->
+  <div class="absolute -left-[9999px]" aria-hidden="true">
+    <label for="cf-company-website">Company website</label>
+    <input id="cf-company-website" name="company_website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="mt-7">
+    <Button type="submit" data-cf-submit>Contact Us</Button>
+  </div>
+  <p class="cf-status text-p2 mt-4" role="status" aria-live="polite" data-cf-status></p>
+</form>
+
+<style>
+  .cf-input {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--color-light);
+    background: transparent;
+    padding: 0.6rem 0;
+    font-size: 0.9375rem;
+    color: var(--color-text-dark);
+    border-radius: 0;
+    transition: border-color 0.25s ease;
+  }
+  .cf-input::placeholder {
+    color: #9aa0a8;
+  }
+  .cf-input:focus {
+    outline: none;
+    border-bottom-color: var(--color-navy);
+  }
+  .cf-input:focus-visible {
+    outline: none;
+    box-shadow: 0 1px 0 0 var(--color-navy);
+  }
+  .cf-input[aria-invalid='true'] {
+    border-bottom-color: #c0392b;
+  }
+  .cf-textarea {
+    resize: vertical;
+    min-height: 2.6rem;
+    field-sizing: content;
+    max-height: 14rem;
+  }
+  .cf-error {
+    min-height: 0;
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    color: #c0392b;
+  }
+  .cf-error:empty {
+    display: none;
+  }
+  .cf-status[data-state='success'] {
+    color: #2e7d32;
+  }
+  .cf-status[data-state='error'] {
+    color: #c0392b;
+  }
+</style>
+
+<script>
+  type DL = { dataLayer?: Record<string, unknown>[] };
+
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const endpoint = form.dataset.endpoint ?? '';
+    const status = form.querySelector<HTMLElement>('[data-cf-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-cf-submit]');
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const setError = (input: HTMLInputElement | HTMLTextAreaElement, msg: string) => {
+      const err = form.querySelector<HTMLElement>(`#${input.id}-err`);
+      if (err) err.textContent = msg;
+      input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    };
+    const setStatus = (state: '' | 'sending' | 'success' | 'error', msg: string) => {
+      status.dataset.state = state;
+      status.textContent = msg;
+    };
+
+    const validate = () => {
+      let firstBad: HTMLElement | null = null;
+      const check = (name: string, ok: (v: string) => boolean, msg: string) => {
+        const el = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement;
+        const bad = !ok(el.value.trim());
+        setError(el, bad ? msg : '');
+        if (bad && !firstBad) firstBad = el;
+      };
+      check('name', (v) => v.length > 1, 'Please enter your name.');
+      check('email', (v) => emailRe.test(v), 'Please enter a valid email address.');
+      check('message', (v) => v.length > 4, 'Please tell us a little about your project.');
+      (firstBad as HTMLElement | null)?.focus();
+      return !firstBad;
+    };
+
+    // Clear a field's error as soon as it is corrected
+    form.addEventListener('input', (e) => {
+      const el = e.target as HTMLInputElement;
+      if (el.getAttribute('aria-invalid') === 'true') setError(el, '');
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setStatus('', '');
+      if (!validate()) return;
+
+      if (!endpoint) {
+        setStatus('error', 'The form is not connected yet (PUBLIC_FORM_ENDPOINT is missing). Please email us instead.');
+        return;
+      }
+
+      const data = new URLSearchParams();
+      new FormData(form).forEach((v, k) => data.append(k, String(v)));
+      data.append('page', window.location.href);
+
+      submit?.setAttribute('disabled', '');
+      setStatus('sending', 'Sending…');
+      try {
+        // Form-encoded POST = no CORS preflight, which Google Apps Script web apps need
+        const res = await fetch(endpoint, { method: 'POST', body: data });
+        const json = await res.json().catch(() => ({ ok: res.ok }));
+        if (!res.ok || !json.ok) throw new Error('rejected');
+
+        form.reset();
+        setStatus('success', 'Thank you — your message has been sent. We will be in touch shortly.');
+        const w = window as unknown as DL;
+        (w.dataLayer ??= []).push({ event: 'generate_lead', form_name: 'contact', page_location: window.location.href });
+      } catch {
+        setStatus('error', 'Sorry, something went wrong sending your message. Please try again, or email us directly.');
+      } finally {
+        submit?.removeAttribute('disabled');
+      }
+    });
+  });
+</script>
