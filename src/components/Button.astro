@@ -41,8 +41,8 @@ const styles: Record<Variant, { root: string; icon: string }> = {
   // Hover (design): fills navy, label turns white and the arrow sits in a white rounded square.
   // The icon box is the same size in both states so nothing shifts.
   outline: {
-    root: 'gap-10 border-[1.5px] border-navy py-2.5 pr-2.5 pl-4 text-sm font-medium text-navy hover:bg-navy hover:text-white focus-visible:bg-navy focus-visible:text-white',
-    icon: 'size-7 text-navy group-hover:bg-white group-focus-visible:bg-white',
+    root: 'gap-10 border-[1.5px] border-navy px-4 text-p1 font-medium text-navy hover:bg-navy hover:text-white focus-visible:bg-navy focus-visible:text-white',
+    icon: 'size-8 text-navy group-hover:bg-white group-focus-visible:bg-white',
   },
   neon: {
     root: `${solid} bg-neon text-navy hover:bg-white`,
@@ -59,9 +59,9 @@ const Tag = href ? 'a' : 'button';
   data-track={track}
   aria-label={ariaLabel}
   class:list={[
-    'group rounded-btn inline-flex items-center justify-between transition-colors duration-300',
+    'group rounded-btn inline-flex items-center font-medium justify-between transition-colors duration-300',
     s.root,
-    compact && 'max-sm:min-h-12 max-sm:min-w-0 max-sm:gap-0 max-sm:p-2',
+    compact && 'py-3.5 max-sm:min-w-0 max-sm:gap-0 max-sm:p-2',
     className,
   ]}
   {...rest}

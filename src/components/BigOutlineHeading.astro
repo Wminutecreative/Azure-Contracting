@@ -19,7 +19,7 @@ const hasContent = Astro.slots.has('default');
 const words = text.split(/\s+/);
 ---
 
-<div class:list={['big-heading-root relative', className]}>
+<div class:list={['big-heading-root relative flex flex-col', className]}>
   <Tag
     class:list={['big-heading font-heading', split && 'is-split', align === 'center' ? 'text-center' : 'text-left']}
     data-reveal
@@ -49,17 +49,19 @@ const words = text.split(/\s+/);
 <style>
   .big-heading-root {
     /* Claude Design homepage: Urbanist 400, clamp(56px, 10.4vw, 160px) */
-    --big-size: clamp(3.5rem, 10.4vw, 10rem);
+    --big-size: clamp(3.5rem, 10.4vw, 10.5rem);
   }
   .big-heading {
     font-family: var(--font-display);
     font-size: var(--big-size);
-    font-weight: 400;
+    font-weight: 500;
+    display: flex;
+        margin: 0 auto;
     line-height: 1;
     letter-spacing: -0.02em;
     text-wrap: balance;
     color: transparent;
-    background: linear-gradient(90deg, #dce3f4 0%, #eef3da 35%, #e4e9f6 65%, #eaf1d3 100%);
+    background: linear-gradient(90deg,  rgba(89, 141, 232, 0.08) 0%, rgba(199, 217, 46, 0.08) 100%);
     -webkit-background-clip: text;
     background-clip: text;
   }

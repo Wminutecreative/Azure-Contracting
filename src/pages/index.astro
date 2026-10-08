@@ -52,22 +52,22 @@ const stats = [
   </section>
 
   <!-- 2. Intro statement + stats -->
-  <section class="pt-[clamp(4.5rem,8vw,8.125rem)]">
+  <section class="py-[clamp(4.5rem,8vw,7.5rem)]">
     <div class="container-site">
-      <p
-        class="mx-auto max-w-[76rem] text-center text-[clamp(1.25rem,2.6vw,2.5rem)] leading-[1.45] font-light text-balance text-[#1a2b4f] uppercase"
+      <h2
+        class="mx-auto max-w-[75rem] text-center text-[clamp(1.25rem,2.6vw,2.5rem)] leading-[1.45] font-medium  text-[#585858] uppercase"
         data-reveal
       >
-        Azure Contracting brings <strong class="font-medium">hands-on</strong> site experience to
-        <strong class="font-medium">construction, refurbishment and fit-out</strong> work in
-        <strong class="font-medium">offices, hospitality, retail and education.</strong>
-      </p>
-      <StatRow stats={stats} class="mt-[clamp(3rem,6vw,5.625rem)]" />
+        Azure Contracting brings <strong class="font-medium text-[#0E1F3D]">hands-on</strong> site experience to
+        <strong class="font-medium text-[#0E1F3D]">construction, refurbishment and fit-out</strong> work in
+        <strong class="font-medium text-[#0E1F3D]">offices, hospitality, retail and education.</strong>
+    </h2>
+      <StatRow stats={stats} class="mt-[clamp(3rem,6vw,5rem)]" />
     </div>
   </section>
 
   <!-- 3. Sectors -->
-  <section class="pt-[clamp(4rem,2rem+8vw,12.5rem)]" aria-labelledby="sectors-heading">
+  <section class="py-[clamp(4.5rem,8vw,7.5rem)]" aria-labelledby="sectors-heading">
     <div class="container-site">
       <h2 id="sectors-heading" class="sr-only">Sectors we work in</h2>
       <SectorList />

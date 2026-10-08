@@ -3,17 +3,54 @@
 interface Props {
   class?: string;
   size?: number;
-  direction?: 'right' | 'left';
+  direction?: "right" | "left";
 }
-const { class: className, size = 14, direction = 'right' } = Astro.props;
+const { class: className, size = 32, direction = "right" } = Astro.props;
 ---
 
-<svg
-  class:list={[direction === 'left' && 'rotate-180', className]}
+<!-- <svg
+  class:list={[direction === "left" && "rotate-180", className]}
   width={size}
   height={size}
   viewBox="0 0 24 24"
   aria-hidden="true"
 >
-  <path fill="currentColor" d="M6 4.2v15.6a1.6 1.6 0 0 0 2.4 1.4l13-7.8a1.6 1.6 0 0 0 0-2.8l-13-7.8A1.6 1.6 0 0 0 6 4.2Z"></path>
+  <path
+    fill="currentColor"
+    d="M6 4.2v15.6a1.6 1.6 0 0 0 2.4 1.4l13-7.8a1.6 1.6 0 0 0 0-2.8l-13-7.8A1.6 1.6 0 0 0 6 4.2Z"
+  ></path>
+</svg> -->
+
+<svg
+  class:list={[direction === "left" && "rotate-180", className]}
+  width={size}
+  height={size}
+  viewBox="0 0 32 32"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect
+    width="32"
+    height="32"
+    rx="8"
+    fill="white"
+  />
+
+  <g clip-path="url(#clip0_679_474)">
+    <path
+      d="M11.4201 10.0312C11.8701 9.95117 12.0301 10.0612 12.4101 10.1812C14.0001 10.7012 18.5301 13.1412 19.9601 14.1312C21.6601 15.3212 22.3501 17.1612 20.4701 18.5912C19.6401 19.2212 13.5901 22.4912 12.6701 22.7812C11.6101 23.1212 10.6501 23.0912 10.1801 21.9112C9.63007 20.5412 10.5001 20.0912 10.8201 18.9212C11.3001 17.1512 11.3801 16.0012 10.8701 14.2212C10.5301 13.0212 8.92007 10.4712 11.4201 10.0312Z"
+      fill="#0E1F3D"
+    />
+  </g>
+
+  <defs>
+    <clipPath id="clip0_679_474">
+      <rect
+        width="11.6"
+        height="12.98"
+        fill="white"
+        transform="translate(10 10)"
+      />
+    </clipPath>
+  </defs>
 </svg>

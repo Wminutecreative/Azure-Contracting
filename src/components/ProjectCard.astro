@@ -25,7 +25,7 @@ const href = `/projects/${project.id}`;
     tabindex="-1"
     aria-hidden="true"
     class:list={[
-      'fw-img block overflow-hidden rounded-[2rem] md:absolute md:top-[2.55rem] md:bottom-[2.55rem] md:w-[calc(50%-2.375rem)] md:rounded-[2.75rem]',
+      'fw-img block overflow-hidden rounded-[2rem] md:absolute md:top-[2.55rem] md:bottom-[2.55rem] md:w-[calc(50%-2.375rem)] md:rounded-[3.5rem]',
       reverse ? 'md:right-0' : 'md:left-0',
     ]}
     data-fw-img
@@ -50,10 +50,10 @@ const href = `/projects/${project.id}`;
       <Heading class="font-body text-text-dark text-[clamp(1.5rem,2.2vw,2rem)] leading-tight font-normal tracking-[-0.01em]" data-fw-text>
         <a href={href} class="hover:text-navy">{title}</a>
       </Heading>
-      <p class="text-text-medium max-w-[28rem] text-base leading-[1.35] text-pretty" data-fw-text>{excerpt}</p>
+      <p class="text-text-medium text-p1 leading-[1.35] text-pretty" data-fw-text>{excerpt}</p>
     </div>
-    <div data-fw-text>
-      <Button variant="outline" href={href} aria-label={`Know more about ${title}`}>Know More</Button>
+    <div data-fw-text>            
+      <Button variant="outline" href={href} aria-label={`Know more about ${title}`} compact>Know More</Button>
     </div>
   </div>
 </article>

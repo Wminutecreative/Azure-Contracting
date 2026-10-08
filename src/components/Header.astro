@@ -45,7 +45,7 @@ const socialIcons: Record<string, string> = {
   <div class="hdr-bar relative grid h-(--hdr-h) grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge)">
     <button
       type="button"
-      class:list={['-ml-2 justify-self-start rounded-lg p-2', tone]}
+      class:list={['-ml-2 justify-self-start rounded-lg p-2 cursor-pointer', tone]}
       data-hdr-control
       aria-haspopup="dialog"
       aria-controls="site-menu"
@@ -97,14 +97,14 @@ const socialIcons: Record<string, string> = {
     <div class="grid h-(--hdr-h) shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge)" data-menu-dismiss>
       <button
         type="button"
-        class:list={['-ml-2 inline-flex items-center gap-2 justify-self-start rounded-lg p-2', tone]}
+        class:list={['-ml-2 inline-flex items-center gap-2 justify-self-start rounded-lg p-2 cursor-pointer', tone]}
         aria-label="Close menu"
         data-menu-close
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <path d="M5 5l14 14M19 5 5 19"></path>
         </svg>
-        <span class="text-p1" aria-hidden="true">Menu</span>
+        <!-- <span class="text-p1" aria-hidden="true">Menu</span> -->
       </button>
       <span></span>
       <div class="justify-self-end">
@@ -130,7 +130,7 @@ const socialIcons: Record<string, string> = {
                       href={link.href}
                       aria-current={isCurrent(link.href) ? 'page' : undefined}
                       class:list={[
-                        'menu-link text-p1 text-text-dark flex min-h-[3.375rem] items-center rounded-xl border border-transparent px-5 transition-colors duration-200',
+                        'menu-link text-p1 text-text-dark font-medium flex py-4 items-center rounded-xl border border-transparent px-5 transition-colors duration-200',
                         gi === 0 ? 'menu-link-company' : 'menu-link-resources',
                       ]}
                     >
@@ -141,21 +141,23 @@ const socialIcons: Record<string, string> = {
               </ul>
 
               {gi === 1 && (
-                <ul class="mt-6 flex gap-2 px-5 md:mt-auto md:justify-end md:px-0 md:pt-6" aria-label="Social media">
+                <ul class="mt-6 flex gap-2 px-5 md:mt-auto md:justify-end md:px-0 md:pt-6 cursor-pointer" aria-label="Social media">
                   {social.map((s) => {
                     const icon =
                       s.name === 'Instagram' ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
                           <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
                           <circle cx="12" cy="12" r="4" />
                           <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
                         </svg>
                       ) : (
-                        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                           <path fill="currentColor" d={socialIcons[s.name]} />
                         </svg>
                       );
-                    const cls = 'grid size-8 place-items-center rounded-full bg-black text-white';
+                    // const cls = 'grid size-8 place-items-center rounded-full bg-black text-white';
+const cls =
+  'grid size-8 place-items-center rounded-full bg-black text-white transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-110 hover:bg-white hover:text-black hover:shadow-md';
                     return (
                       <li>
                         {s.href ? (
@@ -310,11 +312,11 @@ const socialIcons: Record<string, string> = {
   function lockScroll(lock: boolean) {
     const root = document.documentElement;
     if (lock) {
-      root.style.paddingRight = `${window.innerWidth - root.clientWidth}px`;
+      // root.style.paddingRight = `${window.innerWidth - root.clientWidth}px`;
       root.style.overflow = 'hidden';
     } else {
       root.style.overflow = '';
-      root.style.paddingRight = '';
+      // root.style.paddingRight = '';
     }
   }
 

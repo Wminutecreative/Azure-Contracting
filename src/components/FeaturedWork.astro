@@ -42,8 +42,8 @@ const {
 
   {
     viewAllHref && (
-      <div class="mt-12 text-center md:mt-24" data-fw-fade>
-        <a href={viewAllHref} class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
+      <div class="mt-12 text-center md:mt-20 flex justify-center py-3" data-fw-fade>
+        <a href={viewAllHref} class="text-p1 py-3 px-15 text-navy underline underline-offset-4 hover:no-underline">View All</a>
       </div>
     )
   }
@@ -52,12 +52,7 @@ const {
 <style>
   /* Soft section background from the design: lavender at the edges, pale lime through the middle */
   .fw-backdrop {
-    background:
-      radial-gradient(38% 30% at 0% 22%, rgb(140 160 230 / 0.28), transparent 70%),
-      radial-gradient(36% 28% at 100% 48%, rgb(140 160 230 / 0.26), transparent 70%),
-      radial-gradient(40% 30% at 8% 78%, rgb(199 217 46 / 0.16), transparent 70%),
-      radial-gradient(42% 32% at 92% 92%, rgb(199 217 46 / 0.14), transparent 70%),
-      radial-gradient(60% 40% at 50% 55%, rgb(255 255 255 / 0.5), transparent 75%);
+    overflow: hidden;      
   }
 </style>
 
