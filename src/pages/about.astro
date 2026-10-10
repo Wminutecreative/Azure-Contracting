@@ -267,7 +267,7 @@ const schema = [
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(180deg, #ffffff 0%, #dfe3c4 35%, #a8b060 75%, #7d8630 100%);
+    background: var(--gradient-hover);
     opacity: 0;
     transition: opacity 0.45s ease;
   }
@@ -278,7 +278,7 @@ const schema = [
   .pillar-desc {
     display: grid;
     grid-template-rows: 1fr;
-    color: #3f4520;
+    color: var(--color-text-medium);
   }
   .pillar-desc > p {
     min-height: 0;
@@ -305,7 +305,7 @@ const schema = [
   }
   .pillar-card:hover,
   .pillar-card:focus-visible {
-    border-color: #c9cda8;
+    border-color: var(--color-light);
   }
   .pillar-card:hover::before,
   .pillar-card:focus-visible::before {

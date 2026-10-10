@@ -1,0 +1,92 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import NavArrow from './NavArrow.astro';
+
+// Blog card (design): white rounded card — cover photo with a date pill, title, lime arrow.
+// Hover / focus: the card fills with the white → lime gradient (--gradient-hover), the photo zooms slightly
+// and the arrow nudges right. The whole card is the link.
+interface Props {
+  post: CollectionEntry<'blog'>;
+  eager?: boolean;
+}
+const { post, eager = false } = Astro.props;
+const { title, date, cover, coverAlt } = post.data;
+
+// "24th October, 2024" (design format)
+const day = date.getUTCDate();
+const suffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+const month = date.toLocaleString('en-IE', { month: 'long', timeZone: 'UTC' });
+const label = `${String(day).padStart(2, '0')}${suffix} ${month}, ${date.getUTCFullYear()}`;
+---
+
+<article class="blog-card group relative isolate overflow-hidden rounded-[1.25rem] border border-transparent bg-white p-3 md:p-4">
+  <div class="relative overflow-hidden rounded-[0.875rem]">
+    <Image
+      src={cover}
+      alt={coverAlt}
+      widths={[480, 720, 960]}
+      sizes="(min-width: 1024px) 560px, (min-width: 768px) 46vw, 100vw"
+      loading={eager ? 'eager' : 'lazy'}
+      class="blog-photo aspect-[5/3] w-full object-cover"
+    />
+    <time datetime={date.toISOString().slice(0, 10)} class="text-text-dark absolute bottom-3 left-3 rounded-full bg-white px-4 py-1.5 text-xs">
+      {label}
+    </time>
+  </div>
+  <div class="flex items-center justify-between gap-6 px-1 pt-4 pb-2 md:pt-5">
+    <h2 class="text-text-dark font-body text-[clamp(1rem,0.9rem+0.35vw,1.25rem)] leading-snug font-normal">
+      <a href={`/blog/${post.id}`} class="blog-link">{title}</a>
+    </h2>
+    <NavArrow size={26} class="blog-arrow text-neon shrink-0" />
+  </div>
+</article>
+
+<style>
+  /* Whole card clickable via the title link */
+  .blog-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .blog-link:focus-visible {
+    outline: none;
+  }
+  .blog-card:has(.blog-link:focus-visible) {
+    outline: 2px solid var(--color-neon);
+    outline-offset: 3px;
+  }
+  .blog-card {
+    transition: border-color 0.45s ease;
+  }
+  .blog-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--gradient-hover);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+  .blog-card:hover,
+  .blog-card:focus-within {
+    border-color: var(--color-light);
+  }
+  .blog-card:hover::before,
+  .blog-card:focus-within::before {
+    opacity: 1;
+  }
+  .blog-photo {
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .blog-card:hover .blog-photo {
+    transform: scale(1.04);
+  }
+  .blog-arrow {
+    transition: transform 0.3s ease;
+  }
+  .blog-card:hover .blog-arrow {
+    transform: translateX(4px);
+  }
+</style>

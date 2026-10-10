@@ -56,6 +56,18 @@ Files: `src/content/services/<name>.yaml` and `src/assets/services/<name>/…` (
 | Photo + description | Landscape, ≥ 1200px wide |
 | Order | Lower numbers first |
 
+## Blog fields
+
+Files: `src/content/blog/<url>.md` and `src/assets/blog/<url>/…` (cover). Listed newest first on /blog (12 per page).
+
+| Field | Notes |
+|---|---|
+| Title / Page URL | URL becomes `/blog/<url>` |
+| Published date | Shown on the card ("24th October, 2024") and sets the order |
+| Author, Summary, Tags | Summary is used for Google / social sharing |
+| Cover photo + description | Landscape, ≥ 1600px wide |
+| Article | The full post |
+
 ## Team fields
 
 Files: `src/content/team/<name>.yaml` and `src/assets/team/<name>/…` (photo). Shown on /about → "Our Team Members".

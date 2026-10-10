@@ -62,6 +62,8 @@
   /* Section padding — measured from the homepage (~120px between sections at 1512px) */
   --section-y: clamp(3.5rem, 2.4rem + 4.6vw, 7.5rem);
   --gutter: clamp(1rem, 0.4rem + 2.6vw, 3rem);
+  /* Card hover fill (value cards, About pillars, blog cards): white fading into soft lime */
+  --gradient-hover: linear-gradient(180deg, #ffffff 0%, rgb(199 217 46 / 0.48) 100%);
   /* Full-bleed edge padding for header/footer (60px / 85px at 1512) */
   --edge: clamp(1rem, 0.2rem + 3.6vw, 3.75rem);
 }

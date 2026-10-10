@@ -27,6 +27,7 @@ const projects = defineCollection({
 
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  // Edited in Keystatic (keystatic.config.ts) — keep the two schemas in sync
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -35,7 +36,7 @@ const blog = defineCollection({
       cover: image(),
       coverAlt: z.string(),
       excerpt: z.string(),
-      tags: z.array(z.string()).default([]),
+      tags: z.array(z.string()).nullish().transform((t) => t ?? []),
     }),
 });
 

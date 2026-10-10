@@ -74,6 +74,40 @@ export default config({
       },
     }),
 
+    // Must match the `blog` schema in src/content.config.ts
+    blog: collection({
+      label: 'Blog',
+      slugField: 'title',
+      path: 'src/content/blog/*',
+      format: { contentField: 'body' },
+      entryLayout: 'content',
+      columns: ['date'],
+      schema: {
+        title: fields.slug({
+          name: { label: 'Title', validation: { isRequired: true } },
+          slug: { label: 'Page URL', description: 'The post address: /blog/<this>' },
+        }),
+        date: fields.date({ label: 'Published date', validation: { isRequired: true } }),
+        author: fields.text({ label: 'Author', validation: { isRequired: true } }),
+        cover: fields.image({
+          label: 'Cover photo',
+          description: 'Landscape, at least 1600px wide. Shown on the blog cards and at the top of the post.',
+          directory: 'src/assets/blog',
+          publicPath: '../../assets/blog/',
+          validation: { isRequired: true },
+        }),
+        coverAlt: fields.text({ label: 'Cover photo description', validation: { isRequired: true } }),
+        excerpt: fields.text({
+          label: 'Summary',
+          description: 'One or two sentences — used for Google and social sharing.',
+          multiline: true,
+          validation: { isRequired: true },
+        }),
+        tags: fields.array(fields.text({ label: 'Tag' }), { label: 'Tags', itemLabel: (p) => p.value || 'Tag' }),
+        body: fields.markdoc({ label: 'Article', extension: 'md' }),
+      },
+    }),
+
     // Must match the `services` schema in src/content.config.ts
     services: collection({
       label: 'Services',
