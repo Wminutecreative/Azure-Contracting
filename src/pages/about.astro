@@ -142,17 +142,20 @@ const schema = [
     </div>
   </section>
 
-  <!-- 4. Full-width building photo -->
-  <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
-    <div class="container-site">
-      <Image
-        src={buildingImage}
-        alt="Modern building interior with a double-height concrete and glass atrium"
-        widths={[960, 1440, 1920]}
-        sizes="(min-width: 1340px) 1312px, 100vw"
-        loading="lazy"
-        class="aspect-[16/7] w-full rounded-[1.25rem] object-cover"
-      />
+  <!-- 4. Building photo. With scroll animation: the stage pins and the photo grows from its rounded card to the
+       full screen, then the page scrolls on. Without it (phones, reduced motion, no JS): a normal rounded image. -->
+  <section class="img-reveal pt-[clamp(4rem,2rem+6vw,8rem)]" data-img-reveal>
+    <div class="img-stage" data-img-stage>
+      <div class="img-frame container-site" data-img-frame>
+        <Image
+          src={buildingImage}
+          alt="Modern building interior with a double-height concrete and glass atrium"
+          widths={[960, 1440, 1920, 2560]}
+          sizes="100vw"
+          loading="lazy"
+          class="img-photo aspect-[16/7] w-full rounded-[1.25rem] object-cover"
+        />
+      </div>
     </div>
   </section>
 
@@ -176,7 +179,72 @@ const schema = [
   <LogoStrip />
 </BaseLayout>
 
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const section = document.querySelector<HTMLElement>('[data-img-reveal]');
+  const stage = section?.querySelector<HTMLElement>('[data-img-stage]');
+  const frame = section?.querySelector<HTMLElement>('[data-img-frame]');
+  const photo = frame?.querySelector<HTMLElement>('img');
+
+  if (section && stage && frame && photo) {
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 48rem) and (prefers-reduced-motion: no-preference)', () => {
+      section.classList.add('is-scrub');
+
+      // Start: the image at its card size (content width, 16:7, rounded) centred in a full-screen stage.
+      // End: the image fills the whole stage (full width and height, square corners).
+      const startW = () => Math.min(stage.clientWidth - 2 * gutter(), 1312);
+      const gutter = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gutter')) || 16;
+
+      gsap.set(frame, { padding: 0, maxWidth: 'none' });
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: stage,
+          start: 'top top',
+          end: '+=120%',
+          pin: true,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
+      });
+      tl.fromTo(
+        frame,
+        { width: () => startW(), height: () => (startW() * 7) / 16 },
+        { width: () => stage.clientWidth, height: () => stage.clientHeight, duration: 1 },
+      ).fromTo(photo, { borderRadius: 20 }, { borderRadius: 0, duration: 1 }, 0);
+
+      // Pins further down the page (the FAQ) must be measured after this one
+      ScrollTrigger.sort();
+      ScrollTrigger.refresh();
+
+      return () => {
+        section.classList.remove('is-scrub');
+        gsap.set([frame, photo], { clearProps: 'all' });
+      };
+    });
+  }
+</script>
+
 <style>
+  /* Image reveal (class added by the script): full-screen stage, image centred and filling its frame */
+  .img-reveal.is-scrub .img-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100svh;
+    overflow: hidden;
+  }
+  .img-reveal.is-scrub .img-photo {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
   /* Fact cards rise in one after another on load */
   .fact-card {
     animation: fact-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
