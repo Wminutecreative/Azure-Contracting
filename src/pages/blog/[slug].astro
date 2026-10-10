@@ -226,10 +226,20 @@ const schema = [
 </style>
 
 <script>
+  // Share / copy use the address the visitor is actually on (dev, preview or live domain), not the configured
+  // `site` URL — query string and #hash dropped.
+  const currentUrl = location.origin + location.pathname;
+  const builtUrl = document.querySelector<HTMLElement>('[data-copy-link]')?.dataset.copyLink;
+  if (builtUrl && builtUrl !== currentUrl) {
+    document.querySelectorAll<HTMLAnchorElement>('a[aria-label^="Share on"]').forEach((a) => {
+      a.href = a.href.replace(encodeURIComponent(builtUrl), encodeURIComponent(currentUrl));
+    });
+  }
+
   document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       try {
-        await navigator.clipboard.writeText(btn.dataset.copyLink ?? location.href);
+        await navigator.clipboard.writeText(currentUrl);
         btn.classList.add('is-copied');
         btn.setAttribute('aria-label', 'Link copied');
         setTimeout(() => {
