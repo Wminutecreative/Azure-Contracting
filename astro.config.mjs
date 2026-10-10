@@ -21,5 +21,10 @@ export default defineConfig({
   vite: {
     // Cast: @tailwindcss/vite and Astro can ship different Vite type versions (type-only mismatch)
     plugins: [/** @type {any} */ (tailwindcss())],
+    // Keystatic's API route imports Astro's virtual `astro:env/server` module, which Vite's dev-time dependency
+    // pre-bundler (esbuild) can't resolve — keep the package out of pre-bundling so Astro handles it.
+    optimizeDeps: {
+      exclude: ['@keystatic/astro'],
+    },
   },
 });
