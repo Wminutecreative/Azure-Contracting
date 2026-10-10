@@ -100,6 +100,28 @@ export default config({
       },
     }),
 
+    // Must match the `team` schema in src/content.config.ts
+    team: collection({
+      label: 'Team',
+      slugField: 'name',
+      path: 'src/content/team/*',
+      format: { data: 'yaml' },
+      columns: ['role', 'order'],
+      schema: {
+        name: fields.slug({ name: { label: 'Name', validation: { isRequired: true } } }),
+        role: fields.text({ label: 'Job title', validation: { isRequired: true } }),
+        photo: fields.image({
+          label: 'Photo',
+          description: 'Portrait (taller than wide), at least 800px wide. Shown on the About Us page.',
+          directory: 'src/assets/team',
+          publicPath: '../../assets/team/',
+          validation: { isRequired: true },
+        }),
+        linkedin: fields.url({ label: 'LinkedIn profile URL', description: 'Optional — shows the LinkedIn icon on the card.' }),
+        order: fields.integer({ label: 'Order', description: 'Lower numbers appear first.', defaultValue: 10 }),
+      },
+    }),
+
     // Must match the `testimonials` schema in src/content.config.ts
     testimonials: collection({
       label: 'Testimonials',

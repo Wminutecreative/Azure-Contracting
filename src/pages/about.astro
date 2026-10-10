@@ -1,0 +1,250 @@
+---
+// About Us — Figma 534:1311 (prototype 535:5812).
+// "Discover About Us" (static title) · hero: statement + Contact Us + photo, three fact cards that appear one by
+// one · photo + Purpose / Mission / Vision cards (hover: olive gradient + text reveal) · Precise / Engineered /
+// Versatile value cards · full-width building photo · "Our Team Members" (Keystatic → Team, hover cards) ·
+// FAQ → client logos → footer.
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
+import Button from '@/components/Button.astro';
+import ValueCards from '@/components/ValueCards.astro';
+import TeamCard from '@/components/TeamCard.astro';
+import FaqAccordion from '@/components/FaqAccordion.astro';
+import LogoStrip from '@/components/LogoStrip.astro';
+import { getTeam, getFaqs } from '@/lib/content';
+// TODO: real photos from Figma / the client
+import heroImage from '@/assets/about/hero.svg';
+import purposeImage from '@/assets/about/purpose.svg';
+import buildingImage from '@/assets/about/building.svg';
+
+const team = await getTeam();
+const faqs = await getFaqs('about');
+
+const facts = [
+  'Founded in 2012 by two chartered surveyors from Irish contractors.',
+  'Main contractor and PSCS on every project we deliver.',
+  'Experienced in hotels, offices & live public buildings.',
+];
+
+const pillars = [
+  {
+    title: 'Purpose',
+    text: 'We are main contractors for fit-out, refurbishment and construction across Ireland, spanning offices, hotels, healthcare, education and public buildings.',
+  },
+  // TODO: client copy — Mission and Vision text are not in the design yet; these are drafts to replace.
+  {
+    title: 'Mission',
+    text: 'To deliver every project safely, on programme and to a finish our clients are proud of — with one accountable team from first site visit to handover.',
+  },
+  {
+    title: 'Vision',
+    text: 'To be the contractor Irish clients call first for fit-out work in buildings that have to stay open while we work.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'About Azure Contracting',
+    url: new URL('/about', Astro.site).toString(),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 2, name: 'About Us', item: new URL('/about', Astro.site).toString() },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="About Us"
+  description="Azure Contracting was founded in 2012 by two chartered surveyors. Based in Kildare, we are main contractor and PSCS for fit-out, refurbishment and construction projects across Ireland."
+  schema={schema}
+>
+  <!-- 1. Hero -->
+  <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
+    <BigOutlineHeading text="Discover About Us" as="h1">
+      <div class="container-site">
+        <div class="grid items-stretch gap-8 md:grid-cols-[1.05fr_1fr] md:gap-12">
+          <div class="flex flex-col justify-between gap-8 py-2">
+            <h2 class="font-display text-[clamp(1.75rem,1.2rem+2.2vw,3rem)] leading-[1.25] font-normal text-[#585858] uppercase">
+              Based in <span class="text-navy">Kildare</span> and working on projects
+              <span class="text-navy">across Ireland</span>
+            </h2>
+            <div>
+              <Button href="/contact" track="cta_click" data-cta-location="about-hero">Contact Us</Button>
+            </div>
+          </div>
+          <Image
+            src={heroImage}
+            alt="Bright office canteen fit-out with suspended ceiling lighting"
+            widths={[640, 960, 1280]}
+            sizes="(min-width: 768px) 48vw, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            class="aspect-[16/11] w-full rounded-[1.25rem] object-cover"
+          />
+        </div>
+
+        <!-- Fact cards: appear one after another -->
+        <ol class="mt-8 grid gap-3.5 md:mt-12 md:grid-cols-3 md:gap-4">
+          {
+            facts.map((fact, i) => (
+              <li class="fact-card flex items-center gap-5 rounded-[1.125rem] bg-white px-6 py-5" style={`--i:${i}`}>
+                <span class="font-display text-neon text-[clamp(2.75rem,2rem+2vw,3.5rem)] leading-none font-light" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <p class="text-text-medium text-[0.9375rem] leading-[1.4]">{fact}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </BigOutlineHeading>
+  </section>
+
+  <!-- 2. Photo + Purpose / Mission / Vision -->
+  <section class="pt-[clamp(4rem,2rem+6vw,8rem)]" aria-label="Purpose, mission and vision">
+    <div class="container-site grid gap-4 md:grid-cols-[1.1fr_0.9fr] md:gap-5">
+      <Image
+        src={purposeImage}
+        alt="Two people reviewing drawings and material samples pinned to a wall"
+        widths={[640, 960, 1280]}
+        sizes="(min-width: 768px) 55vw, 100vw"
+        loading="lazy"
+        class="aspect-[4/3] h-full w-full rounded-[1.25rem] object-cover"
+      />
+      <ul class="grid gap-4 md:gap-5">
+        {
+          pillars.map((p) => (
+            <li class="pillar-card relative isolate flex flex-col justify-center overflow-hidden rounded-[1.25rem] border border-transparent bg-white px-7 py-7 md:px-8" tabindex="0">
+              <h3 class="pillar-title font-body text-[clamp(1.5rem,1.3rem+0.6vw,1.75rem)] font-normal">{p.title}</h3>
+              <div class="pillar-desc">
+                <p class="text-[0.9375rem] leading-[1.45]">{p.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. Values -->
+  <section class="pt-[clamp(4rem,2rem+6vw,8rem)]" aria-labelledby="values-heading">
+    <div class="container-site">
+      <h2 id="values-heading" class="sr-only">How we work</h2>
+      <ValueCards />
+    </div>
+  </section>
+
+  <!-- 4. Full-width building photo -->
+  <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
+    <div class="container-site">
+      <Image
+        src={buildingImage}
+        alt="Modern building interior with a double-height concrete and glass atrium"
+        widths={[960, 1440, 1920]}
+        sizes="(min-width: 1340px) 1312px, 100vw"
+        loading="lazy"
+        class="aspect-[16/7] w-full rounded-[1.25rem] object-cover"
+      />
+    </div>
+  </section>
+
+  <!-- 5. Team -->
+  {
+    team.length > 0 && (
+      <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
+        <BigOutlineHeading text="Our Team Members">
+          <div class="container-site">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+              {team.map((member) => <TeamCard member={member} />)}
+            </div>
+          </div>
+        </BigOutlineHeading>
+      </section>
+    )
+  }
+
+  <!-- 6. FAQ → logos (footer from BaseLayout) -->
+  <FaqAccordion items={faqs} class="mt-[clamp(3rem,6vw,6rem)]" />
+  <LogoStrip />
+</BaseLayout>
+
+<style>
+  /* Fact cards rise in one after another on load */
+  .fact-card {
+    animation: fact-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(0.35s + var(--i) * 0.18s);
+  }
+  @keyframes fact-in {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem);
+    }
+  }
+
+  /* Purpose / Mission / Vision: hover or focus fills the card with the white → olive gradient and reveals the text */
+  .pillar-card {
+    min-height: 8.5rem;
+    transition: border-color 0.45s ease;
+  }
+  .pillar-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, #ffffff 0%, #dfe3c4 35%, #a8b060 75%, #7d8630 100%);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+  .pillar-title {
+    color: #4a4a4a;
+    transition: color 0.45s ease;
+  }
+  .pillar-desc {
+    display: grid;
+    grid-template-rows: 1fr;
+    color: #3f4520;
+  }
+  .pillar-desc > p {
+    min-height: 0;
+    overflow: hidden;
+    padding-top: 0.6rem;
+    max-width: 30rem;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pillar-desc {
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition:
+        grid-template-rows 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.35s ease;
+    }
+    .pillar-card:hover .pillar-desc,
+    .pillar-card:focus-visible .pillar-desc {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      transition:
+        grid-template-rows 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.45s ease 0.1s;
+    }
+  }
+  .pillar-card:hover,
+  .pillar-card:focus-visible {
+    border-color: #c9cda8;
+  }
+  .pillar-card:hover::before,
+  .pillar-card:focus-visible::before {
+    opacity: 1;
+  }
+  .pillar-card:hover .pillar-title,
+  .pillar-card:focus-visible .pillar-title {
+    color: var(--color-black);
+  }
+</style>

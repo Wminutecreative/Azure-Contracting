@@ -83,11 +83,13 @@ const faqs = defineCollection({
 
 const team = defineCollection({
   loader: glob({ pattern: '**/*.yaml', base: './src/content/team' }),
+  // Edited in Keystatic (keystatic.config.ts) — keep the two schemas in sync
   schema: ({ image }) =>
     z.object({
       name: z.string(),
       role: z.string(),
       photo: image(),
+      linkedin: z.string().nullish().transform((v) => v || undefined),
       order: z.number().default(99),
     }),
 });

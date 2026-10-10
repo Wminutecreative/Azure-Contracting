@@ -56,6 +56,17 @@ Files: `src/content/services/<name>.yaml` and `src/assets/services/<name>/…` (
 | Photo + description | Landscape, ≥ 1200px wide |
 | Order | Lower numbers first |
 
+## Team fields
+
+Files: `src/content/team/<name>.yaml` and `src/assets/team/<name>/…` (photo). Shown on /about → "Our Team Members".
+
+| Field | Notes |
+|---|---|
+| Name / Job title | Shown in the card that slides up on hover |
+| Photo | Portrait, ≥ 800px wide |
+| LinkedIn profile URL | Optional — adds the LinkedIn button |
+| Order | Lower numbers first |
+
 ## Testimonial fields
 
 | Field | Notes |
