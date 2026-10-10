@@ -104,7 +104,13 @@ export default config({
           validation: { isRequired: true },
         }),
         tags: fields.array(fields.text({ label: 'Tag' }), { label: 'Tags', itemLabel: (p) => p.value || 'Tag' }),
-        body: fields.markdoc({ label: 'Article', extension: 'md' }),
+        body: fields.markdoc({
+          label: 'Article',
+          extension: 'md',
+          options: {
+            image: { directory: 'src/assets/blog', publicPath: '../../assets/blog/' },
+          },
+        }),
       },
     }),
 

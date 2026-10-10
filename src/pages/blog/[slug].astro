@@ -1,0 +1,244 @@
+---
+// Blog post — Figma 534:1586 (prototype 535:6086).
+// "← All Posts" · title · cover · Written by / Published on + share links · article | sticky "Ready To Talk
+// Fit-Out?" card · "Other Similar Blogs" (2 cards) · client logos → footer. Content: Keystatic → Blog.
+import { Image, getImage } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
+import BlogCard from '@/components/BlogCard.astro';
+import LogoStrip from '@/components/LogoStrip.astro';
+import { getPosts } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post, all: posts } }));
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  all: CollectionEntry<'blog'>[];
+}
+const { post, all } = Astro.props;
+const { title, date, author, cover, coverAlt, excerpt, tags } = post.data;
+const { Content } = await render(post);
+
+const published = date.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+// Other Similar Blogs: posts sharing a tag first, then the newest others — 2, never this one
+const others = all.filter((p) => p.id !== post.id);
+const sharesTag = (p: CollectionEntry<'blog'>) => p.data.tags.some((t) => tags.includes(t));
+const similar = [...others.filter(sharesTag), ...others.filter((p) => !sharesTag(p))].slice(0, 2);
+
+const pageUrl = new URL(`/blog/${post.id}`, Astro.site).toString();
+const og = await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+const enc = encodeURIComponent;
+const share = [
+  { name: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(pageUrl)}`, d: 'M6.94 8.5H4.2V19h2.74zM5.57 4.2a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2M19.8 13.1c0-2.9-1.55-4.8-4.1-4.8-1.35 0-2.27.7-2.66 1.37V8.5h-2.63V19h2.74v-5.3c0-1.4.36-2.6 1.9-2.6 1.52 0 1.53 1.43 1.53 2.7V19h2.74z' },
+  { name: 'X', href: `https://x.com/intent/post?url=${enc(pageUrl)}&text=${enc(title)}`, d: 'M17.75 3h3.06l-6.69 7.64L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.15-8.18L2 3h6.33l4.37 5.78zm-1.07 16.2h1.7L7.4 4.73H5.58z' },
+  { name: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${enc(pageUrl)}`, d: 'M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.87.25-1.46 1.5-1.46h1.6V4.46A21 21 0 0 0 14.3 4.3c-2.3 0-3.8 1.4-3.8 3.95v2.25H8v3h2.5V21z' },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: title,
+    description: excerpt,
+    image: new URL(og.src, Astro.site).toString(),
+    datePublished: date.toISOString().slice(0, 10),
+    author: { '@type': 'Person', name: author },
+    publisher: { '@type': 'Organization', name: 'Azure Contracting' },
+    mainEntityOfPage: pageUrl,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: new URL('/blog', Astro.site).toString() },
+      { '@type': 'ListItem', position: 3, name: title, item: pageUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout title={title} description={excerpt} ogImage={og.src} ogType="article" schema={schema}>
+  <article class="container-site pt-[clamp(1.5rem,1rem+2vw,3rem)]">
+    <a href="/blog" class="text-stat-label hover:text-navy inline-flex items-center gap-2 text-sm transition-colors">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+      All Posts
+    </a>
+    <h1 class="text-navy font-body mt-5 max-w-[50rem] text-[clamp(2rem,1.3rem+2.4vw,3rem)] leading-tight font-normal tracking-[-0.01em]">{title}</h1>
+
+    <Image
+      src={cover}
+      alt={coverAlt}
+      widths={[960, 1440, 1920]}
+      sizes="(min-width: 1340px) 1312px, 100vw"
+      loading="eager"
+      fetchpriority="high"
+      class="mt-8 aspect-[16/7] w-full rounded-[1.25rem] object-cover"
+    />
+
+    <!-- Meta + share -->
+    <div class="border-light mt-6 flex flex-wrap items-end justify-between gap-6 border-b pb-6">
+      <dl class="flex gap-10 text-sm">
+        <div>
+          <dt class="text-stat-label">Written by</dt>
+          <dd class="text-text-dark mt-1 font-medium">{author}</dd>
+        </div>
+        <div>
+          <dt class="text-stat-label">Published on</dt>
+          <dd class="text-text-dark mt-1 font-medium"><time datetime={date.toISOString().slice(0, 10)}>{published}</time></dd>
+        </div>
+      </dl>
+      <ul class="flex items-center gap-2" aria-label="Share this post">
+        <li>
+          <button type="button" class="share-btn" aria-label="Copy link to this post" data-copy-link={pageUrl}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"></path></svg>
+          </button>
+        </li>
+        {
+          share.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" rel="noopener noreferrer" class="share-btn" aria-label={`Share on ${s.name}`}>
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d={s.d} /></svg>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <!-- Article + sticky CTA -->
+    <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-16">
+      <div class="post-body text-text-medium max-w-[46rem] text-base leading-[1.7]">
+        <Content />
+      </div>
+      <aside class="lg:sticky lg:top-[calc(var(--hdr-h)+1.5rem)] lg:self-start">
+        <div class="border-neon/60 rounded-[1.25rem] border bg-white p-7">
+          <h2 class="text-navy font-body text-[1.375rem] font-normal">Ready To Talk Fit-Out?</h2>
+          <p class="text-text-medium mt-3 text-sm leading-[1.6]">
+            Whether you're comparing contractors for a tender or just starting to plan, we'll give you a straight answer on
+            timeline and scope before you commit to anything.
+          </p>
+          <a
+            href="/contact"
+            data-track="cta_click"
+            data-cta-location="blog-sidebar"
+            class="bg-neon text-navy hover:bg-navy mt-6 inline-flex rounded-full px-6 py-2.5 text-sm font-medium transition-colors hover:text-white"
+          >
+            Contact Us
+          </a>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  {
+    similar.length > 0 && (
+      <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
+        <BigOutlineHeading text="Other Similar Blogs">
+          <div class="container-site">
+            <div class="mx-auto grid max-w-[70rem] gap-4 md:grid-cols-2 md:gap-6">
+              {similar.map((p) => <BlogCard post={p} />)}
+            </div>
+          </div>
+        </BigOutlineHeading>
+      </section>
+    )
+  }
+
+  <LogoStrip class="mt-[clamp(3rem,6vw,6rem)]" />
+</BaseLayout>
+
+<style>
+  .share-btn {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    color: var(--color-navy);
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease;
+    cursor: pointer;
+  }
+  .share-btn:hover,
+  .share-btn.is-copied {
+    background: var(--color-navy);
+    color: var(--color-white);
+  }
+
+  /* Article typography */
+  .post-body :global(h2) {
+    margin: 2.25rem 0 0.9rem;
+    color: var(--color-navy);
+    font-family: var(--font-body);
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+    font-weight: 400;
+    line-height: 1.25;
+  }
+  .post-body :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .post-body :global(h3) {
+    margin: 1.75rem 0 0.6rem;
+    color: var(--color-navy);
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+  .post-body :global(p + p) {
+    margin-top: 1em;
+  }
+  .post-body :global(ul),
+  .post-body :global(ol) {
+    margin: 1em 0;
+    padding-left: 1.25em;
+  }
+  .post-body :global(ul) {
+    list-style: disc;
+  }
+  .post-body :global(ol) {
+    list-style: decimal;
+  }
+  .post-body :global(li + li) {
+    margin-top: 0.3em;
+  }
+  .post-body :global(img) {
+    margin: 1.75rem 0;
+    width: 100%;
+    border-radius: 1rem;
+  }
+  .post-body :global(a) {
+    color: var(--color-navy);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .post-body :global(blockquote) {
+    margin: 1.5rem 0;
+    padding-left: 1.25rem;
+    border-left: 3px solid var(--color-neon);
+    color: var(--color-text-dark);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copyLink ?? location.href);
+        btn.classList.add('is-copied');
+        btn.setAttribute('aria-label', 'Link copied');
+        setTimeout(() => {
+          btn.classList.remove('is-copied');
+          btn.setAttribute('aria-label', 'Copy link to this post');
+        }, 2000);
+      } catch {
+        /* clipboard blocked — nothing to do */
+      }
+    });
+  });
+</script>
