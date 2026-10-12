@@ -10,7 +10,7 @@
  */
 
 // Where enquiry emails go. Add more addresses separated by commas, e.g. 'a@x.com, b@y.com'.
-const NOTIFY_EMAIL = 'kartik@minutecreative.com';
+const NOTIFY_EMAIL = 'kartik@minutecreative.com, pavan@minutecreative.com, nazmoon@minutecreative.com';
 const SHEET_NAME = 'Enquiries';
 const HEADERS = ['Date', 'Name', 'Email', 'Phone', 'Subject', 'Message', 'Page'];
 
