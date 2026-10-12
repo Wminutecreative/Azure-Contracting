@@ -65,11 +65,11 @@ const schema = [
 
 <BaseLayout title={title} description={excerpt} ogImage={og.src} ogType="article" schema={schema}>
   <article class="container-site pt-[clamp(1.5rem,1rem+2vw,3rem)]">
-    <a href="/blog" class="text-stat-label hover:text-navy inline-flex items-center gap-2 text-sm transition-colors">
+    <a href="/blog" class="text-[#000000] hover:text-navy inline-flex items-center gap-2 text-sm transition-colors">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
       All Posts
     </a>
-    <h1 class="text-navy font-body mt-5 max-w-[50rem] text-[clamp(2rem,1.3rem+2.4vw,3rem)] leading-tight font-normal tracking-[-0.01em]">{title}</h1>
+    <h1 class="text-navy font-body mt-5 text-h1 leading-tight font-normal tracking-[-0.01em]">{title}</h1>
 
     <Image
       src={cover}
@@ -82,14 +82,14 @@ const schema = [
     />
 
     <!-- Meta + share -->
-    <div class="border-light mt-6 flex flex-wrap items-end justify-between gap-6 border-b pb-6">
-      <dl class="flex gap-10 text-sm">
+    <div class= "mt-8 flex flex-wrap items-end justify-between gap-6">
+      <dl class="flex gap-10 text-p1">
         <div>
-          <dt class="text-stat-label">Written by</dt>
+          <dt class="text-[#585858]">Written by</dt>
           <dd class="text-text-dark mt-1 font-medium">{author}</dd>
         </div>
         <div>
-          <dt class="text-stat-label">Published on</dt>
+          <dt class="text-[#585858]">Published on</dt>
           <dd class="text-text-dark mt-1 font-medium"><time datetime={date.toISOString().slice(0, 10)}>{published}</time></dd>
         </div>
       </dl>
@@ -112,14 +112,14 @@ const schema = [
     </div>
 
     <!-- Article + sticky CTA -->
-    <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-16">
+    <div class="mt-12 flex gap-10 lg:gap-17">
       <div class="post-body text-text-medium max-w-[46rem] text-base leading-[1.7]">
         <Content />
       </div>
       <aside class="lg:sticky lg:top-[calc(var(--hdr-h)+1.5rem)] lg:self-start">
-        <div class="border-neon/60 rounded-[1.25rem] border bg-white p-7">
-          <h2 class="text-navy font-body text-[1.375rem] font-normal">Ready To Talk Fit-Out?</h2>
-          <p class="text-text-medium mt-3 text-sm leading-[1.6]">
+        <div class="border-neon/60 rounded-[1.25rem] border bg-white pt-17.5 pb-19.5 pl-20 pr-20">
+          <h2 class="text-navy font-body text-h4 font-normal">Ready To Talk Fit-Out?</h2>
+          <p class="text-text-medium mt-3 text-p1 leading-[1.6]">
             Whether you're comparing contractors for a tender or just starting to plan, we'll give you a straight answer on
             timeline and scope before you commit to anything.
           </p>
@@ -127,7 +127,7 @@ const schema = [
             href="/contact"
             data-track="cta_click"
             data-cta-location="blog-sidebar"
-            class="bg-neon text-navy hover:bg-navy mt-6 inline-flex rounded-full px-6 py-2.5 text-sm font-medium transition-colors hover:text-white"
+            class="bg-neon text-navy hover:bg-navy mt-30 inline-flex rounded-[8px] px-6 py-2.5 text-sm font-medium transition-colors hover:text-white"
           >
             Contact Us
           </a>
