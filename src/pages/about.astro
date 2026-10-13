@@ -14,9 +14,9 @@ import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getTeam, getFaqs } from '@/lib/content';
 // TODO: real photos from Figma / the client
-import heroImage from '@/assets/about/hero.svg';
-import purposeImage from '@/assets/about/purpose.svg';
-import buildingImage from '@/assets/about/building.svg';
+import about_hero_section from '@/assets/about/about-hero-section.png';
+import about_purpose_mission_vision_section from '@/assets/about/about-purpose-mission-vision-section.png';
+import about_building from '@/assets/about/about-building.png';
 
 const team = await getTeam();
 const faqs = await getFaqs('about');
@@ -81,13 +81,15 @@ const schema = [
             </div>
           </div>
           <Image
-            src={heroImage}
+            src={about_hero_section}
             alt="Bright office canteen fit-out with suspended ceiling lighting"
             widths={[640, 960, 1280]}
             sizes="(min-width: 768px) 48vw, 100vw"
             loading="eager"
             fetchpriority="high"
             class="aspect-[16/11] w-full rounded-[1.25rem] object-cover"
+            width={812}
+            height={1000}
           />
         </div>
 
@@ -112,12 +114,14 @@ const schema = [
   <section class="pt-[clamp(4rem,2rem+6vw,8rem)]" aria-label="Purpose, mission and vision">
     <div class="container-site grid gap-4 md:grid-cols-[1.1fr_0.9fr] md:gap-5">
       <Image
-        src={purposeImage}
+        src={about_purpose_mission_vision_section}
         alt="Two people reviewing drawings and material samples pinned to a wall"
         widths={[640, 960, 1280]}
         sizes="(min-width: 768px) 55vw, 100vw"
         loading="lazy"
         class="aspect-[4/3] h-full w-full rounded-[1.25rem] object-cover"
+        width={1600}
+        height={1000}
       />
       <ul class="grid gap-4 md:gap-5">
         {
@@ -148,12 +152,13 @@ const schema = [
     <div class="img-stage" data-img-stage>
       <div class="img-frame container-site" data-img-frame>
         <Image
-          src={buildingImage}
+          src={about_building}
           alt="Modern building interior with a double-height concrete and glass atrium"
           widths={[960, 1440, 1920, 2560]}
           sizes="100vw"
           loading="lazy"
           class="img-photo aspect-[16/7] w-full rounded-[1.25rem] object-cover"
+          width={1959}
         />
       </div>
     </div>

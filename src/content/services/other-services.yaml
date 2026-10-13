@@ -7,5 +7,5 @@ items:
   - 'Ground works'
   - 'Roof works'
 # TODO: real photo from Figma/client - upload in Keystatic
-image: ../../assets/services/other-services/image.svg
+image: ../../assets/services/other-services/other-services.png
 imageAlt: Office interior with a plant and wall-mounted screen

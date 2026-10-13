@@ -3,7 +3,7 @@ title: 'A Step-By-Step Guide To CLT Staircases'
 date: 2021-01-20
 author: 'Nathan Bowen'
 # TODO: real photos - upload in Keystatic
-cover: ../../assets/blog/step-by-step-guide-to-clt-staircases/cover.svg
+cover: ../../assets/blog/step-by-step-guide-to-clt-staircases/step-by-step.png
 coverAlt: Curved cross-laminated timber staircase seen from above
 excerpt: 'How a CLT staircase goes from design challenge to factory manufacture to on-site installation.'
 tags: [timber, staircases]
