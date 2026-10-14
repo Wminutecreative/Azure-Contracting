@@ -8,6 +8,7 @@ import { render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import FeaturedWork from '@/components/FeaturedWork.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
+import Lightbox from '@/components/Lightbox.astro';
 import { getProjects } from '@/lib/content';
 import { sectorLabel } from '@/data/sectors';
 
@@ -32,6 +33,12 @@ const meta = [
   { label: 'Role', value: role },
   { label: 'Completed', value: year?.toString() },
 ].filter((m): m is { label: string; value: string } => Boolean(m.value));
+
+// Large versions for the full-screen viewer (click any photo)
+const fullSize = await Promise.all(
+  photos.map((p) => getImage({ src: p.src, width: Math.min(p.src.width, 2400), format: 'webp' })),
+);
+const lightboxItems = photos.map((p, i) => ({ src: fullSize[i].src, alt: p.alt }));
 
 // Other Similar Works: same sector first, then the rest — 2 projects, never the current one
 const others = all.filter((p) => p.id !== project.id);
@@ -68,19 +75,27 @@ const schema = [
     <h1 class="text-navy font-body text-[clamp(2rem,1.4rem+2vw,2.75rem)] leading-tight font-normal tracking-[-0.01em]">{title}</h1>
 
     <div class="mt-8 grid gap-8 md:mt-10 md:grid-cols-[1.5fr_1fr] md:gap-[clamp(2rem,4vw,3.5rem)]">
-      <!-- Photos: cover first, then the gallery -->
+      <!-- Photos: each reveals as it scrolls into view; click opens the full-screen viewer -->
       <div class="flex flex-col gap-4 md:gap-5">
         {
           photos.map((photo, i) => (
-            <Image
-              src={photo.src}
-              alt={photo.alt}
-              widths={[640, 960, 1280, 1600]}
-              sizes="(min-width: 1340px) 780px, (min-width: 768px) 58vw, 100vw"
-              loading={i === 0 ? 'eager' : 'lazy'}
-              fetchpriority={i === 0 ? 'high' : undefined}
-              class="aspect-[5/3] w-full rounded-2xl object-cover md:rounded-[1.25rem]"
-            />
+            <button
+              type="button"
+              class="photo-btn"
+              data-lb-open={i}
+              data-photo-reveal
+              aria-label={`View photo ${i + 1} of ${photos.length}: ${photo.alt}`}
+            >
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                widths={[640, 960, 1280, 1600]}
+                sizes="(min-width: 1340px) 780px, (min-width: 768px) 58vw, 100vw"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                fetchpriority={i === 0 ? 'high' : undefined}
+                class="aspect-[5/3] w-full object-cover"
+              />
+            </button>
           ))
         }
       </div>
@@ -114,9 +129,52 @@ const schema = [
   }
 
   <LogoStrip class="mt-[clamp(3rem,6vw,6rem)]" />
+
+  <Lightbox items={lightboxItems} />
 </BaseLayout>
 
+<script>
+  // Photos reveal one by one as they scroll into view: the frame wipes up from the bottom while the photo settles
+  // from a slight zoom. Plays once per photo. Reduced motion: shown immediately.
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLElement>('[data-photo-reveal]').forEach((el) => {
+      const img = el.querySelector('img');
+      const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
+      tl.fromTo(
+        el,
+        { clipPath: 'inset(100% 0% 0% 0% round 20px)', opacity: 0.4 },
+        { clipPath: 'inset(0% 0% 0% 0% round 20px)', opacity: 1, duration: 1.1, ease: 'expo.out', clearProps: 'clipPath,opacity' },
+      );
+      if (img) tl.fromTo(img, { scale: 1.15 }, { scale: 1, duration: 1.4, ease: 'expo.out', clearProps: 'transform' }, 0);
+    });
+  }
+</script>
+
 <style>
+  /* Clickable photos: rounded, zoom cursor, slight zoom on hover */
+  .photo-btn {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    cursor: zoom-in;
+  }
+  .photo-btn :global(img) {
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .photo-btn:hover :global(img) {
+    transform: scale(1.03);
+  }
+  .photo-btn:focus-visible {
+    outline: 2px solid var(--color-neon);
+    outline-offset: 3px;
+  }
+
   .project-body :global(p + p) {
     margin-top: 1em;
   }
