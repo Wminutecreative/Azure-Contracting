@@ -1,0 +1,236 @@
+---
+import NavArrow from './NavArrow.astro';
+
+// Full-screen image viewer. Any element on the page with [data-lb-open="<index>"] opens it at that image.
+// Arrows / ← → keys / swipe to move, Esc or ✕ or a click on the backdrop to close, "3 / 8" counter + caption.
+// Built on <dialog> + showModal(): focus stays inside and the page behind is inert.
+export interface LightboxItem {
+  src: string;
+  alt: string;
+}
+interface Props {
+  items: LightboxItem[];
+}
+const { items } = Astro.props;
+---
+
+<dialog class="lightbox" aria-label="Image viewer" data-lightbox data-items={JSON.stringify(items)}>
+  <div class="lb-stage" data-lb-stage>
+    <img class="lb-img" alt="" data-lb-img />
+  </div>
+
+  <button type="button" class="lb-btn lb-close" aria-label="Close image viewer" data-lb-close>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"></path></svg>
+  </button>
+  {
+    items.length > 1 && (
+      <>
+        <button type="button" class="lb-btn lb-prev" aria-label="Previous image" data-lb-prev>
+          <NavArrow direction="left" size={22} />
+        </button>
+        <button type="button" class="lb-btn lb-next" aria-label="Next image" data-lb-next>
+          <NavArrow size={22} />
+        </button>
+      </>
+    )
+  }
+  <div class="lb-bar">
+    <p class="lb-caption" data-lb-caption></p>
+    {items.length > 1 && <p class="lb-count" aria-live="polite" data-lb-count></p>}
+  </div>
+</dialog>
+
+<style>
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #080e1c;
+    color: var(--color-white);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox {
+      transition: none;
+    }
+  }
+  .lightbox[open].is-visible {
+    opacity: 1;
+  }
+  .lightbox::backdrop {
+    background: transparent;
+  }
+  .lb-stage {
+    position: absolute;
+    inset: 4.5rem clamp(1rem, 6vw, 6.5rem) 5rem;
+    display: grid;
+    place-items: center;
+    touch-action: pan-y;
+  }
+  .lb-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 0.75rem;
+    user-select: none;
+    transition:
+      opacity 0.25s ease,
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lb-img.is-swapping {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  .lb-btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.1);
+    color: var(--color-white);
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  .lb-btn:hover {
+    background: rgb(255 255 255 / 0.22);
+  }
+  .lb-btn:focus-visible {
+    outline: 2px solid var(--color-neon);
+    outline-offset: 2px;
+  }
+  .lb-close {
+    top: 1rem;
+    right: 1rem;
+  }
+  .lb-prev,
+  .lb-next {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .lb-prev {
+    left: clamp(0.5rem, 2vw, 1.5rem);
+  }
+  .lb-next {
+    right: clamp(0.5rem, 2vw, 1.5rem);
+  }
+  .lb-bar {
+    position: absolute;
+    inset: auto clamp(1rem, 6vw, 6.5rem) 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .lb-caption {
+    color: rgb(255 255 255 / 0.75);
+  }
+  .lb-count {
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    color: rgb(255 255 255 / 0.9);
+  }
+  @media (max-width: 47.99rem) {
+    .lb-prev,
+    .lb-next {
+      top: auto;
+      bottom: 3.75rem;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLDialogElement>('[data-lightbox]').forEach((box) => {
+    const items: { src: string; alt: string }[] = JSON.parse(box.dataset.items ?? '[]');
+    const img = box.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const caption = box.querySelector<HTMLElement>('[data-lb-caption]')!;
+    const count = box.querySelector<HTMLElement>('[data-lb-count]');
+    const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let index = 0;
+    let opener: HTMLElement | null = null;
+
+    const preload = (i: number) => {
+      const it = items[(i + items.length) % items.length];
+      if (it) new Image().src = it.src;
+    };
+
+    const show = (i: number, animate = true) => {
+      index = (i + items.length) % items.length;
+      const it = items[index];
+      const apply = () => {
+        img.src = it.src;
+        img.alt = it.alt;
+        caption.textContent = it.alt;
+        if (count) count.textContent = `${index + 1} / ${items.length}`;
+        img.classList.remove('is-swapping');
+      };
+      if (animate && !reduce()) {
+        img.classList.add('is-swapping');
+        window.setTimeout(apply, 180);
+      } else apply();
+      preload(index + 1);
+      preload(index - 1);
+    };
+
+    const open = (i: number, from: HTMLElement) => {
+      opener = from;
+      show(i, false);
+      box.showModal();
+      document.documentElement.style.overflow = 'hidden';
+      requestAnimationFrame(() => box.classList.add('is-visible'));
+    };
+    const close = () => {
+      box.classList.remove('is-visible');
+      const done = () => {
+        box.close();
+        document.documentElement.style.overflow = '';
+        opener?.focus();
+      };
+      if (reduce()) done();
+      else window.setTimeout(done, 250);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-lb-open]').forEach((el) =>
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        open(Number(el.dataset.lbOpen) || 0, el);
+      }),
+    );
+    box.querySelector('[data-lb-close]')?.addEventListener('click', close);
+    box.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(index - 1));
+    box.querySelector('[data-lb-next]')?.addEventListener('click', () => show(index + 1));
+    box.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      close();
+    });
+    box.addEventListener('keydown', (e) => {
+      if (items.length < 2) return;
+      if (e.key === 'ArrowRight') show(index + 1);
+      if (e.key === 'ArrowLeft') show(index - 1);
+    });
+    // Click on the empty area around the image closes
+    box.querySelector('[data-lb-stage]')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) close();
+    });
+
+    // Swipe
+    let startX: number | null = null;
+    img.addEventListener('pointerdown', (e) => (startX = e.clientX));
+    img.addEventListener('pointerup', (e) => {
+      if (startX === null || items.length < 2) return;
+      const dx = e.clientX - startX;
+      startX = null;
+      if (Math.abs(dx) > 50) show(index + (dx < 0 ? 1 : -1));
+    });
+  });
+</script>
