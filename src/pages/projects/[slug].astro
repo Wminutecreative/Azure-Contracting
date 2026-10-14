@@ -38,7 +38,10 @@ const meta = [
 const fullSize = await Promise.all(
   photos.map((p) => getImage({ src: p.src, width: Math.min(p.src.width, 2400), format: 'webp' })),
 );
-const lightboxItems = photos.map((p, i) => ({ src: fullSize[i].src, alt: p.alt }));
+const thumbs = await Promise.all(
+  photos.map((p) => getImage({ src: p.src, width: 200, height: 200, fit: 'cover', format: 'webp' })),
+);
+const lightboxItems = photos.map((p, i) => ({ src: fullSize[i].src, thumb: thumbs[i].src, alt: p.alt }));
 
 // Other Similar Works: same sector first, then the rest — 2 projects, never the current one
 const others = all.filter((p) => p.id !== project.id);
