@@ -24,7 +24,8 @@ const { project, all } = Astro.props;
 const { title, excerpt, cover, coverAlt, gallery, client, location, role, year, sector } = project.data;
 const { Content } = await render(project);
 
-const photos = [{ src: cover, alt: coverAlt }, ...gallery];
+// Left column: the gallery photos (design shows interiors here); falls back to the cover when there is no gallery
+const photos = gallery.length ? gallery : [{ src: cover, alt: coverAlt }];
 const meta = [
   { label: 'Client', value: client },
   { label: 'Location', value: location },
