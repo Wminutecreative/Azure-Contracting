@@ -1,14 +1,13 @@
 ---
-// Project detail — Figma 534:1796 (prototype 535:6296), gallery modelled on se-arkitektur.no project pages.
-// Title · first photo large | accordion panel (Introduction open, Project Details) · remaining photos in rows that
-// alternate one wide / two side by side · every photo opens the full-screen viewer · "Other Similar Works" ·
-// client logos → footer. All content comes from the Projects collection in Keystatic.
+// Project detail — Figma 534:1796 (prototype 535:6296).
+// Title · two columns: photos (cover + gallery, stacked) | sticky "Introduction" panel (description + Client /
+// Location / Role) · "Other Similar Works" in the connected-box layout · client logos → footer.
+// All content comes from the Projects collection in Keystatic.
 import { Image, getImage } from 'astro:assets';
 import { render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import FeaturedWork from '@/components/FeaturedWork.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
-import Lightbox from '@/components/Lightbox.astro';
 import { getProjects } from '@/lib/content';
 import { sectorLabel } from '@/data/sectors';
 
@@ -33,21 +32,6 @@ const meta = [
   { label: 'Role', value: role },
   { label: 'Completed', value: year?.toString() },
 ].filter((m): m is { label: string; value: string } => Boolean(m.value));
-
-// Large versions for the full-screen viewer
-const fullSize = await Promise.all(
-  photos.map((p) => getImage({ src: p.src, width: Math.min(p.src.width, 2400), format: 'webp' })),
-);
-const lightboxItems = photos.map((p, i) => ({ src: fullSize[i].src, alt: p.alt }));
-
-// Photos after the first, grouped into rows: 1 wide, 2 side by side, 1 wide, …
-const rest = photos.slice(1).map((p, i) => ({ ...p, index: i + 1 }));
-const rows: (typeof rest)[] = [];
-for (let i = 0, wide = true; i < rest.length; wide = !wide) {
-  const size = wide ? 1 : 2;
-  rows.push(rest.slice(i, i + size));
-  i += size;
-}
 
 // Other Similar Works: same sector first, then the rest — 2 projects, never the current one
 const others = all.filter((p) => p.id !== project.id);
@@ -83,86 +67,45 @@ const schema = [
   <article class="container-site pt-[clamp(1.5rem,1rem+2vw,3rem)]">
     <h1 class="text-navy font-body text-[clamp(2rem,1.4rem+2vw,2.75rem)] leading-tight font-normal tracking-[-0.01em]">{title}</h1>
 
-    <!-- First photo large | accordion panel -->
     <div class="mt-8 grid gap-8 md:mt-10 md:grid-cols-[1.5fr_1fr] md:gap-[clamp(2rem,4vw,3.5rem)]">
-      <button type="button" class="photo-btn" data-lb-open="0" aria-label={`View photo 1 of ${photos.length}: ${photos[0].alt}`}>
-        <Image
-          src={photos[0].src}
-          alt={photos[0].alt}
-          widths={[640, 960, 1280, 1600]}
-          sizes="(min-width: 1340px) 780px, (min-width: 768px) 58vw, 100vw"
-          loading="eager"
-          fetchpriority="high"
-          class="aspect-[5/3] w-full object-cover"
-        />
-      </button>
+      <!-- Photos: cover first, then the gallery -->
+      <div class="flex flex-col gap-4 md:gap-5">
+        {
+          photos.map((photo, i) => (
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              widths={[640, 960, 1280, 1600]}
+              sizes="(min-width: 1340px) 780px, (min-width: 768px) 58vw, 100vw"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
+              class="aspect-[5/3] w-full rounded-2xl object-cover md:rounded-[1.25rem]"
+            />
+          ))
+        }
+      </div>
 
-      <aside class="md:sticky md:top-[calc(var(--hdr-h)+1.5rem)] md:self-start" aria-label="About this project">
-        <details class="info border-light border-b" name="project-info" open data-accordion>
-          <summary class="info-summary">
-            <h2>Introduction</h2>
-            <span class="info-icon" aria-hidden="true"></span>
-          </summary>
-          <div class="overflow-hidden" data-accordion-body>
-            <div class="project-body text-text-medium pb-6 text-[0.9375rem] leading-[1.6]">
-              <Content />
-            </div>
-          </div>
-        </details>
+      <!-- Introduction: stays in view while the photos scroll past -->
+      <aside class="md:sticky md:top-[calc(var(--hdr-h)+1.5rem)] md:self-start" aria-labelledby="intro-heading">
+        <h2 id="intro-heading" class="text-navy font-body text-[clamp(1.375rem,1.2rem+0.6vw,1.75rem)] font-normal">Introduction</h2>
+        <div class="project-body text-text-medium mt-5 text-[0.9375rem] leading-[1.6]">
+          <Content />
+        </div>
         {
           meta.length > 0 && (
-            <details class="info border-light border-b" name="project-info" data-accordion>
-              <summary class="info-summary">
-                <h2>Project Details</h2>
-                <span class="info-icon" aria-hidden="true" />
-              </summary>
-              <div class="overflow-hidden" data-accordion-body>
-                <dl class="pb-5 text-[0.9375rem]">
-                  {meta.map((m) => (
-                    <div class="border-light flex gap-2 border-t py-3 first:border-t-0">
-                      <dt class="text-text-dark font-medium">{m.label}:</dt>
-                      <dd class="text-text-medium">{m.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            </details>
+            <dl class="mt-8 text-[0.9375rem]">
+              {meta.map((m) => (
+                <div class="border-light flex gap-2 border-b py-3.5 first:border-t">
+                  <dt class="text-text-dark font-medium">{m.label}:</dt>
+                  <dd class="text-text-medium">{m.value}</dd>
+                </div>
+              ))}
+            </dl>
           )
         }
       </aside>
     </div>
-
-    <!-- Remaining photos: alternating one wide / two side by side -->
-    {
-      rows.length > 0 && (
-        <div class="mt-4 space-y-4 md:mt-6 md:space-y-6">
-          {rows.map((row) => (
-            <div class:list={['grid gap-4 md:gap-6', row.length > 1 && 'md:grid-cols-2']}>
-              {row.map((photo) => (
-                <button
-                  type="button"
-                  class="photo-btn"
-                  data-lb-open={photo.index}
-                  aria-label={`View photo ${photo.index + 1} of ${photos.length}: ${photo.alt}`}
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    widths={row.length > 1 ? [480, 720, 960] : [960, 1440, 1920]}
-                    sizes={row.length > 1 ? '(min-width: 768px) 46vw, 100vw' : '(min-width: 1340px) 1312px, 100vw'}
-                    loading="lazy"
-                    class:list={['w-full object-cover', row.length > 1 ? 'aspect-[4/3]' : 'aspect-[16/8]']}
-                  />
-                </button>
-              ))}
-            </div>
-          ))}
-        </div>
-      )
-    }
   </article>
-
-  <Lightbox items={lightboxItems} />
 
   {
     similar.length > 0 && (
@@ -173,76 +116,7 @@ const schema = [
   <LogoStrip class="mt-[clamp(3rem,6vw,6rem)]" />
 </BaseLayout>
 
-<script>
-  import '@/scripts/accordion';
-</script>
-
 <style>
-  /* Clickable photos: rounded, slight zoom + expand cursor on hover */
-  .photo-btn {
-    display: block;
-    width: 100%;
-    overflow: hidden;
-    border-radius: 1.25rem;
-    cursor: zoom-in;
-  }
-  .photo-btn :global(img) {
-    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .photo-btn:hover :global(img) {
-    transform: scale(1.03);
-  }
-  .photo-btn:focus-visible {
-    outline: 2px solid var(--color-neon);
-    outline-offset: 3px;
-  }
-
-  /* Accordion panel (Introduction / Project Details) */
-  .info:first-child {
-    border-top: 1px solid var(--color-light);
-  }
-  .info-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.1rem 0;
-    cursor: pointer;
-    list-style: none;
-  }
-  .info-summary::-webkit-details-marker {
-    display: none;
-  }
-  .info-summary h2 {
-    color: var(--color-navy);
-    font-family: var(--font-body);
-    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
-    font-weight: 400;
-  }
-  /* + that turns into − when open */
-  .info-icon {
-    position: relative;
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-  }
-  .info-icon::before,
-  .info-icon::after {
-    content: '';
-    position: absolute;
-    inset: 6px 0 auto;
-    height: 2px;
-    border-radius: 1px;
-    background: var(--color-navy);
-    transition: transform 0.3s ease;
-  }
-  .info-icon::after {
-    transform: rotate(90deg);
-  }
-  .info[open] .info-icon::after {
-    transform: rotate(0deg);
-  }
-
   .project-body :global(p + p) {
     margin-top: 1em;
   }
