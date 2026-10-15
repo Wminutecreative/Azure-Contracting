@@ -25,7 +25,7 @@ const count = testimonials.length;
   count > 0 && (
     <section class:list={['overflow-x-clip pb-[5rem]', className]} aria-labelledby="testimonials-heading" data-tslider data-count={count}>
       <div class="container-site">
-        <div class="grid gap-3 lg:min-h-[30.875rem] lg:grid-cols-[1fr_2fr_2fr]">
+        <div class="relative grid gap-3 lg:min-h-[30.875rem] lg:grid-cols-[1fr_2fr_2fr]" data-tgrid>
           <!-- Column 1: heading + current photo -->
           <div class="flex min-w-0 flex-col justify-between gap-7">
             <div class="lg:px-[1.125rem] lg:pt-[1.875rem]">
@@ -118,7 +118,7 @@ const count = testimonials.length;
   .stack > :global(*) {
     grid-area: 1 / 1;
   }
-  /* Only the active slide is shown; the script animates the carousel move between slides (see below) */
+  /* Only the active slide is shown; the script animates the move between slides (see below) */
   .t-item,
   .t-next {
     visibility: hidden;
@@ -126,6 +126,26 @@ const count = testimonials.length;
   .t-item.is-active,
   .t-next.is-active {
     visibility: visible;
+  }
+  /* Desktop track mode (set by the script): every person's photo + quote sit in one sliding row on a layer
+     above the heading (outgoing cards pass over it) and below the Next/Previous tiles. The row's next photo
+     fills the pocket, so the pocket's own images are hidden. */
+  :global(.t-track) {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+  }
+  :global(.t-track > .t-item.t-item) {
+    position: absolute;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  :global(.t-track > img.t-item) {
+    z-index: 2;
+  }
+  :global(.is-track .t-photo .t-next.t-next) {
+    visibility: hidden;
   }
   .t-dot {
     width: 6px;
@@ -239,11 +259,118 @@ const count = testimonials.length;
     const quotes = items('[data-quotes]');
     const nextPhotos = items('[data-next-photo]');
     const at = (list: HTMLElement[], i: number) => list.find((el) => Number(el.dataset.i) === i);
-    const all = [...mainPhotos, ...quotes, ...nextPhotos];
+    const all = [...mainPhotos, ...quotes];
 
-    // Carousel move: the person's photo, their quote and the next-person photo slide together as one row —
-    // same distance, same timing. Next → the current set slides out left while the new set slides in from
-    // the right; Previous → the reverse. (No clipping; the section only clips at the page edge.)
+    const grid = root.querySelector<HTMLElement>('[data-tgrid]')!;
+    const mainStack = root.querySelector<HTMLElement>('[data-main-photo]')!;
+    const quoteStack = root.querySelector<HTMLElement>('[data-quotes]')!;
+    const nextStack = root.querySelector<HTMLElement>('[data-next-photo]')!;
+    const desktop = window.matchMedia('(min-width: 75rem)');
+    let active = 0;
+
+    // ── Desktop: one sliding row (like a carousel track) ───────────────────────────────────────────────
+    // Each person = photo + quote card. Slot r = position relative to the current person:
+    //   r = 0 → photo in the main photo spot, quote in the quote column
+    //   r = 1 → photo in the bottom-right pocket (quote hidden under the Next/Previous tiles)
+    //   r < 0 / r > 1 → the same spacing continued off to the left / right (peeking at the page edge)
+    // Next shifts every person one slot left, Previous one slot right — photos and quotes move together.
+    const layer = document.createElement('div');
+    layer.className = 't-track';
+    layer.setAttribute('aria-live', 'polite');
+    let track = false;
+
+    type Box = { left: number; top: number; width: number; height: number };
+    const box = (el: HTMLElement): Box => {
+      const g = grid.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      return { left: r.left - g.left, top: r.top - g.top, width: r.width, height: r.height };
+    };
+    // The row needs at least 4 entries (left peek, current, pocket, right peek) so every move is a real slide.
+    // With fewer testimonials the row repeats them (copies are hidden from screen readers unless current).
+    let V = count; // entries in the row
+    let vActive = 0; // current entry
+    let vPhotos: HTMLElement[] = [];
+    let vQuotes: HTMLElement[] = [];
+    const clones: HTMLElement[] = [];
+    // Relative slot of entry v, in -1 … V-2
+    const slotOf = (v: number) => ((((v - vActive + 1) % V) + V) % V) - 1;
+    const slots = () => {
+      const P = box(mainStack);
+      const Q = box(quoteStack);
+      const N = box(nextStack);
+      const D = N.left - P.left; // one step of the row
+      const photo = (r: number): Box =>
+        r <= 0 ? { ...P, left: P.left + r * D } : { ...N, left: N.left + (r - 1) * D };
+      const quote = (r: number): Box => ({ ...Q, left: Q.left + r * D });
+      return { photo, quote };
+    };
+    const css = (b: Box) => ({ left: `${b.left}px`, top: `${b.top}px`, width: `${b.width}px`, height: `${b.height}px` });
+
+    // Place everyone in their slot; with `dir`, animate from the slot they came from (r + dir)
+    const place = (dir = 0) => {
+      const { photo, quote } = slots();
+      const animate = dir !== 0 && !reduceMotion;
+      for (let v = 0; v < V; v++) {
+        const r = slotOf(v);
+        const pairs: [HTMLElement, (r: number) => Box][] = [
+          [vPhotos[v], photo],
+          [vQuotes[v], quote],
+        ];
+        for (const [el, slot] of pairs) {
+          el.getAnimations().forEach((a) => a.cancel());
+          const to = slot(r);
+          Object.assign(el.style, css(to));
+          if (animate) el.animate([css(slot(r + dir)), css(to)], timing);
+        }
+        // Only the current quote is readable / focusable
+        vQuotes[v].inert = r !== 0;
+        vQuotes[v].toggleAttribute('aria-hidden', r !== 0);
+      }
+    };
+
+    const enableTrack = () => {
+      if (track) return;
+      track = true;
+      quoteStack.style.minHeight = `${quoteStack.offsetHeight}px`; // keep the column height once emptied
+      all.forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
+      const byIndex = (list: HTMLElement[]) => [...list].sort((a, b) => Number(a.dataset.i) - Number(b.dataset.i));
+      const reps = Math.max(1, Math.ceil(4 / count));
+      V = count * reps;
+      vPhotos = byIndex(mainPhotos);
+      vQuotes = byIndex(quotes);
+      for (let rep = 1; rep < reps; rep++) {
+        for (let k = 0; k < count; k++) {
+          const p = vPhotos[k].cloneNode(true) as HTMLElement;
+          const q = vQuotes[k].cloneNode(true) as HTMLElement;
+          clones.push(p, q);
+          vPhotos.push(p);
+          vQuotes.push(q);
+        }
+      }
+      vActive = active;
+      layer.append(...vPhotos, ...vQuotes);
+      grid.append(layer);
+      root.classList.add('is-track');
+      place();
+    };
+    const disableTrack = () => {
+      if (!track) return;
+      track = false;
+      clones.splice(0).forEach((el) => el.remove());
+      mainStack.append(...mainPhotos);
+      quoteStack.append(...quotes);
+      [...mainPhotos, ...quotes].forEach((el) => {
+        el.getAnimations().forEach((a) => a.cancel());
+        el.removeAttribute('style');
+        el.removeAttribute('aria-hidden');
+        el.inert = false;
+      });
+      quoteStack.style.minHeight = '';
+      layer.remove();
+      root.classList.remove('is-track');
+    };
+
+    // ── Below desktop: only the quote card shows; it slides out / in ────────────────────────────────────
     const slideX = (el: HTMLElement, from: number, to: number) =>
       el.animate(
         [
@@ -253,40 +380,48 @@ const count = testimonials.length;
         timing,
       );
 
-    let active = 0;
-    const show = (index: number, dir: number) => {
+    const show = (dir: number) => {
       const prev = active;
-      const next = (index + count) % count;
-      if (next === prev) return;
-      all.forEach((el) => el.getAnimations().forEach((a) => a.finish()));
-
-      // One shared travel distance so everything moves in step: the quote card width + gap
-      const d = (at(quotes, prev)?.offsetWidth ?? 0) + gap;
-      const outgoing = [at(mainPhotos, prev), at(quotes, prev), at(nextPhotos, (prev + 1) % count)];
-
-      active = next;
+      if (track) vActive = (vActive + dir + V) % V;
+      active = (active + dir + count) % count;
       const toggle = (list: HTMLElement[], i: number) => list.forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === i));
       toggle(mainPhotos, active);
       toggle(quotes, active);
       toggle(nextPhotos, (active + 1) % count);
+
+      if (track) return place(dir);
       if (reduceMotion) return;
-
-      const incoming = [at(mainPhotos, active), at(quotes, active), at(nextPhotos, (active + 1) % count)];
-      outgoing.forEach((el) => el && slideX(el, 0, -dir * d));
-      incoming.forEach((el) => el && slideX(el, dir * d, 0));
+      const d = (at(quotes, prev)?.offsetWidth ?? 0) + gap;
+      const oldQuote = at(quotes, prev);
+      const newQuote = at(quotes, active);
+      oldQuote?.getAnimations().forEach((a) => a.finish());
+      newQuote?.getAnimations().forEach((a) => a.finish());
+      if (oldQuote) slideX(oldQuote, 0, -dir * d);
+      if (newQuote) slideX(newQuote, dir * d, 0);
     };
-    root.querySelector('[data-next]')?.addEventListener('click', () => show(active + 1, 1));
-    root.querySelector('[data-prev]')?.addEventListener('click', () => show(active - 1, -1));
+    root.querySelector('[data-next]')?.addEventListener('click', () => show(1));
+    root.querySelector('[data-prev]')?.addEventListener('click', () => show(-1));
 
-    // Swipe / drag on the quote card
-    const swipe = root.querySelector<HTMLElement>('[data-swipe]');
+    const sync = () => (desktop.matches ? enableTrack() : disableTrack());
+    sync();
+    desktop.addEventListener('change', sync);
+    window.addEventListener('resize', () => track && place());
+    document.fonts?.ready.then(() => {
+      if (!track) return;
+      // Fonts can change the quote height: re-measure the column, then re-place
+      disableTrack();
+      enableTrack();
+    });
+
+    // Swipe / drag on the quote card (desktop: anywhere on the slider row)
+    const swipe = grid;
     let startX: number | null = null;
     swipe?.addEventListener('pointerdown', (e) => (startX = e.clientX));
     swipe?.addEventListener('pointerup', (e) => {
       if (startX === null) return;
       const dx = e.clientX - startX;
       startX = null;
-      if (Math.abs(dx) > 50) show(active + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+      if (Math.abs(dx) > 50) show(dx < 0 ? 1 : -1);
     });
     swipe?.addEventListener('pointercancel', () => (startX = null));
   });
