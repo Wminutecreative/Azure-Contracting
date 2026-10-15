@@ -244,11 +244,11 @@ const count = testimonials.length;
     // Carousel move: the person's photo, their quote and the next-person photo slide together as one row —
     // same distance, same timing. Next → the current set slides out left while the new set slides in from
     // the right; Previous → the reverse. (No clipping; the section only clips at the page edge.)
-    const slideX = (el: HTMLElement, from: number, to: number, fadeIn: boolean, fadeOut: boolean) =>
+    const slideX = (el: HTMLElement, from: number, to: number) =>
       el.animate(
         [
-          { transform: `translateX(${from}px)`, opacity: fadeIn ? 0 : 1, visibility: 'visible' },
-          { transform: `translateX(${to}px)`, opacity: fadeOut ? 0 : 1, visibility: 'visible' },
+          { transform: `translateX(${from}px)`, visibility: 'visible' },
+          { transform: `translateX(${to}px)`, visibility: 'visible' },
         ],
         timing,
       );
@@ -272,8 +272,8 @@ const count = testimonials.length;
       if (reduceMotion) return;
 
       const incoming = [at(mainPhotos, active), at(quotes, active), at(nextPhotos, (active + 1) % count)];
-      outgoing.forEach((el) => el && slideX(el, 0, -dir * d, false, true));
-      incoming.forEach((el) => el && slideX(el, dir * d, 0, true, false));
+      outgoing.forEach((el) => el && slideX(el, 0, -dir * d));
+      incoming.forEach((el) => el && slideX(el, dir * d, 0));
     };
     root.querySelector('[data-next]')?.addEventListener('click', () => show(active + 1, 1));
     root.querySelector('[data-prev]')?.addEventListener('click', () => show(active - 1, -1));
