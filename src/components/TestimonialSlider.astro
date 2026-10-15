@@ -241,11 +241,9 @@ const count = testimonials.length;
     const at = (list: HTMLElement[], i: number) => list.find((el) => Number(el.dataset.i) === i);
     const all = [...mainPhotos, ...quotes, ...nextPhotos];
 
-    // Carousel-style move (no clipping, the section only clips at the page edge):
-    //   Next → the current photo + quote slide out to the left, the next person's photo travels from the
-    //          bottom-right pocket into the main photo spot, their quote slides in from the right, and the
-    //          following person's photo slides into the pocket from off-screen right.
-    //   Previous → the exact reverse.
+    // Carousel move: the person's photo, their quote and the next-person photo slide together as one row —
+    // same distance, same timing. Next → the current set slides out left while the new set slides in from
+    // the right; Previous → the reverse. (No clipping; the section only clips at the page edge.)
     const slideX = (el: HTMLElement, from: number, to: number, fadeIn: boolean, fadeOut: boolean) =>
       el.animate(
         [
@@ -254,21 +252,6 @@ const count = testimonials.length;
         ],
         timing,
       );
-    // Moves `el` (already in its final slot) so it starts exactly over `from`, then glides home
-    const travel = (el: HTMLElement, from: DOMRect) => {
-      const to = el.getBoundingClientRect();
-      if (!to.width) return;
-      const s = from.width / to.width;
-      const dx = from.left + from.width / 2 - (to.left + to.width / 2);
-      const dy = from.top + from.height / 2 - (to.top + to.height / 2);
-      el.animate(
-        [
-          { transform: `translate(${dx}px, ${dy}px) scale(${s})`, visibility: 'visible' },
-          { transform: 'none', visibility: 'visible' },
-        ],
-        timing,
-      );
-    };
 
     let active = 0;
     const show = (index: number, dir: number) => {
@@ -277,14 +260,9 @@ const count = testimonials.length;
       if (next === prev) return;
       all.forEach((el) => el.getAnimations().forEach((a) => a.finish()));
 
-      // Measure the slots before anything changes
-      const mainEl = at(mainPhotos, prev);
-      const pocketEl = at(nextPhotos, (prev + 1) % count);
-      const mainRect = mainEl?.getBoundingClientRect();
-      const pocketRect = pocketEl?.getBoundingClientRect();
-      const quoteW = (at(quotes, prev)?.offsetWidth ?? 0) + gap;
-      const mainW = (mainRect?.width ?? 0) + gap;
-      const pocketW = (pocketRect?.width ?? 0) * 1.5 + gap;
+      // One shared travel distance so everything moves in step: the quote card width + gap
+      const d = (at(quotes, prev)?.offsetWidth ?? 0) + gap;
+      const outgoing = [at(mainPhotos, prev), at(quotes, prev), at(nextPhotos, (prev + 1) % count)];
 
       active = next;
       const toggle = (list: HTMLElement[], i: number) => list.forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === i));
@@ -293,22 +271,9 @@ const count = testimonials.length;
       toggle(nextPhotos, (active + 1) % count);
       if (reduceMotion) return;
 
-      const oldQuote = at(quotes, prev);
-      const newQuote = at(quotes, active);
-      if (oldQuote) slideX(oldQuote, 0, -dir * quoteW, false, true);
-      if (newQuote) slideX(newQuote, dir * quoteW, 0, true, false);
-
-      const newMain = at(mainPhotos, active);
-      const newPocket = at(nextPhotos, (active + 1) % count);
-      if (dir > 0) {
-        if (mainEl) slideX(mainEl, 0, -mainW, false, true); // old photo leaves left
-        if (newMain && pocketRect) travel(newMain, pocketRect); // pocket photo → main spot
-        if (newPocket) slideX(newPocket, pocketW, 0, true, false); // following photo enters from the right
-      } else {
-        if (newMain) slideX(newMain, -mainW, 0, true, false); // previous photo enters from the left
-        if (newPocket && mainRect) travel(newPocket, mainRect); // main photo → pocket
-        if (pocketEl && pocketEl !== newPocket) slideX(pocketEl, 0, pocketW, false, true); // old pocket leaves right
-      }
+      const incoming = [at(mainPhotos, active), at(quotes, active), at(nextPhotos, (active + 1) % count)];
+      outgoing.forEach((el) => el && slideX(el, 0, -dir * d, false, true));
+      incoming.forEach((el) => el && slideX(el, dir * d, 0, true, false));
     };
     root.querySelector('[data-next]')?.addEventListener('click', () => show(active + 1, 1));
     root.querySelector('[data-prev]')?.addEventListener('click', () => show(active - 1, -1));
