@@ -32,7 +32,7 @@ const count = testimonials.length;
               <h2 id="testimonials-heading" class="font-body text-navy text-[clamp(2rem,2.8vw,2.5rem)] leading-[1.08] font-normal tracking-[-0.01em]">{heading}</h2>
               <p class="text-stat-label mt-3.5 text-[0.9375rem]">{subheading}</p>
             </div>
-            <div class="stack hidden aspect-[0.95] max-w-[17.5rem] lg:grid">
+            <div class="stack hidden aspect-[0.95] max-w-[17.5rem] overflow-hidden rounded-[1.375rem] lg:grid">
               {testimonials.map((t, i) => (
                 <Image src={t.data.photo} alt="" width={560} class:list={['t-item size-full rounded-[1.375rem] object-cover', i === 0 && 'is-active']} data-i={i} />
               ))}
@@ -40,7 +40,7 @@ const count = testimonials.length;
           </div>
 
           <!-- Column 2: quote card -->
-          <div class="stack grid min-w-0" aria-live="polite" data-swipe>
+          <div class="stack grid min-w-0 touch-pan-y overflow-hidden rounded-3xl select-none" aria-live="polite" data-swipe>
             {testimonials.map((t, i) => (
               <figure class:list={['t-item flex flex-col justify-between gap-10 rounded-3xl bg-white px-7 py-9 md:px-10 md:py-11', i === 0 && 'is-active']} data-i={i}>
                 <div class="flex flex-col gap-[1.625rem]">
@@ -115,19 +115,14 @@ const count = testimonials.length;
   .stack > :global(*) {
     grid-area: 1 / 1;
   }
+  /* Only the active slide is shown; the script slides the outgoing one out and the new one in (see below) */
   .t-item,
   .t-next {
-    opacity: 0;
     visibility: hidden;
-    transition:
-      opacity 0.45s ease,
-      visibility 0s linear 0.45s;
   }
   .t-item.is-active,
   .t-next.is-active {
-    opacity: 1;
     visibility: visible;
-    transition: opacity 0.45s ease;
   }
   .t-dot {
     width: 6px;
@@ -232,15 +227,41 @@ const count = testimonials.length;
       root.querySelectorAll<HTMLButtonElement>('[data-prev],[data-next]').forEach((b) => (b.disabled = true));
       return;
     }
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const slide = { duration: 650, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
+
+    // Swipe transition: the outgoing slide moves out one side while the incoming one moves in from the other
+    // (dir 1 = next → leftwards, -1 = previous → rightwards). Each stack clips its own slides.
+    const swap = (selector: string, from: number, to: number, dir: number) => {
+      root.querySelectorAll<HTMLElement>(selector).forEach((el) => {
+        const i = Number(el.dataset.i);
+        el.getAnimations().forEach((a) => a.finish());
+        el.classList.toggle('is-active', i === to);
+        if (reduceMotion || from === to) return;
+        if (i === from) {
+          el.animate(
+            [
+              { transform: 'translateX(0)', visibility: 'visible' },
+              { transform: `translateX(${-dir * 100}%)`, visibility: 'visible' },
+            ],
+            slide,
+          );
+        } else if (i === to) {
+          el.animate([{ transform: `translateX(${dir * 100}%)` }, { transform: 'translateX(0)' }], slide);
+        }
+      });
+    };
+
     let active = 0;
-    const show = (index: number) => {
+    const show = (index: number, dir: number) => {
+      const prev = active;
       active = (index + count) % count;
-      root.querySelectorAll<HTMLElement>('.t-item').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === active));
-      root.querySelectorAll<HTMLElement>('.t-next').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === (active + 1) % count));
+      swap('.t-item', prev, active, dir);
+      swap('.t-next', (prev + 1) % count, (active + 1) % count, dir);
       root.querySelectorAll<HTMLElement>('.t-dot').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === active));
     };
-    root.querySelector('[data-next]')?.addEventListener('click', () => show(active + 1));
-    root.querySelector('[data-prev]')?.addEventListener('click', () => show(active - 1));
+    root.querySelector('[data-next]')?.addEventListener('click', () => show(active + 1, 1));
+    root.querySelector('[data-prev]')?.addEventListener('click', () => show(active - 1, -1));
 
     // Swipe / drag on the quote card
     const swipe = root.querySelector<HTMLElement>('[data-swipe]');
@@ -250,7 +271,7 @@ const count = testimonials.length;
       if (startX === null) return;
       const dx = e.clientX - startX;
       startX = null;
-      if (Math.abs(dx) > 50) show(active + (dx < 0 ? 1 : -1));
+      if (Math.abs(dx) > 50) show(active + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
     });
     swipe?.addEventListener('pointercancel', () => (startX = null));
   });
