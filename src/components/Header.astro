@@ -261,7 +261,6 @@ const cls =
   :root.motion .dock-logo {
     opacity: 1;
     pointer-events: auto;
-    will-change: transform;
     transform: translate(-50%, -50%) translateY(calc(50svh - var(--hdr-h) / 2));
   }
   /* Reduced motion: no travel — the small logo simply fades into the solid bar */
@@ -421,6 +420,9 @@ const cls =
         const p = Math.min(y / travel, 1);
         const scale = 1 + (endScale - 1) * p;
         logo.style.transform = `translate(-50%, -50%) translateY(${travel * (1 - p)}px) scale(${scale})`;
+        // will-change only while it moves: a promoted layer keeps the hero-size bitmap and blurs the small
+        // docked logo (the fine "FIT OUT SPECIALISTS" line); dropping it lets the browser redraw it crisply.
+        logo.style.willChange = p > 0 && p < 1 ? 'transform' : 'auto';
       } else {
         logo.style.transform = `translate(-50%, -50%) scale(${endScale})`;
       }
