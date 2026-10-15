@@ -113,7 +113,7 @@ const socialIcons: Record<string, string> = {
       </div>
     </div>
 
-    <div class="menu-panel mx-[clamp(0.75rem,3.5vw,3.3rem)] mb-4 rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-24px_rgb(14_31_61/0.35)] md:-mt-7 md:p-[1.875rem]">
+    <div class="menu-panel mx-[clamp(0.75rem,3.5vw,3.3rem)] mb-4 rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-24px_rgb(14_31_61/0.35)] md:-mt-1 md:p-[1.875rem]">
       <nav aria-label="Main" class="grid gap-3 md:grid-cols-2 md:gap-[0.9375rem] lg:grid-cols-[491fr_420fr_404fr]">
         {
           menuGroups.map((group, gi) => (
@@ -240,9 +240,9 @@ const cls =
       backdrop-filter 0.35s ease;
   }
   :root.hdr-solid .site-header[data-sticky] {
-    background-color: rgb(244 249 253 / 0.25);
-    -webkit-backdrop-filter: blur(14px) saturate(1.4);
-    backdrop-filter: blur(0.10px) saturate(1.4);
+    background-color: rgb(244 249 253 / 0.85);
+    -webkit-backdrop-filter: blur(10px) saturate(1.4);
+    backdrop-filter: blur(10px) saturate(1.4);
     box-shadow: 0 1px 0 rgb(14 31 61 / 0.07);
   }
 
@@ -408,8 +408,7 @@ const cls =
       barH = (md.matches ? 8.5 : 5) * rem();
       travel = Math.max(1, (heroH - barH) / 2);
       // Docked logo is 184px wide (design spec: 184 × 49). offsetWidth ignores the transform, so this is the
-      // logo's full hero width. The rebuilt CSS logo is slightly taller in proportion than the real one, so it
-      // lands at ~184 × 55 — swapping in the real logo SVG makes it exactly 184 × 49.
+      // logo's full hero width (the client logo SVG lands at ~184 × 42).
       endScale = dockW() / logoInner.offsetWidth;
     };
 
