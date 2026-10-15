@@ -215,30 +215,30 @@ const faqSchema = {
           scrollTrigger: {
             trigger: stage,
             start: "top top",
-            end: "+=120%",
+            end: "+=90%",
             pin: true,
             scrub: 0.8,
             invalidateOnRefresh: true,
           },
         });
-        // Two steps, one after the other (0 → 1 = the pinned scroll distance):
-        //   0    → 0.5  "Asked" slides left, "Questions" slides right (fading out over the last part)
-        //   0.5  → 1    then the FAQ cards rise in one by one into the cleared centre
+        // Two steps, slightly overlapped so there is no empty pause (timeline ≈ 0.76 = the pinned distance):
+        //   0    → 0.45 "Asked" slides left, "Questions" slides right (fading out over the last part)
+        //   0.3  → 0.76 once the centre is clear, the FAQ cards rise in one by one
         // All tweens act on the outer [data-word] wrapper, never on the gradient-clipped text itself.
         const cards = Array.from(list.querySelectorAll<HTMLElement>(".faq"));
         gsap.set(list, { autoAlpha: 1 });
-        tl.to(left, { x: () => -shift(), duration: 0.5, ease: "power1.inOut" }, 0)
-          .to(right, { x: () => shift(), duration: 0.5, ease: "power1.inOut" }, 0)
+        tl.to(left, { x: () => -shift(), duration: 0.45, ease: "power1.inOut" }, 0)
+          .to(right, { x: () => shift(), duration: 0.45, ease: "power1.inOut" }, 0)
           .to(
             [...left, ...right],
             { opacity: 0, duration: 0.2, ease: "power1.in" },
-            0.3,
+            0.25,
           )
           .fromTo(
             cards,
             { autoAlpha: 0, y: 80 },
-            { autoAlpha: 1, y: 0, ease: "power2.out", duration: 0.3, stagger: 0.05 },
-            0.5,
+            { autoAlpha: 1, y: 0, ease: "power2.out", duration: 0.3, stagger: 0.04 },
+            0.3,
           );
 
         return () => {
