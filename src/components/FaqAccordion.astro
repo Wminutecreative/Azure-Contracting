@@ -20,7 +20,7 @@ interface Props {
 //
 // Scroll animation (desktop/tablet, motion allowed): the stage pins at the top of the viewport showing only
 // the big "Asked Questions" title (design default state). Scrolling then scrubs the first word(s) to the
-// left and the rest to the right while the FAQ cards rise and fade into the gap. After that the section
+// left and the rest to the right; once they have moved apart, the FAQ cards rise in one by one into the gap. After that the section
 // un-pins and scrolls normally; the cards never move once shown, so they stay easy to read and click.
 // Phones / reduced motion / no JS: plain stacked layout (title above the cards).
 const {
@@ -45,7 +45,7 @@ const faqSchema = {
 {
   items.length > 0 && (
     <section
-      class:list={["faq-section section-y", className]}
+      class:list={["faq-section", className]}
       data-faq={animated ? "" : undefined}
     >
       <div class="faq-stage" data-faq-stage>
@@ -119,10 +119,6 @@ const faqSchema = {
     grid-template: 1fr / 1fr;
     align-items: center;
     overflow: hidden;
-    padding-top: var(
-      --hdr-h,
-      0px
-    ); /* keep the centre clear of the fixed header */
   }
   .faq-section.is-scrub .faq-stage > :global(*) {
     grid-area: 1 / 1;
@@ -215,29 +211,30 @@ const faqSchema = {
           scrollTrigger: {
             trigger: stage,
             start: "top top",
-            end: "+=85%",
+            end: "+=90%",
             pin: true,
             scrub: 0.8,
             invalidateOnRefresh: true,
           },
         });
-        // Timeline (0 → 1 = the pinned scroll distance):
-        //   0    → 1    "Asked" slides left, "Questions" slides right — fully visible so the move reads clearly
-        //   0.7  → 1    both words fade to 0 at the end of their travel
-        //   0.25 → 0.95 the FAQ cards rise and fade in
+        // Two steps, slightly overlapped so there is no empty pause (timeline ≈ 0.76 = the pinned distance):
+        //   0    → 0.45 "Asked" slides left, "Questions" slides right (fading out over the last part)
+        //   0.3  → 0.76 once the centre is clear, the FAQ cards rise in one by one
         // All tweens act on the outer [data-word] wrapper, never on the gradient-clipped text itself.
-        tl.to(left, { x: () => -shift(), duration: 1 }, 0)
-          .to(right, { x: () => shift(), duration: 1 }, 0)
+        const cards = Array.from(list.querySelectorAll<HTMLElement>(".faq"));
+        gsap.set(list, { autoAlpha: 1 });
+        tl.to(left, { x: () => -shift(), duration: 0.45, ease: "power1.inOut" }, 0)
+          .to(right, { x: () => shift(), duration: 0.45, ease: "power1.inOut" }, 0)
           .to(
             [...left, ...right],
-            { opacity: 0, duration: 0.3, ease: "power1.in" },
-            0.7,
+            { opacity: 0, duration: 0.2, ease: "power1.in" },
+            0.25,
           )
           .fromTo(
-            list,
-            { autoAlpha: 0, y: 140 },
-            { autoAlpha: 1, y: 0, ease: "power2.out", duration: 0.7 },
-            0.25,
+            cards,
+            { autoAlpha: 0, y: 80 },
+            { autoAlpha: 1, y: 0, ease: "power2.out", duration: 0.3, stagger: 0.04 },
+            0.3,
           );
 
         return () => {
