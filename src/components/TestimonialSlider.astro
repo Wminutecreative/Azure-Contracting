@@ -23,7 +23,7 @@ const count = testimonials.length;
 
 {
   count > 0 && (
-    <section class:list={['section-y', className]} aria-labelledby="testimonials-heading" data-tslider data-count={count}>
+    <section class:list={['overflow-x-clip pb-[5rem]', className]} aria-labelledby="testimonials-heading" data-tslider data-count={count}>
       <div class="container-site">
         <div class="grid gap-3 lg:min-h-[30.875rem] lg:grid-cols-[1fr_2fr_2fr]">
           <!-- Column 1: heading + current photo -->
@@ -32,7 +32,7 @@ const count = testimonials.length;
               <h2 id="testimonials-heading" class="font-body text-navy text-[clamp(2rem,2.8vw,2.5rem)] leading-[1.08] font-normal tracking-[-0.01em]">{heading}</h2>
               <p class="text-stat-label mt-3.5 text-[0.9375rem]">{subheading}</p>
             </div>
-            <div class="stack hidden aspect-[0.95] max-w-[17.5rem] overflow-hidden rounded-[1.375rem] lg:grid">
+            <div class="stack hidden aspect-[0.95] max-w-[17.5rem] lg:grid" data-main-photo>
               {testimonials.map((t, i) => (
                 <Image src={t.data.photo} alt="" width={560} class:list={['t-item size-full rounded-[1.375rem] object-cover', i === 0 && 'is-active']} data-i={i} />
               ))}
@@ -40,7 +40,7 @@ const count = testimonials.length;
           </div>
 
           <!-- Column 2: quote card -->
-          <div class="stack grid min-w-0 touch-pan-y overflow-hidden rounded-3xl select-none" aria-live="polite" data-swipe>
+          <div class="stack relative z-0 grid min-w-0 touch-pan-y select-none" aria-live="polite" data-swipe data-quotes>
             {testimonials.map((t, i) => (
               <figure class:list={['t-item flex flex-col justify-between gap-10 rounded-3xl bg-white px-7 py-9 md:px-10 md:py-11', i === 0 && 'is-active']} data-i={i}>
                 <div class="flex flex-col gap-[1.625rem]">
@@ -72,7 +72,7 @@ const count = testimonials.length;
           <!-- Column 3 (desktop): Next tile top-right + Previous tile bottom-left, joined into one stepped navy
                shape with curved inner corners; the next person's photo sits in the pocket bottom-right.
                Below desktop: two tiles side by side. -->
-          <div class="t-nav grid min-w-0 grid-cols-2 gap-3">
+          <div class="t-nav relative z-10 grid min-w-0 grid-cols-2 gap-3">
             <button type="button" class="t-tile t-tile-next flex-col items-start justify-between cursor-pointer" data-next aria-label="Next testimonial">
               <span class="text-left" aria-hidden="true">Next<br />Testimonial</span>
               <NavArrow class="self-end" />
@@ -83,7 +83,7 @@ const count = testimonials.length;
             </button>
             <span class="t-fillet t-fillet-a" aria-hidden="true"></span>
             <span class="t-fillet t-fillet-b" aria-hidden="true"></span>
-            <div class="t-photo stack hidden lg:grid overflow-hidden rounded-[1.375rem]" aria-hidden="true">
+            <div class="t-photo stack hidden lg:grid" aria-hidden="true" data-next-photo>
               {testimonials.map((t, i) => (
                 <Image
                   src={t.data.photo}
@@ -103,9 +103,12 @@ const count = testimonials.length;
           </div>
         )} */}
 
-        <div class="mt-12 text-center">
+        {/* <div class="mt-12 text-center">
           <a href="/testimonials" class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
-        </div>
+        </div> */}
+              <div class="mt-12 text-center md:mt-20 flex justify-center" data-fw-fade>
+        <a href="/testimonials" class="text-p1 py-3 px-15 text-navy underline underline-offset-4 hover:no-underline">View All</a>
+      </div>
       </div>
     </section>
   )
@@ -115,7 +118,7 @@ const count = testimonials.length;
   .stack > :global(*) {
     grid-area: 1 / 1;
   }
-  /* Only the active slide is shown; the script slides the outgoing one out and the new one in (see below) */
+  /* Only the active slide is shown; the script animates the carousel move between slides (see below) */
   .t-item,
   .t-next {
     visibility: hidden;
@@ -228,37 +231,84 @@ const count = testimonials.length;
       return;
     }
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const slide = { duration: 650, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
+    const timing = { duration: 750, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' };
+    const gap = 12; // grid gap (gap-3)
 
-    // Swipe transition: the outgoing slide moves out one side while the incoming one moves in from the other
-    // (dir 1 = next → leftwards, -1 = previous → rightwards). Each stack clips its own slides.
-    const swap = (selector: string, from: number, to: number, dir: number) => {
-      root.querySelectorAll<HTMLElement>(selector).forEach((el) => {
-        const i = Number(el.dataset.i);
-        el.getAnimations().forEach((a) => a.finish());
-        el.classList.toggle('is-active', i === to);
-        if (reduceMotion || from === to) return;
-        if (i === from) {
-          el.animate(
-            [
-              { transform: 'translateX(0)', visibility: 'visible' },
-              { transform: `translateX(${-dir * 100}%)`, visibility: 'visible' },
-            ],
-            slide,
-          );
-        } else if (i === to) {
-          el.animate([{ transform: `translateX(${dir * 100}%)` }, { transform: 'translateX(0)' }], slide);
-        }
-      });
+    const items = (sel: string) => Array.from(root.querySelectorAll<HTMLElement>(`${sel} > [data-i]`));
+    const mainPhotos = items('[data-main-photo]');
+    const quotes = items('[data-quotes]');
+    const nextPhotos = items('[data-next-photo]');
+    const at = (list: HTMLElement[], i: number) => list.find((el) => Number(el.dataset.i) === i);
+    const all = [...mainPhotos, ...quotes, ...nextPhotos];
+
+    // Carousel-style move (no clipping, the section only clips at the page edge):
+    //   Next → the current photo + quote slide out to the left, the next person's photo travels from the
+    //          bottom-right pocket into the main photo spot, their quote slides in from the right, and the
+    //          following person's photo slides into the pocket from off-screen right.
+    //   Previous → the exact reverse.
+    const slideX = (el: HTMLElement, from: number, to: number, fadeIn: boolean, fadeOut: boolean) =>
+      el.animate(
+        [
+          { transform: `translateX(${from}px)`, opacity: fadeIn ? 0 : 1, visibility: 'visible' },
+          { transform: `translateX(${to}px)`, opacity: fadeOut ? 0 : 1, visibility: 'visible' },
+        ],
+        timing,
+      );
+    // Moves `el` (already in its final slot) so it starts exactly over `from`, then glides home
+    const travel = (el: HTMLElement, from: DOMRect) => {
+      const to = el.getBoundingClientRect();
+      if (!to.width) return;
+      const s = from.width / to.width;
+      const dx = from.left + from.width / 2 - (to.left + to.width / 2);
+      const dy = from.top + from.height / 2 - (to.top + to.height / 2);
+      el.animate(
+        [
+          { transform: `translate(${dx}px, ${dy}px) scale(${s})`, visibility: 'visible' },
+          { transform: 'none', visibility: 'visible' },
+        ],
+        timing,
+      );
     };
 
     let active = 0;
     const show = (index: number, dir: number) => {
       const prev = active;
-      active = (index + count) % count;
-      swap('.t-item', prev, active, dir);
-      swap('.t-next', (prev + 1) % count, (active + 1) % count, dir);
-      root.querySelectorAll<HTMLElement>('.t-dot').forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === active));
+      const next = (index + count) % count;
+      if (next === prev) return;
+      all.forEach((el) => el.getAnimations().forEach((a) => a.finish()));
+
+      // Measure the slots before anything changes
+      const mainEl = at(mainPhotos, prev);
+      const pocketEl = at(nextPhotos, (prev + 1) % count);
+      const mainRect = mainEl?.getBoundingClientRect();
+      const pocketRect = pocketEl?.getBoundingClientRect();
+      const quoteW = (at(quotes, prev)?.offsetWidth ?? 0) + gap;
+      const mainW = (mainRect?.width ?? 0) + gap;
+      const pocketW = (pocketRect?.width ?? 0) * 1.5 + gap;
+
+      active = next;
+      const toggle = (list: HTMLElement[], i: number) => list.forEach((el) => el.classList.toggle('is-active', Number(el.dataset.i) === i));
+      toggle(mainPhotos, active);
+      toggle(quotes, active);
+      toggle(nextPhotos, (active + 1) % count);
+      if (reduceMotion) return;
+
+      const oldQuote = at(quotes, prev);
+      const newQuote = at(quotes, active);
+      if (oldQuote) slideX(oldQuote, 0, -dir * quoteW, false, true);
+      if (newQuote) slideX(newQuote, dir * quoteW, 0, true, false);
+
+      const newMain = at(mainPhotos, active);
+      const newPocket = at(nextPhotos, (active + 1) % count);
+      if (dir > 0) {
+        if (mainEl) slideX(mainEl, 0, -mainW, false, true); // old photo leaves left
+        if (newMain && pocketRect) travel(newMain, pocketRect); // pocket photo → main spot
+        if (newPocket) slideX(newPocket, pocketW, 0, true, false); // following photo enters from the right
+      } else {
+        if (newMain) slideX(newMain, -mainW, 0, true, false); // previous photo enters from the left
+        if (newPocket && mainRect) travel(newPocket, mainRect); // main photo → pocket
+        if (pocketEl && pocketEl !== newPocket) slideX(pocketEl, 0, pocketW, false, true); // old pocket leaves right
+      }
     };
     root.querySelector('[data-next]')?.addEventListener('click', () => show(active + 1, 1));
     root.querySelector('[data-prev]')?.addEventListener('click', () => show(active - 1, -1));
