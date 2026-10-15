@@ -42,10 +42,10 @@ const socialIcons: Record<string, string> = {
   data-dock={dock ? '' : undefined}
   data-sticky={!overlay || dock ? '' : undefined}
 >
-  <div class="hdr-bar relative grid h-(--hdr-h) grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge)">
+  <div class="hdr-bar hdr-row relative grid h-(--hdr-h) grid-cols-[1fr_auto_1fr] items-center gap-4">
     <button
       type="button"
-      class:list={['-ml-2 justify-self-start rounded-lg p-2 cursor-pointer', tone]}
+      class:list={['-ml-2 inline-flex items-center gap-2 justify-self-start rounded-lg p-2 cursor-pointer', tone]}
       data-hdr-control
       aria-haspopup="dialog"
       aria-controls="site-menu"
@@ -56,6 +56,7 @@ const socialIcons: Record<string, string> = {
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <path d="M3 6h18M3 12h18M3 18h18"></path>
       </svg>
+      <span class="text-p1 max-md:hidden" aria-hidden="true">Menu</span>
     </button>
 
     {
@@ -94,7 +95,7 @@ const socialIcons: Record<string, string> = {
 -->
 <dialog id="site-menu" class="site-menu m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto bg-transparent p-0" aria-label="Site menu">
   <div class="flex min-h-full flex-col" data-menu-dismiss>
-    <div class="grid h-(--hdr-h) shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 px-(--edge)" data-menu-dismiss>
+    <div class="menu-bar hdr-row grid h-(--hdr-h) shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4" data-menu-dismiss>
       <button
         type="button"
         class:list={['-ml-2 inline-flex items-center gap-2 justify-self-start rounded-lg p-2 cursor-pointer', tone]}
@@ -104,7 +105,7 @@ const socialIcons: Record<string, string> = {
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <path d="M5 5l14 14M19 5 5 19"></path>
         </svg>
-        <!-- <span class="text-p1" aria-hidden="true">Menu</span> -->
+        <span class="text-p1 max-md:hidden" aria-hidden="true">Menu</span>
       </button>
       <span></span>
       <div class="justify-self-end">
@@ -201,6 +202,29 @@ const cls =
     transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  /* Header controls row. Desktop: "☰ Menu" + Contact Us sit in a compact centred bar (the middle half of the
+     page); opening the menu widens the dialog's copy of the bar to the full page width, closing shrinks it back.
+     Phones / tablets: always full width (not enough room for the compact bar). */
+  .hdr-row {
+    padding-inline: var(--edge);
+  }
+  @media (min-width: 75rem) {
+    .hdr-row {
+      padding-inline: 25%;
+    }
+    .menu-bar {
+      transition: padding-inline 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    .site-menu.is-open .menu-bar {
+      padding-inline: var(--edge);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .menu-bar {
+      transition: none;
+    }
+  }
+
   /* Dock mode (homepage): white over the hero, navy once the bar turns solid */
   .hdr-fg {
     color: var(--color-white);
@@ -216,9 +240,9 @@ const cls =
       backdrop-filter 0.35s ease;
   }
   :root.hdr-solid .site-header[data-sticky] {
-    background-color: rgb(244 249 253 / 0.86);
+    background-color: rgb(244 249 253 / 0.25);
     -webkit-backdrop-filter: blur(14px) saturate(1.4);
-    backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(0.10px) saturate(1.4);
     box-shadow: 0 1px 0 rgb(14 31 61 / 0.07);
   }
 
@@ -326,6 +350,7 @@ const cls =
     lockScroll(true);
     setControlsHidden(true);
     openBtn?.setAttribute('aria-expanded', 'true');
+    void menu.offsetWidth; // commit the closed styles first so the open transitions always run
     requestAnimationFrame(() => menu.classList.add('is-open'));
   }
 
@@ -340,7 +365,7 @@ const cls =
       openBtn?.focus();
     };
     if (reduceMotion()) finish();
-    else setTimeout(finish, 300);
+    else setTimeout(finish, 400); // lets the bar shrink back to its compact width
   }
 
   openBtn?.addEventListener('click', open);
