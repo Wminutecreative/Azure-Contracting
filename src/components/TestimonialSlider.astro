@@ -25,7 +25,7 @@ const count = testimonials.length;
   count > 0 && (
     <section class:list={['section-y', className]} aria-labelledby="testimonials-heading" data-tslider data-count={count}>
       <div class="container-site">
-        <div class="grid gap-3 lg:min-h-[30.875rem] lg:grid-cols-[1fr_2fr_2fr]">
+        <div class="relative grid gap-3 lg:min-h-[30.875rem] lg:grid-cols-[1fr_2fr_2fr] overflow-clip" data-tgrid>
           <!-- Column 1: heading + current photo -->
           <div class="flex min-w-0 flex-col justify-between gap-7">
             <div class="lg:px-[1.125rem] lg:pt-[1.875rem]">
