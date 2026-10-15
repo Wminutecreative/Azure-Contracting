@@ -45,7 +45,7 @@ const faqSchema = {
 {
   items.length > 0 && (
     <section
-      class:list={["faq-section section-y", className]}
+      class:list={["faq-section", className]}
       data-faq={animated ? "" : undefined}
     >
       <div class="faq-stage" data-faq-stage>
@@ -119,10 +119,6 @@ const faqSchema = {
     grid-template: 1fr / 1fr;
     align-items: center;
     overflow: hidden;
-    padding-top: var(
-      --hdr-h,
-      0px
-    ); /* keep the centre clear of the fixed header */
   }
   .faq-section.is-scrub .faq-stage > :global(*) {
     grid-area: 1 / 1;
