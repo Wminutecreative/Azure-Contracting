@@ -94,14 +94,14 @@ const schema = [
         </div>
 
         <!-- Fact cards: appear one after another -->
-        <ol class="mt-8 grid gap-3.5 md:mt-12 md:grid-cols-3 md:gap-4" data-facts data-no-text-anim>
+        <ol class="mt-8 grid gap-3.5 md:mt-12 md:grid-cols-3 md:gap-5" data-facts data-no-text-anim>
           {
             facts.map((fact, i) => (
               <li class="fact-card flex items-center gap-5 rounded-[1.125rem] bg-white px-6 py-5" style={`--i:${i}`}>
-                <span class="font-display text-neon text-[clamp(2.75rem,2rem+2vw,3.5rem)] leading-none font-light" aria-hidden="true">
+                <span class=" font-heading text-neon text-[clamp(2.75rem,2rem+2vw,4rem)] leading-none font-medium" aria-hidden="true">
                   {i + 1}
                 </span>
-                <p class="text-text-medium text-[0.9375rem] leading-[1.4]">{fact}</p>
+                <p class="text-text-medium text-p1 leading-[1.4] font-medium">{fact}</p>
               </li>
             ))
           }
@@ -126,10 +126,10 @@ const schema = [
       <ul class="grid gap-4 md:gap-5">
         {
           pillars.map((p) => (
-            <li class="pillar-card relative isolate flex flex-col justify-center overflow-hidden rounded-[1.25rem] border border-transparent bg-white px-7 py-7 md:px-8" tabindex="0">
+            <li class="pillar-card relative isolate flex flex-col justify-center overflow-hidden rounded-[1.25rem] border border-[#E7E7E7] bg-white px-7 py-8 md:px-12" tabindex="0">
               <h3 class="pillar-title font-body text-[clamp(1.5rem,1.3rem+0.6vw,1.75rem)] font-normal">{p.title}</h3>
               <div class="pillar-desc">
-                <p class="text-[0.9375rem] leading-[1.45]">{p.text}</p>
+                <p class="text-p1 leading-[1.45] text-[#414141]">{p.text}</p>
               </div>
             </li>
           ))

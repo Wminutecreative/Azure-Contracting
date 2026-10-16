@@ -28,7 +28,7 @@ const values = [
 <ul class:list={['grid gap-4 sm:grid-cols-3 md:gap-8 lg:gap-[3.25rem]', className]}>
   {
     values.map((v) => (
-      <li class="value-card relative isolate flex min-h-72 flex-col justify-between gap-10 overflow-hidden rounded-xl border border-transparent bg-white px-[1.375rem] py-6 sm:min-h-96 lg:min-h-[30.625rem]" tabindex="0" data-reveal>
+      <li class="value-card relative isolate flex min-h-72 flex-col justify-between gap-10 overflow-hidden rounded-[1.125rem] border border-[#E7E7E7] bg-white px-[1.375rem] py-6 sm:min-h-96 lg:min-h-[30.625rem]" tabindex="0" data-reveal>
         <span
           class="value-icon block w-24 md:w-[8.125rem]"
           style={`--icon: url(${v.icon.src}); aspect-ratio: ${v.icon.width} / ${v.icon.height}`}
@@ -38,7 +38,7 @@ const values = [
         <div>
           <h3 class="value-title font-body text-[clamp(1.5rem,2.2vw,2rem)] leading-tight font-normal">{v.title}</h3>
           <div class="value-desc">
-            <p class="text-[0.9375rem] leading-[1.35]">{v.description}</p>
+            <p class="text-p1 text-[#414141] leading-[1.35]">{v.description}</p>
           </div>
         </div>
       </li>
