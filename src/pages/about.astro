@@ -94,7 +94,7 @@ const schema = [
         </div>
 
         <!-- Fact cards: appear one after another -->
-        <ol class="mt-8 grid gap-3.5 md:mt-12 md:grid-cols-3 md:gap-4">
+        <ol class="mt-8 grid gap-3.5 md:mt-12 md:grid-cols-3 md:gap-4" data-facts data-no-text-anim>
           {
             facts.map((fact, i) => (
               <li class="fact-card flex items-center gap-5 rounded-[1.125rem] bg-white px-6 py-5" style={`--i:${i}`}>
@@ -185,6 +185,22 @@ const schema = [
 </BaseLayout>
 
 <script>
+  // Fact cards: start once the row's top is 20% up from the bottom of the viewport; the cards then rise in
+  // one by one (0.2s apart, see the CSS)
+  {
+    const facts = document.querySelector<HTMLElement>('[data-facts]');
+    if (facts) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          facts.classList.add('is-in');
+          io.disconnect();
+        },
+        { rootMargin: '0px 0px -20% 0px' },
+      );
+      io.observe(facts);
+    }
+  }
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -250,16 +266,19 @@ const schema = [
     aspect-ratio: auto;
   }
 
-  /* Fact cards rise in one after another on load */
-  .fact-card {
-    animation: fact-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-delay: calc(0.35s + var(--i) * 0.18s);
+  /* Fact cards rise in one after another once the row is 20% into the viewport (script adds .is-in).
+     Without JS or with reduced motion (no .motion on <html>) they are simply shown. */
+  :global(:root.motion) .fact-card {
+    opacity: 0;
+    transform: translateY(1.75rem);
+    transition:
+      opacity 0.7s ease,
+      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--i) * 0.2s);
   }
-  @keyframes fact-in {
-    from {
-      opacity: 0;
-      transform: translateY(1.5rem);
-    }
+  :global(:root.motion) [data-facts].is-in .fact-card {
+    opacity: 1;
+    transform: none;
   }
 
   /* Purpose / Mission / Vision: hover or focus fills the card with the white → olive gradient and reveals the text */
