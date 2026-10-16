@@ -1,7 +1,6 @@
 ---
 // Homepage — Figma 534:1874 (prototype 535:6374), refined to the Claude Design file "Azure Homepage.dc.html"
 // (project a32b8eda-13cb-4240-b22f-95df156ab543). See docs/figma-notes.md for measurements.
-import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Logo from '@/components/Logo.astro';
 import StatRow from '@/components/StatRow.astro';
@@ -12,8 +11,8 @@ import TestimonialSlider from '@/components/TestimonialSlider.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects, getTestimonials, getFaqs } from '@/lib/content';
-// TODO: swap for assets/hero-clean.png from the Claude Design project (save as src/assets/home/hero.png)
-import heroImage from '@/assets/placeholders/Macbook Air Mockup copy 1.png';
+// Hero background video (served as a hashed file from the build). TODO: compress — see note in the hero below.
+import heroVideo from '@/assets/placeholders/Header Video.mp4?url';
 
 const featured = (await getProjects({ featured: true })).slice(0, 3);
 const testimonials = await getTestimonials({ featured: true });
@@ -35,15 +34,20 @@ const stats = [
        With JS + motion, the visible logo is the header's docking logo (see Header.astro); this one is the
        no-JS / reduced-motion fallback and must keep the same size class. -->
   <section class="relative isolate grid h-[100svh] place-items-center overflow-hidden bg-[#1b2a36]" data-hero>
-    <Image
-      src={heroImage}
-      alt=""
-      widths={[768, 1280, 1920, 2560]}
-      sizes="100vw"
-      loading="eager"
-      fetchpriority="high"
+    <!-- Background video: autoplay + muted + loop + playsinline (all four are needed for autoplay on phones).
+         Decorative, so hidden from screen readers; paused for visitors who prefer reduced motion. -->
+    <video
       class="absolute inset-0 -z-20 h-full w-full object-cover object-bottom"
-    />
+      src={heroVideo}
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      disablepictureinpicture
+      aria-hidden="true"
+      data-hero-video
+    ></video>
     <div class="hero-shade absolute inset-0 -z-10" aria-hidden="true"></div>
     <h1 class="px-4">
       <span class="sr-only">Azure Contracting — fit-out specialists in construction, refurbishment and fit-out, Kildare, Ireland</span>
@@ -106,3 +110,13 @@ const stats = [
       linear-gradient(180deg, rgb(8 18 40 / 0.35) 0%, rgb(8 18 40 / 0.15) 40%, rgb(8 18 40 / 0.35) 100%);
   }
 </style>
+
+<script>
+  // Reduced motion: no moving background — stop the hero video on its first frame
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLVideoElement>('[data-hero-video]').forEach((v) => {
+      v.removeAttribute('autoplay');
+      v.pause();
+    });
+  }
+</script>
