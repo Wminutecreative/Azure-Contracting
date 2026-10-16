@@ -77,7 +77,7 @@ const schema = [
               <span class="text-navy">across Ireland</span>
             </h2>
             <div>
-              <Button href="/contact" track="cta_click" data-cta-location="about-hero" icon={false}>Contact Us</Button>
+              <Button href="/contact" track="cta_click" data-cta-location="about-hero">Contact Us</Button>
             </div>
           </div>
           <Image
@@ -93,11 +93,11 @@ const schema = [
           />
         </div>
 
-        <!-- Fact cards: appear one after another -->
+        <!-- Fact cards: rise in one after another as you scroll -->
         <ol class="mt-8 grid gap-3.5 md:mt-12 md:grid-cols-3 md:gap-5" data-facts data-no-text-anim>
           {
             facts.map((fact, i) => (
-              <li class="fact-card flex items-center gap-5 rounded-[1.125rem] bg-white px-6 py-5" style={`--i:${i}`}>
+              <li class="fact-card flex items-center gap-5 rounded-[1.125rem] bg-white px-6 py-5">
                 <span class=" font-heading text-neon text-[clamp(2.75rem,2rem+2vw,4rem)] leading-none font-medium" aria-hidden="true">
                   {i + 1}
                 </span>
@@ -185,26 +185,36 @@ const schema = [
 </BaseLayout>
 
 <script>
-  // Fact cards: start once the row's top is 20% up from the bottom of the viewport; the cards then rise in
-  // one by one (0.45s apart, see the CSS)
-  {
-    const facts = document.querySelector<HTMLElement>('[data-facts]');
-    if (facts) {
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (!entries.some((e) => e.isIntersecting)) return;
-          facts.classList.add('is-in');
-          io.disconnect();
-        },
-        { rootMargin: '0px 0px -20% 0px' },
-      );
-      io.observe(facts);
-    }
-  }
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   gsap.registerPlugin(ScrollTrigger);
+
+  // Fact cards: tied to the scroll. On desktop the three cards rise in one after another as the row scrolls
+  // up the screen (and go back down when scrolling up); on phones, where they stack, each card follows its own
+  // position. Reduced motion: shown as is (the CSS only hides them under .motion).
+  {
+    const facts = document.querySelector<HTMLElement>('[data-facts]');
+    const cards = facts ? gsap.utils.toArray<HTMLElement>('.fact-card', facts) : [];
+    if (facts && cards.length) {
+      const from = { autoAlpha: 0, y: 64 };
+      const to = { autoAlpha: 1, y: 0, ease: 'power2.out' };
+      const mm = gsap.matchMedia();
+      mm.add('(min-width: 48rem) and (prefers-reduced-motion: no-preference)', () => {
+        gsap
+          .timeline({ scrollTrigger: { trigger: facts, start: 'top bottom', end: 'top 45%', scrub: 0.6 } })
+          .fromTo(cards, from, { ...to, duration: 1, stagger: 0.6 });
+      });
+      mm.add('(max-width: 47.99rem) and (prefers-reduced-motion: no-preference)', () => {
+        cards.forEach((card) =>
+          gsap.fromTo(card, from, {
+            ...to,
+            scrollTrigger: { trigger: card, start: 'top bottom', end: 'top 70%', scrub: 0.6 },
+          }),
+        );
+      });
+    }
+  }
 
   const section = document.querySelector<HTMLElement>('[data-img-reveal]');
   const stage = section?.querySelector<HTMLElement>('[data-img-stage]');
@@ -266,19 +276,11 @@ const schema = [
     aspect-ratio: auto;
   }
 
-  /* Fact cards rise in one after another once the row is 20% into the viewport (script adds .is-in).
+  /* Fact cards: hidden until the scroll-linked animation in the script takes over (no flash before it loads).
      Without JS or with reduced motion (no .motion on <html>) they are simply shown. */
   :global(:root.motion) .fact-card {
     opacity: 0;
-    transform: translateY(1.75rem);
-    transition:
-      opacity 0.7s ease,
-      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    transition-delay: calc(var(--i) * 0.45s);
-  }
-  :global(:root.motion) [data-facts].is-in .fact-card {
-    opacity: 1;
-    transform: none;
+    visibility: hidden;
   }
 
   /* Purpose / Mission / Vision: hover or focus fills the card with the white → olive gradient and reveals the text */

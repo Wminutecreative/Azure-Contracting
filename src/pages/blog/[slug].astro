@@ -7,6 +7,7 @@ import { render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
 import BlogCard from '@/components/BlogCard.astro';
+import Button from '@/components/Button.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getPosts } from '@/lib/content';
 
@@ -123,14 +124,7 @@ const schema = [
             Whether you're comparing contractors for a tender or just starting to plan, we'll give you a straight answer on
             timeline and scope before you commit to anything.
           </p>
-          <a
-            href="/contact"
-            data-track="cta_click"
-            data-cta-location="blog-sidebar"
-            class="bg-neon text-navy hover:bg-navy mt-30 inline-flex rounded-[8px] px-6 py-2.5 text-sm font-medium transition-colors hover:text-white"
-          >
-            Contact Us
-          </a>
+          <Button href="/contact" track="cta_click" data-cta-location="blog-sidebar" class="mt-30">Contact Us</Button>
         </div>
       </aside>
     </div>

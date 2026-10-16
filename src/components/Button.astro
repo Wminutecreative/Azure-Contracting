@@ -34,18 +34,21 @@ const {
 const label = await Astro.slots.render('default');
 const ariaLabel = compact ? label.replace(/<[^>]*>/g, '').trim() : undefined;
 
-// From the design (194×61, radius 12): primary = navy with a white icon square;
-// outline = compact "Know More" (1.5px navy border, 14px medium label, bare triangle), fills navy on hover.
+// From the design (radius 12). primary and outline share the "Know More" layout: an icon square on the LEFT that
+// widens to fill the whole button on hover / focus (.btn-fill). primary = navy button, white square + navy play
+// icon, white label (turns navy as the white fills in); outline = the same in reverse (white button, navy square).
 const solid = 'text-p1 min-h-[3.8rem] min-w-[12.125rem] gap-6 pr-3.5 pl-4';
+const fill =
+  'btn-fill relative isolate overflow-hidden flex-row-reverse justify-end! gap-6 min-h-[3.25rem] border-[1.5px] border-navy pl-0! pr-7 max-sm:pr-0! text-p1 font-medium';
 const styles: Record<Variant, { root: string; icon: string }> = {
   primary: {
-    root: `${solid} bg-navy text-white hover:bg-[#1a3260]`,
-    icon: 'size-8 bg-white text-navy',
+    root: `${fill} [--btn-fill:var(--color-white)] bg-navy text-white hover:text-navy focus-visible:text-navy`,
+    icon: 'w-[3.75rem] self-stretch text-navy',
   },
   // "Know More" (design): white pill, navy border, navy square with a white arrow on the LEFT, navy label.
   // Hover / focus: the navy square widens to fill the whole button and the label turns white (.btn-fill).
   outline: {
-    root: 'btn-fill relative isolate overflow-hidden flex-row-reverse justify-end! gap-6 min-h-[3.25rem] border-[1.5px] border-navy bg-white pl-0! pr-7 max-sm:pr-0! text-p1 font-medium text-navy hover:text-white focus-visible:text-white',
+    root: `${fill} bg-white text-navy hover:text-white focus-visible:text-white`,
     icon: 'w-[3.75rem] self-stretch text-white',
   },
   neon: {
@@ -91,7 +94,8 @@ const Tag = href ? 'a' : 'button';
 </Tag>
 
 <style is:global>
-  /* Outline "Know More": the navy square behind the arrow grows to fill the button on hover / focus */
+  /* Primary / outline: the square behind the icon grows to fill the button on hover / focus
+     (white on the navy primary, navy on the white outline) */
   .btn-fill::before {
     content: '';
     position: absolute;
@@ -99,7 +103,7 @@ const Tag = href ? 'a' : 'button';
     z-index: -1;
     width: 3.75rem;
     border-radius: 10px;
-    background: var(--color-navy);
+    background: var(--btn-fill, var(--color-navy));
     transition: width 0.45s cubic-bezier(0.65, 0, 0.35, 1);
   }
   .btn-fill:hover::before,
