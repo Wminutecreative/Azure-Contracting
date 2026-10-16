@@ -186,7 +186,7 @@ const schema = [
 
 <script>
   // Fact cards: start once the row's top is 20% up from the bottom of the viewport; the cards then rise in
-  // one by one (0.2s apart, see the CSS)
+  // one by one (0.45s apart, see the CSS)
   {
     const facts = document.querySelector<HTMLElement>('[data-facts]');
     if (facts) {
@@ -274,7 +274,7 @@ const schema = [
     transition:
       opacity 0.7s ease,
       transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    transition-delay: calc(var(--i) * 0.2s);
+    transition-delay: calc(var(--i) * 0.45s);
   }
   :global(:root.motion) [data-facts].is-in .fact-card {
     opacity: 1;
