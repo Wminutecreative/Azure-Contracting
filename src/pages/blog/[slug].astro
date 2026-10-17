@@ -7,7 +7,6 @@ import { render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
 import BlogCard from '@/components/BlogCard.astro';
-import Button from '@/components/Button.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getPosts } from '@/lib/content';
 
@@ -75,7 +74,7 @@ const schema = [
     <Image
       src={cover}
       alt={coverAlt}
-      widths={[960, 1440, 1920]}
+      widths={[960, 1440, 1920, 2560]}
       sizes="(min-width: 1340px) 1312px, 100vw"
       loading="eager"
       fetchpriority="high"
@@ -124,7 +123,14 @@ const schema = [
             Whether you're comparing contractors for a tender or just starting to plan, we'll give you a straight answer on
             timeline and scope before you commit to anything.
           </p>
-          <Button href="/contact" track="cta_click" data-cta-location="blog-sidebar" class="mt-30">Contact Us</Button>
+          <a
+            href="/contact"
+            data-track="cta_click"
+            data-cta-location="blog-sidebar"
+            class="bg-neon hover:bg-navy focus-visible:bg-navy rounded-btn mt-30 inline-flex min-h-[2.75rem] items-center justify-center px-11 text-p2 font-medium text-white transition-colors duration-300"
+          >
+            Contact Us
+          </a>
         </div>
       </aside>
     </div>

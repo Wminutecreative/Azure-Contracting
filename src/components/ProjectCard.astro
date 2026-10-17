@@ -21,6 +21,8 @@ const href = `/projects/${project.id}`;
 // photo can be dragged / swiped sideways, and a "Drag Here" pill follows the pointer while hovering it.
 const slides = [{ src: cover, alt: coverAlt }, ...gallery.filter((g) => g.src.src !== cover.src)];
 const multi = slides.length > 1;
+// The photo box is taller than a landscape photo, so object-cover draws each photo ~1.5× wider than the box —
+// `sizes` describes that drawn width (not the box width), or browsers pick a file that's too small and it blurs.
 ---
 
 <article class="fw-row group relative" data-fw-row>
@@ -39,8 +41,8 @@ const multi = slides.length > 1;
           <Image
             src={s.src}
             alt={i === 0 ? s.alt : ''}
-            widths={[480, 640, 960, 1280]}
-            sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
+            widths={[640, 960, 1280, 1600, 1920, 2560]}
+            sizes="(min-width: 1340px) 960px, (min-width: 768px) 70vw, 150vw"
             loading={eager && i === 0 ? 'eager' : 'lazy'}
             draggable="false"
             class="aspect-[1.08] h-full w-full shrink-0 object-cover md:aspect-auto"
