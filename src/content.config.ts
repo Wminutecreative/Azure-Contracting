@@ -48,7 +48,9 @@ const testimonials = defineCollection({
       name: z.string(),
       role: z.string().default(''),
       company: z.string(),
-      photo: image(),
+      // Testimonials page shows the company logo (design); the homepage slider needs a photo
+      photo: image().nullish().transform((v) => v ?? undefined),
+      logo: image().nullish().transform((v) => v ?? undefined),
       quote: z.string(),
       rating: z.number().int().min(1).max(5).default(5),
       showOnPage: z.boolean().default(true),

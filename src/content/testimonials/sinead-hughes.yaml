@@ -1,0 +1,10 @@
+name: Sinead Hughes
+role: Associate Architect
+# TODO: the live site says "MOLA Architecture"; the logo in the design reads "MOA Architecture" — confirm with client.
+company: MOLA Architecture
+logo: ../../assets/testimonials/sinead-hughes/moa-architecture-logo.png
+quote: The Azure Contracting team provided an exceptional service refurbishing the dormitory and recreational areas of the boarding accommodation at The King's Hospital School, Lucan. Azure completed the phased works efficiently, with minimal impact as the building remained occupied throughout. Azure completed the job within programme, to a high quality of workmanship. MOLA Architecture would have no hesitation in recommending Azure for any similar fit-out projects, as they have a proven track record of professionalism and delivery to a high standard.
+rating: 5
+showOnPage: true
+featured: true
+order: 5

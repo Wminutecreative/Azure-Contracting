@@ -1,0 +1,11 @@
+name: Bosco Skelly
+role: Director
+# TODO: the live site says "KSN Cost Consultants"; the logo in the design reads "KSN Construction Consultants" — confirm.
+# TODO: export the logo from Figma (Testimonials 534:1361) and add it in Keystatic\
+logo: ../../assets/testimonials/bosco-skelly/bosco-skelly.png
+company: KSN Cost Consultants
+quote: I have worked most recently with Azure Contracting as the Project Cost Consultants at the Westin Hotel, wherein we built and fitted out their new 19 luxury bedrooms and ensuites. The project was carried out in a timely and professional manner, with due consideration to hotel guests and staff at all times. I have no hesitation in working with Azure in the future.
+rating: 5
+showOnPage: true
+featured: false
+order: 8

@@ -176,12 +176,19 @@ export default config({
           description: 'e.g. "Development Manager". Shown as "Development Manager at Company". Leave empty to show only the company.',
         }),
         company: fields.text({ label: 'Company', validation: { isRequired: true } }),
-        photo: fields.image({
-          label: 'Photo',
-          description: 'Portrait or on-site photo. Landscape or square, at least 1200px wide.',
+        logo: fields.image({
+          label: 'Company logo',
+          description:
+            'Shown on the Testimonials page. PNG with a transparent background or SVG, at least 800px wide. Without a logo the company name is shown.',
           directory: 'src/assets/testimonials',
           publicPath: '../../assets/testimonials/',
-          validation: { isRequired: true },
+        }),
+        photo: fields.image({
+          label: 'Photo',
+          description:
+            'Needed only for the homepage slider ("Show in the homepage slider"). Portrait, at least 600px wide.',
+          directory: 'src/assets/testimonials',
+          publicPath: '../../assets/testimonials/',
         }),
         quote: fields.text({
           label: 'Quote',

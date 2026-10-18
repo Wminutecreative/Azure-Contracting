@@ -7,5 +7,5 @@ photo: ../../assets/testimonials/testimonial-2/photo.png
 quote: 'They worked around a live building for months and our staff barely noticed. Every milestone landed when they said it would, and the finish is better than the drawings.'
 rating: 5
 showOnPage: false
-featured: true
+featured: false
 order: 5

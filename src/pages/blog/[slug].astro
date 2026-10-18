@@ -65,8 +65,8 @@ const schema = [
 
 <BaseLayout title={title} description={excerpt} ogImage={og.src} ogType="article" schema={schema}>
   <article class="container-site pt-[clamp(1.5rem,1rem+2vw,3rem)]">
-    <a href="/blog" class="text-[#000000] hover:text-navy inline-flex items-center gap-2 text-sm transition-colors">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+    <a href="/blog" class="text-[#000000] hover:text-navy inline-flex items-center gap-2 text-p2 transition-colors">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
       All Posts
     </a>
     <h1 class="text-navy font-body mt-5 text-h1 leading-tight font-normal tracking-[-0.01em]">{title}</h1>
@@ -113,7 +113,7 @@ const schema = [
 
     <!-- Article + sticky CTA -->
     <div class="mt-12 flex gap-10 lg:gap-17">
-      <div class="post-body text-text-medium max-w-[46rem] text-base leading-[1.7]">
+      <div class="post-body text-[#303030] max-w-[46rem] text-base leading-[1.7]">
         <Content />
       </div>
       <aside class="lg:sticky lg:top-[calc(var(--hdr-h)+1.5rem)] lg:self-start">
@@ -141,7 +141,7 @@ const schema = [
       <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
         <BigOutlineHeading text="Other Similar Blogs">
           <div class="container-site">
-            <div class="mx-auto grid max-w-[70rem] gap-4 md:grid-cols-2 md:gap-6">
+            <div class="mx-auto grid max-w-[82rem] gap-4 md:grid-cols-2 md:gap-6">
               {similar.map((p) => <BlogCard post={p} />)}
             </div>
           </div>
@@ -174,10 +174,10 @@ const schema = [
 
   /* Article typography */
   .post-body :global(h2) {
-    margin: 2.25rem 0 0.9rem;
+    margin: 2.25rem 0 1.5rem;
     color: var(--color-navy);
     font-family: var(--font-body);
-    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+    font-size: clamp(1.5rem, 1.3rem + 0.6vw, 2rem);
     font-weight: 400;
     line-height: 1.25;
   }
@@ -195,7 +195,7 @@ const schema = [
   }
   .post-body :global(ul),
   .post-body :global(ol) {
-    margin: 1em 0;
+    /* margin: 1em 0; */
     padding-left: 1.25em;
   }
   .post-body :global(ul) {
@@ -204,13 +204,12 @@ const schema = [
   .post-body :global(ol) {
     list-style: decimal;
   }
-  .post-body :global(li + li) {
+  /* .post-body :global(li + li) {
     margin-top: 0.3em;
-  }
+  } */
   .post-body :global(img) {
-    margin: 1.75rem 0;
+    margin: 4rem 0;
     width: 100%;
-    border-radius: 1rem;
   }
   .post-body :global(a) {
     color: var(--color-navy);
