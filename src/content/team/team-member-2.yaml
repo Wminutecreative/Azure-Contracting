@@ -1,6 +1,6 @@
 # TODO: real photo (and name/role where marked) - edit in Keystatic
-name: 'TODO: Team Member'
-role: 'TODO: Role'
+name: 'Adrian McDermott'
+role: 'MSCSI, MRICS'
 photo: ../../assets/team/team-member-2/team-two.png
-linkedin: ''
+linkedin: 'https://ie.linkedin.com/in/adrian-mcdermott-30490434'
 order: 2

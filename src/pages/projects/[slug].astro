@@ -106,16 +106,16 @@ const schema = [
       <!-- Introduction: stays in view while the photos scroll past -->
       <aside class="md:sticky md:top-[calc(var(--hdr-h)+1.5rem)] md:self-start" aria-labelledby="intro-heading">
         <h2 id="intro-heading" class="text-navy font-body text-[clamp(1.375rem,1.2rem+0.6vw,1.75rem)] font-normal">Introduction</h2>
-        <div class="project-body text-text-medium mt-5 text-[0.9375rem] leading-[1.6]">
+        <div class="project-body text-text-medium mt-5 text-p1 leading-[1.6]">
           <Content />
         </div>
         {
           meta.length > 0 && (
             <dl class="mt-8 text-[0.9375rem]">
               {meta.map((m) => (
-                <div class="border-light flex gap-2 border-b py-3.5 first:border-t">
-                  <dt class="text-text-dark font-medium">{m.label}:</dt>
-                  <dd class="text-text-medium">{m.value}</dd>
+                <div class="border-light flex text-p1 gap-2 border-b py-3.5 first:border-t">
+                  <dt class="text-[#252525] font-medium">{m.label}:</dt>
+                  <dd class="text-[#525252]">{m.value}</dd>
                 </div>
               ))}
             </dl>

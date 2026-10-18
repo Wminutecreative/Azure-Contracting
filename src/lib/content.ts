@@ -17,7 +17,8 @@ export async function getPosts() {
 export async function getTestimonials({ featured, page }: { featured?: boolean; page?: boolean } = {}) {
   const all = await getCollection(
     'testimonials',
-    ({ data }) => (featured ? data.featured : true) && (page ? data.showOnPage : true),
+    // The homepage slider needs a picture for each person (photo, or else the company logo)
+    ({ data }) => (featured ? data.featured && !!(data.photo || data.logo) : true) && (page ? data.showOnPage : true),
   );
   return all.sort(byOrder);
 }

@@ -1,0 +1,10 @@
+name: Sarah Mcguirk
+role: Office Manager
+company: Liferay
+# TODO: export the Liferay logo from Figma (Testimonials 534:1361) and add it in Keystatic
+logo: ../../assets/testimonials/sarah-mcguirk/sarah-mcguirk.png
+quote: Within a very tight time frame, Azure worked tirelessly to satisfy our requirements. They planned our project from day one, attended many meetings to address our modifications and never swayed from the milestone completion date set. They delivered an exceptional new head office for our staff.
+rating: 5
+showOnPage: true
+featured: false
+order: 6

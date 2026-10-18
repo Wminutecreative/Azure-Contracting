@@ -13,6 +13,11 @@ export default defineConfig({
   // which Keystatic marks as on-demand routes.
   output: 'static',
   adapter: vercel(),
+  // Old WordPress URLs (current live site) → new pages, so existing links and search results keep working
+  redirects: {
+    '/work': '/projects',
+    '/projects/the-hari-clinic-rotunda-hospital': '/projects/the-hari-clinic',
+  },
   integrations: [
     react(), // Keystatic's admin UI is a React app
     keystatic(),

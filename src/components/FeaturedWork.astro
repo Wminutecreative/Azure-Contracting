@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import BigOutlineHeading from './BigOutlineHeading.astro';
 import ConnectedStack from './ConnectedStack.astro';
 import ProjectCard from './ProjectCard.astro';
+import Button from './Button.astro';
 
 // "Our Featured Work" (homepage design): project rows in the connected-box layout (see ConnectedStack) on a
 // soft lavender → lime section background.
@@ -43,7 +44,7 @@ const {
   {
     viewAllHref && (
       <div class="mt-12 text-center md:mt-20 flex justify-center" data-fw-fade>
-        <a href={viewAllHref} class="text-p1 py-3 px-15 text-navy underline underline-offset-4 hover:no-underline">View All</a>
+        <Button variant="outline" href={viewAllHref} aria-label="View all projects">View All</Button>
       </div>
     )
   }

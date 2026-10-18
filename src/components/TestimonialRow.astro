@@ -5,14 +5,17 @@ import type { CollectionEntry } from 'astro:content';
 // Testimonials page row (design): photo beside a white quote card — same geometry as ProjectCard so it slots
 // into ConnectedStack's connected-box shape. Card: star rating, quote, then name + role/company at the bottom.
 // `reverse` puts the quote card on the left.
+// Beside the card (design): the company logo, centred on the page background. Without a logo, a photo if there is
+// one, otherwise the company name set large in navy.
 interface Props {
   testimonial: CollectionEntry<'testimonials'>;
   reverse?: boolean;
   eager?: boolean;
 }
 const { testimonial, reverse = false, eager = false } = Astro.props;
-const { name, role, company, photo, quote, rating } = testimonial.data;
+const { name, role, company, photo, logo, quote, rating } = testimonial.data;
 const byline = role ? `${role} at ${company}` : company;
+const loading = eager ? 'eager' : 'lazy';
 ---
 
 <figure class="t-row relative">
@@ -20,16 +23,36 @@ const byline = role ? `${role} at ${company}` : company;
     class:list={[
       'block overflow-hidden rounded-[2rem] md:absolute md:top-[2.55rem] md:bottom-[2.55rem] md:w-[calc(50%-2.375rem)] md:rounded-[2.75rem]',
       reverse ? 'md:right-0' : 'md:left-0',
+      !logo && !photo && 'max-md:hidden',
     ]}
   >
-    <Image
-      src={photo}
-      alt={`${name}, ${byline}`}
-      widths={[480, 640, 960, 1280, 1600]}
-      sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
-      loading={eager ? 'eager' : 'lazy'}
-      class="aspect-[1.08] h-full w-full object-cover object-top md:aspect-auto"
-    />
+    {
+      logo ? (
+        <div class="flex h-full items-center justify-center px-[12%] py-10 max-md:aspect-[2/1]">
+          <Image
+            src={logo}
+            alt={`${company} logo`}
+            widths={[320, 480, 720, 960]}
+            sizes="(min-width: 768px) 360px, 70vw"
+            loading={loading}
+            class="h-auto max-h-[11rem] w-full max-w-[22.5rem] object-contain"
+          />
+        </div>
+      ) : photo ? (
+        <Image
+          src={photo}
+          alt={`${name}, ${byline}`}
+          widths={[480, 640, 960, 1280, 1600]}
+          sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
+          loading={loading}
+          class="aspect-[1.08] h-full w-full object-cover object-top md:aspect-auto"
+        />
+      ) : (
+        <div class="flex h-full items-center justify-center px-[10%] text-center" aria-hidden="true">
+          <span class="font-heading text-navy text-[clamp(1.75rem,1rem+2vw,2.75rem)] leading-[1.15] font-medium text-balance">{company}</span>
+        </div>
+      )
+    }
   </div>
   <div
     class:list={[
@@ -38,23 +61,24 @@ const byline = role ? `${role} at ${company}` : company;
     ]}
     data-shape-rect
   >
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-8">
       <div class="flex gap-1.5" role="img" aria-label={`Rated ${rating} out of 5`}>
         {
           Array.from({ length: 5 }, (_, i) => (
-            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class={i < rating ? 'text-[#d3d6db]' : 'text-[#eceef1]'}>
-              <path fill="currentColor" d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
-            </svg>
+            <svg width="29" height="27" class={i < rating ? 'text-[#FEB81C]' : 'text-[#eceef1]'} viewBox="0 0 29 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.966 0.87529C13.4574 -0.291765 15.1308 -0.291763 15.6222 0.875293L18.5221 7.76346C18.7294 8.25546 19.1978 8.59163 19.7354 8.63421L27.2627 9.23038C28.538 9.3314 29.0551 10.9037 28.0835 11.726L22.3485 16.5793C21.9389 16.926 21.7599 17.4699 21.8851 17.9882L23.6372 25.2448C23.934 26.4743 22.5802 27.4461 21.4883 26.7873L15.0439 22.8985C14.5836 22.6207 14.0046 22.6207 13.5443 22.8985L7.09986 26.7873C6.00797 27.4461 4.6541 26.4743 4.95095 25.2448L6.70311 17.9882C6.82826 17.4699 6.64936 16.926 6.23974 16.5793L0.504671 11.726C-0.467014 10.9037 0.0501263 9.3314 1.32548 9.23038L8.85285 8.63421C9.39051 8.59163 9.85886 8.25546 10.066 7.76346L12.966 0.87529Z" fill="currentColor"/>
+</svg>
+
           ))
         }
       </div>
-      <blockquote class="text-text-medium max-w-[28rem] text-base leading-[1.5] text-pretty">
+      <blockquote class="text-[#303030] !opacity-[68%] text-[1.5rem] leading-[1.5]  font-medium text-pretty">
         <p>“{quote}”</p>
       </blockquote>
     </div>
     <figcaption>
-      <span class="text-text-dark block text-base font-medium">{name}</span>
-      <span class="text-stat-label mt-1 block text-[0.8125rem]">{byline}</span>
+      <span class="text-[#303030] block text-[1.5rem] font-medium">{name}</span>
+      <span class="text-[#303030] !opacity-[68%] mt-2 block text-p1">{byline}</span>
     </figcaption>
   </div>
 </figure>

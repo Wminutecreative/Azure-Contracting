@@ -1,10 +1,10 @@
 name: Pat Kennedy
 role: ''
-company: Carroll & Crowley Architects & Interior Designers
-# TODO: upload the real photo in Keystatic (placeholder for now)
-photo: ../../assets/testimonials/pat-kennedy/pat-kennedy.png
+# Company name as on the current live site (was "Carroll & Crowley" here before). No logo in the design.
+company: Cantrell & Crowley Architects & Interior Designers
+logo: ../../assets/testimonials/eanna-murtagh/mhl-hotel-collection-logo.png
 quote: Azure have created a great working environment that is both functional and stylish. We are very happy with their high level of service, as they have fulfilled our every requirement. They have been very cooperative and professional throughout the whole build process. We will certainly use them for any future work and happily recommend them to any company seeking a quality project.
 rating: 5
 showOnPage: true
 featured: false
-order: 2
+order: 4

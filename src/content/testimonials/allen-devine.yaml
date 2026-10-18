@@ -1,0 +1,11 @@
+name: Allen Devine
+role: Head of Building & Project Consultancy
+# TODO: the design shows "The Building Consultancy" logo for this quote; the live site credits Savills Ireland — confirm.
+# TODO: export the logo from Figma (Testimonials 534:1361) and add it in Keystatic
+logo: ../../assets/testimonials/allen-devine/allen-devine.png
+company: Savills Ireland
+quote: In my experience Azure Contracting are a very professional company and take a great deal of care to carry out their work to a high standard and to the customer's complete satisfaction.
+rating: 5
+showOnPage: true
+featured: false
+order: 9

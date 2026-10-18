@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import NavArrow from './NavArrow.astro';
+import Button from './Button.astro';
 
 // "Trusted By Builders" layout from the homepage design (1512px):
 //   [heading + current photo 230w] [quote card 563w] [2×2: _, Next tile / Prev tile, next person's photo]
@@ -15,10 +16,14 @@ interface Props {
 const {
   testimonials,
   heading = 'Trusted By Builders',
-  subheading = 'What our clients say after handover',
+  subheading = 'Trusted by builders',
   class: className,
 } = Astro.props;
 const count = testimonials.length;
+// Each person's picture: their photo, or else their company logo, which is shown whole on white instead of
+// cropped to fill the frame (getTestimonials only passes in testimonials that have one or the other)
+const pic = (t: CollectionEntry<'testimonials'>) => (t.data.photo ?? t.data.logo)!;
+const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ? 'object-cover' : `object-contain bg-white ${pad}`);
 ---
 
 {
@@ -29,12 +34,12 @@ const count = testimonials.length;
           <!-- Column 1: heading + current photo -->
           <div class="flex min-w-0 flex-col justify-between gap-7">
             <div class="lg:px-[1.125rem] lg:pt-[1.875rem]">
-              <h2 id="testimonials-heading" class="font-body text-navy text-[clamp(2rem,2.8vw,2.5rem)] leading-[1.08] font-normal tracking-[-0.01em]">{heading}</h2>
-              <p class="text-stat-label mt-3.5 text-[0.9375rem]">{subheading}</p>
+              <h2 id="testimonials-heading" class="font-body text-navy text-[clamp(2rem,2.8vw,2.5rem)] leading-[1.08] font-medium tracking-[-0.01em]">{heading}</h2>
+              <p class="text-[#0E1F3D] mt-3.5 text-p2">{subheading}</p>
             </div>
             <div class="stack hidden aspect-[0.95] max-w-[17.5rem] lg:grid" data-main-photo>
               {testimonials.map((t, i) => (
-                <Image src={t.data.photo} alt="" width={560} class:list={['t-item size-full rounded-[1.375rem] object-cover', i === 0 && 'is-active']} data-i={i} />
+                <Image src={pic(t)} alt="" width={560} class:list={['t-item size-full rounded-[1.375rem] !bg-transparent', fit(t, 'p-8'), i === 0 && 'is-active']} data-i={i} />
               ))}
             </div>
           </div>
@@ -47,8 +52,8 @@ const count = testimonials.length;
                   <span class="text-neon block h-[2.125rem] font-serif text-[4.25rem] leading-[0.5]" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="34" height="25" viewBox="0 0 34 25" fill="none">
 <path d="M8.7043 0.00180817C10.0696 0.343143 11.3496 1.15381 12.5443 2.43381C9.89896 5.33514 8.5763 8.19381 8.5763 11.0098C8.5763 13.1431 9.0883 14.7218 10.1123 15.7458C11.2216 16.6845 12.6723 17.4098 14.4643 17.9218C14.4643 19.6285 13.7816 21.2498 12.4163 22.7858C11.1363 24.2365 9.42963 24.9618 7.2963 24.9618C5.2483 24.9618 3.49896 24.2791 2.0483 22.9138C0.682964 21.4631 0.00029707 19.1591 0.00029707 16.0018C0.00029707 10.4551 2.90163 5.12181 8.7043 0.00180817ZM27.9043 0.129807C29.2696 0.300476 30.5496 1.06848 31.7443 2.43381C29.099 5.50581 27.7763 8.36448 27.7763 11.0098C27.7763 13.1431 28.2883 14.7218 29.3123 15.7458C30.4216 16.6845 31.8723 17.4525 33.6643 18.0498C33.6643 19.7565 32.9816 21.3351 31.6163 22.7858C30.251 24.2365 28.5016 24.9618 26.3683 24.9618C24.4056 24.9618 22.699 24.2791 21.2483 22.9138C19.7976 21.4631 19.0723 19.2018 19.0723 16.1298C19.0723 10.4978 22.0163 5.16447 27.9043 0.129807Z" fill="#C7D92E"/>
 </svg></span>
-                  <blockquote class="text-[clamp(1.25rem,1.8vw,1.5rem)] font-medium leading-[1.4] text-pretty text-[#1e2537]">
-                    <h3>{t.data.quote}</h3>
+                  <blockquote class="text-p1 font-normal leading-[1.4] text-pretty text-[#303030]">
+                    <h3 class="font-normal">{t.data.quote}</h3>
                   </blockquote>
                   <div class="text-star flex gap-1.5" role="img" aria-label={`Rated ${t.data.rating} out of 5`}>
                     {Array.from({ length: t.data.rating }, () => (
@@ -59,10 +64,10 @@ const count = testimonials.length;
                   </div>
                 </div>
                 <figcaption class="flex items-center gap-4">
-                  <Image src={t.data.photo} alt="" width={96} class="size-12 rounded-full object-cover lg:hidden" />
+                  <Image src={pic(t)} alt="" width={96} class:list={['size-12 rounded-full lg:hidden', fit(t, 'p-1.5')]} />
                   <span>
-                    <span class="text-navy block text-[1.0625rem] font-medium">{t.data.name}</span>
-                    <span class="text-stat-label mt-1 block text-sm">{t.data.role ? `${t.data.role}, ${t.data.company}` : t.data.company}</span>
+                    <span class="text-navy block text-p1 font-medium">{t.data.name}</span>
+                    <span class="text-stat-label block text-sm">{t.data.role ? `${t.data.role}, ${t.data.company}` : t.data.company}</span>
                   </span>
                 </figcaption>
               </figure>
@@ -86,11 +91,11 @@ const count = testimonials.length;
             <div class="t-photo stack hidden lg:grid" aria-hidden="true" data-next-photo>
               {testimonials.map((t, i) => (
                 <Image
-                  src={t.data.photo}
+                  src={pic(t)}
                   alt=""
                   width={460}
                   densities={[1, 2]}
-                  class:list={['t-next size-full rounded-[1.375rem] object-cover', i === 1 % count && 'is-active']}
+                  class:list={['t-next size-full rounded-[1.375rem]', fit(t, 'p-8'), i === 1 % count && 'is-active']}
                   data-i={i}
                 />
               ))}
@@ -108,7 +113,7 @@ const count = testimonials.length;
           <a href="/testimonials" class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
         </div> */}
               <div class="mt-12 text-center md:mt-20 flex justify-center" data-fw-fade>
-        <a href="/testimonials" class="text-p1 py-3 px-15 text-navy underline underline-offset-4 hover:no-underline">View All</a>
+        <Button variant="outline" href="/testimonials" aria-label="View all testimonials">View All</Button>
       </div>
       </div>
     </section>
