@@ -7,7 +7,7 @@ import ProjectCard from './ProjectCard.astro';
 // "Our Featured Work" (homepage design): project rows in the connected-box layout (see ConnectedStack) on a
 // soft lavender → lime section background.
 //
-// Scroll animation (GSAP ScrollTrigger, once): heading rises in; per row the photo wipes up while settling
+// Scroll animation (GSAP ScrollTrigger, once): heading rises in; per row the photo wipes in left → right while settling
 // from a slight zoom, then title / text / button fade up in sequence.
 interface Props {
   projects: CollectionEntry<'projects'>[];
@@ -42,7 +42,7 @@ const {
 
   {
     viewAllHref && (
-      <div class="mt-12 text-center md:mt-20 flex justify-center py-3" data-fw-fade>
+      <div class="mt-12 text-center md:mt-20 flex justify-center" data-fw-fade>
         <a href={viewAllHref} class="text-p1 py-3 px-15 text-navy underline underline-offset-4 hover:no-underline">View All</a>
       </div>
     )
@@ -88,7 +88,7 @@ const {
       if (imgWrap) {
         tl.fromTo(
           imgWrap,
-          { clipPath: `inset(100% 0% 0% 0% round ${radius})` },
+          { clipPath: `inset(0% 100% 0% 0% round ${radius})` }, // wipes in from left to right
           { clipPath: `inset(0% 0% 0% 0% round ${radius})`, duration: 1.15, ease: 'expo.inOut', clearProps: 'clipPath' },
           0,
         );

@@ -25,7 +25,7 @@ const byline = role ? `${role} at ${company}` : company;
     <Image
       src={photo}
       alt={`${name}, ${byline}`}
-      widths={[480, 640, 960, 1280]}
+      widths={[480, 640, 960, 1280, 1600]}
       sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
       loading={eager ? 'eager' : 'lazy'}
       class="aspect-[1.08] h-full w-full object-cover object-top md:aspect-auto"

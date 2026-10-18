@@ -15,30 +15,44 @@ interface Props {
   eager?: boolean;
 }
 const { project, reverse = false, headingLevel: Heading = 'h3', eager = false } = Astro.props;
-const { title, excerpt, cover, coverAlt } = project.data;
+const { title, excerpt, cover, coverAlt, gallery } = project.data;
 const href = `/projects/${project.id}`;
+// Photo slider: cover first, then the gallery (Keystatic → Projects → Gallery). With more than one photo the
+// photo can be dragged / swiped sideways, and a "Drag Here" pill follows the pointer while hovering it.
+const slides = [{ src: cover, alt: coverAlt }, ...gallery.filter((g) => g.src.src !== cover.src)];
+const multi = slides.length > 1;
+// The photo box is taller than a landscape photo, so object-cover draws each photo ~1.5× wider than the box —
+// `sizes` describes that drawn width (not the box width), or browsers pick a file that's too small and it blurs.
 ---
 
 <article class="fw-row group relative" data-fw-row>
-  <a
-    href={href}
-    tabindex="-1"
-    aria-hidden="true"
+  <div
     class:list={[
-      'fw-img block overflow-hidden rounded-[2rem] md:absolute md:top-[2.55rem] md:bottom-[2.55rem] md:w-[calc(50%-2.375rem)] md:rounded-[3.5rem]',
+      'fw-img relative block overflow-hidden rounded-[2rem] md:absolute md:top-[2.55rem] md:bottom-[2.55rem] md:w-[calc(50%-2.375rem)] md:rounded-[2.25rem]',
       reverse ? 'md:right-0' : 'md:left-0',
+      multi && 'is-slider',
     ]}
     data-fw-img
+    data-photo-slider={multi ? '' : undefined}
   >
-    <Image
-      src={cover}
-      alt={coverAlt}
-      widths={[480, 640, 960, 1280]}
-      sizes="(min-width: 1340px) 620px, (min-width: 768px) 46vw, 100vw"
-      loading={eager ? 'eager' : 'lazy'}
-      class="aspect-[1.08] h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] md:aspect-auto"
-    />
-  </a>
+    <div class="ps-track flex h-full" data-ps-track>
+      {
+        slides.map((s, i) => (
+          <Image
+            src={s.src}
+            alt={i === 0 ? s.alt : ''}
+            widths={[640, 960, 1280, 1600, 1920, 2560]}
+            sizes="(min-width: 1340px) 960px, (min-width: 768px) 70vw, 150vw"
+            loading={eager && i === 0 ? 'eager' : 'lazy'}
+            draggable="false"
+            class="aspect-[1.08] h-full w-full shrink-0 object-cover md:aspect-auto"
+          />
+        ))
+      }
+    </div>
+    <a href={href} tabindex="-1" aria-hidden="true" draggable="false" class="ps-link absolute inset-0" data-ps-link></a>
+    {multi && <span class="ps-pill" aria-hidden="true" data-ps-pill>Drag Here</span>}
+  </div>
   <div
     class:list={[
       'fw-card mt-3 flex flex-col justify-between gap-10 rounded-[2rem] border border-[#e6e9eb] bg-white px-[clamp(1.75rem,4.5vw,4.1rem)] py-[clamp(2rem,6vw,6.25rem)] md:mt-0 md:min-h-[clamp(28rem,44vw,41rem)] md:w-[calc(50%+0.5rem)] md:pb-[clamp(2rem,5.5vw,5.5rem)]',
@@ -57,3 +71,132 @@ const href = `/projects/${project.id}`;
     </div>
   </div>
 </article>
+
+<style>
+  .ps-track {
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .ps-track.is-dragging {
+    transition: none;
+  }
+  .is-slider {
+    touch-action: pan-y;
+    user-select: none;
+  }
+  /* "Drag Here" pill: follows the pointer while hovering the photo (mouse / trackpad only) */
+  .ps-pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    padding: 0.7rem 1.25rem;
+    border-radius: 0.75rem;
+    background: var(--color-navy);
+    color: var(--color-white);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(var(--px, 50%), var(--py, 50%)) translate(-50%, -50%) scale(0.6);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .is-slider,
+    .is-slider .ps-link {
+      cursor: none;
+    }
+    .is-slider:hover .ps-pill {
+      opacity: 1;
+      transform: translate(var(--px, 50%), var(--py, 50%)) translate(-50%, -50%) scale(1);
+    }
+    .is-slider.is-grabbing .ps-pill {
+      transform: translate(var(--px, 50%), var(--py, 50%)) translate(-50%, -50%) scale(0.9);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ps-track,
+    .ps-pill {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Project photo slider: drag / swipe the photo sideways to move between the project's photos. The track
+  // follows the pointer and snaps to the nearest photo on release (a quick flick also counts). A click without
+  // dragging still opens the project. The "Drag Here" pill tracks the pointer (CSS vars --px / --py).
+  document.querySelectorAll<HTMLElement>('[data-photo-slider]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-ps-track]')!;
+    const count = track.children.length;
+    let index = 0;
+    let startX = 0;
+    let startT = 0;
+    let dx = 0;
+    let down = false;
+    let moved = false;
+
+    const setPill = (e: PointerEvent) => {
+      const r = root.getBoundingClientRect();
+      root.style.setProperty('--px', `${e.clientX - r.left}px`);
+      root.style.setProperty('--py', `${e.clientY - r.top}px`);
+    };
+    const go = (i: number) => {
+      index = Math.max(0, Math.min(count - 1, i));
+      track.style.transform = `translateX(${-index * 100}%)`;
+    };
+
+    root.addEventListener('pointermove', (e) => {
+      setPill(e);
+      if (!down) return;
+      dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 6) {
+        // It's a drag (not a click): keep receiving the pointer even if it leaves the photo
+        moved = true;
+        root.setPointerCapture(e.pointerId);
+      }
+      // Resist past the first / last photo
+      const atEdge = (index === 0 && dx > 0) || (index === count - 1 && dx < 0);
+      const offset = atEdge ? dx * 0.3 : dx;
+      track.style.transform = `translateX(calc(${-index * 100}% + ${offset}px))`;
+    });
+    root.addEventListener('pointerenter', setPill);
+    root.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      down = true;
+      moved = false;
+      dx = 0;
+      startX = e.clientX;
+      startT = performance.now();
+      track.classList.add('is-dragging');
+      root.classList.add('is-grabbing');
+    });
+    const end = () => {
+      if (!down) return;
+      down = false;
+      track.classList.remove('is-dragging');
+      root.classList.remove('is-grabbing');
+      const w = root.offsetWidth || 1;
+      const fast = Math.abs(dx) / Math.max(1, performance.now() - startT) > 0.5; // px per ms
+      if (Math.abs(dx) > w * 0.2 || (fast && Math.abs(dx) > 20)) go(index + (dx < 0 ? 1 : -1));
+      else go(index);
+    };
+    root.addEventListener('pointerup', end);
+    root.addEventListener('pointercancel', end);
+    // A drag is not a click (a plain click still opens the project through the link)
+    root.addEventListener(
+      'click',
+      (e) => {
+        if (moved) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      },
+      true,
+    );
+  });
+</script>

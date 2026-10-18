@@ -39,8 +39,11 @@ function splitWords(root: HTMLElement): HTMLElement[] {
   return words;
 }
 
-if (!reduceMotion) {
-  document.querySelectorAll<HTMLElement>('[data-line-reveal]').forEach((el) => {
+/** Set up the reveal on every [data-line-reveal] element not set up yet (safe to call more than once). */
+export function revealLines() {
+  if (reduceMotion) return;
+  document.querySelectorAll<HTMLElement>('[data-line-reveal]:not([data-lr-ready])').forEach((el) => {
+    el.setAttribute('data-lr-ready', '');
     // Screen readers keep reading the original sentence, not the word fragments
     const label = el.textContent?.replace(/\s+/g, ' ').trim();
     if (label && !el.hasAttribute('aria-label')) el.setAttribute('aria-label', label);
@@ -65,3 +68,5 @@ if (!reduceMotion) {
     ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: play });
   });
 }
+
+revealLines();
