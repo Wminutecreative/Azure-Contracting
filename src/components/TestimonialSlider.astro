@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import NavArrow from './NavArrow.astro';
+import Button from './Button.astro';
 
 // "Trusted By Builders" layout from the homepage design (1512px):
 //   [heading + current photo 230w] [quote card 563w] [2×2: _, Next tile / Prev tile, next person's photo]
@@ -108,7 +109,7 @@ const count = testimonials.length;
           <a href="/testimonials" class="text-p1 text-navy underline underline-offset-4 hover:no-underline">View All</a>
         </div> */}
               <div class="mt-12 text-center md:mt-20 flex justify-center" data-fw-fade>
-        <a href="/testimonials" class="text-p1 py-3 px-15 text-navy underline underline-offset-4 hover:no-underline">View All</a>
+        <Button variant="outline" href="/testimonials" aria-label="View all testimonials">View All</Button>
       </div>
       </div>
     </section>
