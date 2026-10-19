@@ -23,7 +23,7 @@ const isCurrent = (href: string) => path.startsWith(href);
 const tone = dock ? 'hdr-fg' : overlay ? 'text-white' : 'text-navy';
 const dockLogoSize = 'text-[clamp(4.5rem,8.2vw,7.75rem)]';
 // "ENQUIRE" text link (right of the bar): uppercase, tracked out, underline slides in on hover / focus
-const enquire = `enquire-link text-p1 justify-self-end rounded-sm px-1 py-2 font-medium tracking-[0.08em] uppercase ${tone}`;
+const enquire = `enquire-link text-p1 justify-self-end rounded-sm px-1 py-2 font-medium tracking-[0.08em] ${tone}`;
 
 const socialIcons: Record<string, string> = {
   LinkedIn:
