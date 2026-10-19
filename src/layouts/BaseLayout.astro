@@ -5,6 +5,7 @@ import '@fontsource-variable/urbanist';
 import '@/styles/global.css';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
+import GradientBackground from '@/components/GradientBackground.astro';
 
 interface Props {
   /** Transparent header over a full-bleed hero (homepage) */
@@ -128,8 +129,8 @@ const jsonLd = [localBusiness, ...schema];
       >Skip to content</a
     >
 
-    <!-- Soft page background — TODO: export arcway-gradient-background-long.png from Figma (68% opacity) -->
-    <div aria-hidden="true" class="page-bg pointer-events-none absolute inset-0 -z-10"></div>
+    <!-- Animated lavender / lime gradient behind the whole page (static image without WebGL) -->
+    <GradientBackground />
 
     <Header overlay={headerOverlay} showLogo={headerLogo} dock={headerDock} />
 
@@ -162,13 +163,3 @@ const jsonLd = [localBusiness, ...schema];
     </script>
   </body>
 </html>
-
-<style>
-  /* Soft lavender / pale-neon blobs drifting down the page edges, as in the homepage design.
-     TODO: replace with arcway-gradient-background-long.png exported from Figma (68% opacity). */
-  .page-bg {
-    background-image: url('/src/assets/placeholders/arcway-gradient-background-long.png');      
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
-</style>

@@ -2,11 +2,11 @@
 title: 'Phoenix House'
 sector: offices
 excerpt: 'The project consisted of a fit-out of 3 floors of Phoenix House on Conyngham Road in Dublin 8. The 3 floors were refurbished to CAT A standard. There is no area within the entire office that doesn’t have a design-heavy element. From ceilings to multi-zoned finishes and styles, bespoke joinery to soft furnishings etc.'
-cover: ../../assets/projects/phoenix-house/phoenix-2.jpg
+cover: ../../assets/projects/phoenix-house/phoenix-3.jpg
 coverAlt: 'Phoenix House — project photo 1'
 # Photos from the current live site (azurecontracting.ie). TODO: client to check alt text
 gallery:
-  - src: ../../assets/projects/phoenix-house/phoenix-3.jpg
+  - src: ../../assets/projects/phoenix-house/phoenix-2.jpg
     alt: 'Phoenix House — project photo 2'
   - src: ../../assets/projects/phoenix-house/phoenix-4.jpg
     alt: 'Phoenix House — project photo 3'

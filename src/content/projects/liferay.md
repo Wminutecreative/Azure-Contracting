@@ -2,11 +2,11 @@
 title: 'Liferay'
 sector: offices
 excerpt: 'Complete fit-out of 100 Mount Street, Dublin 2.'
-cover: ../../assets/projects/liferay/project-hero-liferay.jpg
+cover: ../../assets/projects/liferay/project-hero-liferay-slide-1.jpg
 coverAlt: 'Liferay — project photo 1'
 # Photos from the current live site (azurecontracting.ie). TODO: client to check alt text
 gallery:
-  - src: ../../assets/projects/liferay/project-hero-liferay-slide-1.jpg
+  - src: ../../assets/projects/liferay/project-hero-liferay.jpg
     alt: 'Liferay — project photo 2'
   - src: ../../assets/projects/liferay/project-hero-liferay-slide-2.jpg
     alt: 'Liferay — project photo 3'

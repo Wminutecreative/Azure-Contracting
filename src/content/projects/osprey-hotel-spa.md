@@ -2,7 +2,7 @@
 title: Osprey Hotel Spa
 sector: hospitality
 excerpt: Construction of new alterations and upgrade construction and fit-out works at the internal ground, first, second and third floor levels, along with works to the ground floor external entrance area.
-cover: ../../assets/projects/osprey-hotel-spa/project-hero-osprey.jpg
+cover: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-3.jpg
 coverAlt: The Osprey Hotel courtyard with a fountain and pool
 
 gallery:
@@ -10,7 +10,7 @@ gallery:
     alt: Hotel restaurant with river-view windows, striped awnings and globe pendant lights
   - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-2.jpg
     alt: Hotel restaurant with river-view windows, striped awnings and globe pendant lights
-  - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-3.jpg
+  - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey.jpg
     alt: Restaurant ceiling with dark timber slats and recessed downlights
   - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-4.jpg
     alt: Restaurant ceiling with dark timber slats and recessed downlights
