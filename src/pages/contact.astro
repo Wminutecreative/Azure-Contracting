@@ -41,23 +41,23 @@ const schema = [
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
     <BigOutlineHeading text="Be In Touch With Us" as="h1">
       <div class="container-site">
-        <div class="mx-auto max-w-[70rem] space-y-4">
+        <div class="mx-auto max-w-[80rem] space-y-4">
           <!-- Connect With Us + form -->
           <div class="grid gap-10 rounded-[1.25rem] bg-white p-7 md:grid-cols-2 md:gap-16 md:p-[clamp(2rem,4vw,3.5rem)]">
             <div>
-              <h2 class="text-navy font-body text-[clamp(1.625rem,1.3rem+1vw,2.125rem)] font-normal">Connect With Us</h2>
-              <ul class="text-text-dark mt-6 space-y-2.5 text-[0.9375rem]">
+              <h2 class="text-navy font-body text-h2 font-normal">Connect With Us</h2>
+              <ul class="text-navy mt-6 space-y-2.5 text-p2">
                 {
                   contact.email && (
                     <li>
-                      <a href={`mailto:${contact.email}`} class="hover:text-navy underline underline-offset-4">{contact.email}</a>
+                      <a href={`mailto:${contact.email}`} class=" underline underline-offset-4">{contact.email}</a>
                     </li>
                   )
                 }
                 {
                   contact.phone && (
                     <li>
-                      <a href={`tel:${contact.phone.replace(/\s/g, '')}`} class="hover:text-navy">{contact.phone}</a>
+                      <a href={`tel:${contact.phone.replace(/\s/g, '')}`}>{contact.phone}</a>
                     </li>
                   )
                 }

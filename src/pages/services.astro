@@ -46,7 +46,7 @@ const schema = [
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
     <BigOutlineHeading text="Services We Offer" as="h1">
       <div class="container-site">
-        <div class="mx-auto max-w-[70rem] space-y-3.5 md:space-y-4">
+        <div class="mx-auto space-y-3.5 md:space-y-4">
           {services.map((service, i) => <ServiceCard service={service} eager={i === 0} />)}
         </div>
       </div>
