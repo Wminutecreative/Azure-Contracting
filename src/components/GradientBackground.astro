@@ -18,9 +18,16 @@
 
 <style>
   .gbg {
-    opacity: var(--bg-gradient-opacity, 0.35);
+    opacity: var(--bg-gradient-opacity, .5);
+    filter:brightness(1) blur(20px);
     /* Fallback until (or unless) the shader runs */
     background: url('/src/assets/placeholders/arcway-gradient-background-long.png') center / cover no-repeat;
+  }
+  .gbg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.5);
   }
   .gbg.is-live {
     background: none;

@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Button from './Button.astro';
+import NavArrow from './NavArrow.astro';
 
 // Featured-work row (design, desktop): a white text card a little wider than half the row, with the photo
 // sitting on the page background beside it, ~30px clear of the card and flush with the outer edge.
@@ -51,7 +52,19 @@ const multi = slides.length > 1;
       }
     </div>
     <a href={href} tabindex="-1" aria-hidden="true" draggable="false" class="ps-link absolute inset-0" data-ps-link></a>
-    {multi && <span class="ps-pill" aria-hidden="true" data-ps-pill>Drag Here</span>}
+    {
+      multi && (
+        <span class="ps-pill" aria-hidden="true" data-ps-pill>
+          <span class="ps-pill-arrow ps-pill-prev">
+            <NavArrow size={16} direction="left" />
+          </span>
+          <span class="ps-pill-label">Drag Here</span>
+          <span class="ps-pill-arrow ps-pill-next">
+            <NavArrow size={16} />
+          </span>
+        </span>
+      )
+    }
   </div>
   <div
     class:list={[
@@ -84,15 +97,16 @@ const multi = slides.length > 1;
     touch-action: pan-y;
     user-select: none;
   }
-  /* "Drag Here" pill: follows the pointer while hovering the photo (mouse / trackpad only) */
+  /* "Drag Here" cursor (follows the pointer while hovering the photo, mouse / trackpad only):
+     ◀ tile · "Drag Here" label · ▶ tile, three navy pieces side by side */
   .ps-pill {
     position: absolute;
     top: 0;
     left: 0;
     z-index: 2;
-    padding: 0.7rem 1.25rem;
-    border-radius: 0.75rem;
-    background: var(--color-navy);
+    display: flex;
+    align-items: stretch;
+    gap: 0.375rem;
     color: var(--color-white);
     font-size: 1rem;
     font-weight: 500;
@@ -104,6 +118,27 @@ const multi = slides.length > 1;
     transition:
       opacity 0.25s ease,
       transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .ps-pill-label,
+  .ps-pill-arrow {
+    display: grid;
+    place-items: center;
+    border-radius: 0.875rem;
+    background: var(--color-navy);
+  }
+  .ps-pill-label {
+    padding: 0.85rem 1.25rem;
+  }
+  .ps-pill-arrow {
+    width: 2.6rem;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* While dragging, the arrows spread out a little */
+  .is-grabbing .ps-pill-prev {
+    transform: translateX(-0.3rem);
+  }
+  .is-grabbing .ps-pill-next {
+    transform: translateX(0.3rem);
   }
   @media (hover: hover) and (pointer: fine) {
     .is-slider,
@@ -120,7 +155,8 @@ const multi = slides.length > 1;
   }
   @media (prefers-reduced-motion: reduce) {
     .ps-track,
-    .ps-pill {
+    .ps-pill,
+    .ps-pill-arrow {
       transition: none;
     }
   }
