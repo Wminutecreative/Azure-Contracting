@@ -636,12 +636,17 @@ const schema = [
     height: 100%;
     aspect-ratio: auto;
   }
-  /* Cards fill the height below the (solid, 5.75rem) header bar — a fixed value, not --hdr-h, which changes
-     while scrolling and would throw off the sizes the script measures. The gap is a little narrower than the
-     side gutter, so while card 1 sits at the right edge only a sliver of card 2 shows (as on stanzza.design) */
+  /* Cards are centred vertically with equal space above and below (--card-gap each). 6rem clears the solid
+     header bar (5.75rem) if it slides back in while scrolling up. Fixed values, not --hdr-h (which changes while
+     scrolling and would throw off the sizes the script measures). The gap between cards is a little narrower
+     than the side gutter, so while card 1 sits at the right edge only a sliver of card 2 shows (as on stanzza) */
+  .process.is-scrub {
+    --card-gap: 6rem;
+    --card-h: calc(100svh - 2 * var(--card-gap));
+  }
   .process.is-scrub .process-track {
     position: absolute;
-    top: 6.75rem;
+    top: var(--card-gap);
     left: 0;
     z-index: 2;
     display: flex;
@@ -652,7 +657,6 @@ const schema = [
     padding: 0;
   }
   .process.is-scrub .process-card {
-    --card-h: calc(100svh - 7.75rem);
     flex: none;
     height: var(--card-h);
     width: min(calc(var(--card-h) * 0.76), 44vw);
