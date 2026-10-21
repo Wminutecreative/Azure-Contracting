@@ -21,6 +21,8 @@ location: 'Dublin 2'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 9
+metaTitle: 'Morgan Hotel Dublin | Refurbishment by Azure Contracting'
+metaDescription: 'Azure Contracting completed refurbishment works at the Morgan Hotel, Dublin 2, delivering within a tight timeframe while the hotel remained fully operational.'
 ---
 
 The project was located in a very busy area of Dublin City Centre. Azure completed all refurbishment works within an extremely tight time frame while at the same time facilitating the Hotel’s continuous operation.

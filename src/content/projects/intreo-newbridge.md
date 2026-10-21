@@ -13,6 +13,8 @@ location: 'Newbridge, Kildare'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 18
+metaTitle: 'Intreo Newbridge | Refurbishment by Azure Contracting'
+metaDescription: 'Azure Contracting refurbished the Intreo office in Newbridge, Co. Kildare, within a tight timeframe while the client’s services continued uninterrupted.'
 ---
 
 Azure Contracting completed all refurbishment works within an extremely tight time frame while at the same time facilitating INTREO’s continuous operation. Azure Contracting acted as main contractors on this project and also took on the role of PSCS.

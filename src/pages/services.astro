@@ -7,8 +7,11 @@ import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
 import ServiceCard from '@/components/ServiceCard.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getServices } from '@/lib/content';
+import { ogImageFor } from '@/lib/og';
+import ogSource from '@/assets/projects/iconic-offices/Hume_Atrium_Photo00001-scaled.jpg';
 
 const services = await getServices();
+const ogImage = await ogImageFor(ogSource);
 
 const schema = [
   {
@@ -39,8 +42,9 @@ const schema = [
 ---
 
 <BaseLayout
-  title="Services We Offer"
-  description="Design, commercial management, fit-out and refurbishment, M&E, data cabling, audio visual, furniture and joinery — the full range of construction and fit-out services from Azure Contracting."
+  title="Azure Contracting | Construction & Fit-Out Services"
+  description="Azure Contracting offers the full range of fit-out services, from design and commercial management to mechanical, electrical, data cabling, AV and joinery."
+  ogImage={ogImage}
   schema={schema}
 >
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">

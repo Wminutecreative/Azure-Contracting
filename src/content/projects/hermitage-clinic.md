@@ -22,6 +22,8 @@ location: 'Optilux, The Hermitage Clinic, Lucan Road Old, Dublin 20'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 7
+metaTitle: 'Hermitage Clinic, Dublin | Fit-Out by Azure Contracting'
+metaDescription: 'Azure Contracting refurbished a consultant suite at the Hermitage Clinic, Dublin, with new consultation, examination and treatment rooms plus reception.'
 ---
 
 Fit Out & Refurbishment to consultants suite. Works included stripping back of the existing space to create a new high-technology consultation suite, comprising of two consultation rooms, an examination room, treatment room and a new waiting room & reception area with curved walls, glazed partitions, automated sliding doors and bespoke fitted furniture.

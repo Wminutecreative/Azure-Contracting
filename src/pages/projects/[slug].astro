@@ -22,7 +22,10 @@ interface Props {
   all: CollectionEntry<'projects'>[];
 }
 const { project, all } = Astro.props;
-const { title, excerpt, cover, coverAlt, gallery, client, location, role, year, sector } = project.data;
+const { title, excerpt, cover, coverAlt, gallery, client, location, role, year, sector, metaTitle, metaDescription } = project.data;
+// Search / sharing: the SEO fields from Keystatic, else the title and a trimmed summary
+const seoTitle = metaTitle ?? title;
+const seoDescription = metaDescription ?? (excerpt.length > 158 ? `${excerpt.slice(0, 155).trimEnd()}…` : excerpt);
 const { Content } = await render(project);
 
 // Left column: the gallery photos (design shows interiors here); falls back to the cover when there is no gallery
@@ -73,7 +76,7 @@ const schema = [
 ];
 ---
 
-<BaseLayout title={title} description={excerpt.length > 158 ? `${excerpt.slice(0, 155).trimEnd()}…` : excerpt} ogImage={og.src} ogType="article" schema={schema}>
+<BaseLayout title={seoTitle} description={seoDescription} ogImage={og.src} ogType="article" schema={schema}>
   <article class="container-site pt-[clamp(1.5rem,1rem+2vw,3rem)]">
     <h1 class="text-navy font-body text-[clamp(2rem,1.4rem+2vw,2.75rem)] leading-tight font-normal tracking-[-0.01em]">{title}</h1>
 

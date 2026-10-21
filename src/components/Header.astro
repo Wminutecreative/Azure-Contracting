@@ -23,7 +23,7 @@ const isCurrent = (href: string) => path.startsWith(href);
 const tone = dock ? 'hdr-fg' : overlay ? 'text-white' : 'text-navy';
 const dockLogoSize = 'text-[clamp(4.5rem,8.2vw,7.75rem)]';
 // "ENQUIRE" text link (right of the bar): uppercase, tracked out, underline slides in on hover / focus
-const enquire = `enquire-link text-p1 justify-self-end rounded-sm px-1 py-2 font-medium tracking-[0.08em] ${tone}`;
+const enquire = `link-underline text-p1 justify-self-end rounded-sm px-1 py-2 ${tone}`;
 
 const socialIcons: Record<string, string> = {
   LinkedIn:
@@ -260,7 +260,17 @@ const cls =
     transition:
       background-color 0.35s ease,
       box-shadow 0.35s ease,
-      backdrop-filter 0.35s ease;
+      backdrop-filter 0.35s ease,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* Scrolling down hides the bar (slides up out of view); scrolling up brings it back (script below) */
+  :root.hdr-hidden .site-header[data-sticky] {
+    transform: translateY(-100%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .site-header[data-sticky] {
+      transition: none;
+    }
   }
   :root.hdr-solid .site-header[data-sticky] {
     background-color: rgb(244 249 253 / 0.85);
@@ -317,22 +327,6 @@ const cls =
   }
 
   /* "ENQUIRE": an underline grows from the left on hover / focus */
-  .enquire-link {
-    background: linear-gradient(currentColor, currentColor) no-repeat 0.25rem calc(100% - 0.35rem) / 0 1px;
-    transition:
-      background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-      color 0.3s ease;
-  }
-  .enquire-link:hover,
-  .enquire-link:focus-visible {
-    background-size: calc(100% - 0.5rem) 1px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .enquire-link {
-      transition: none;
-    }
-  }
-
   /* Open / close animation (osmo.supply style). Opening: page dims and the bar widens (0.6s) → after 0.3s the
      panel unfolds downward out of the bar (0.9s) → its columns rise into place one after another (0.3 / 0.375 /
      0.45s). Closing reverses everything at 0.6s with no delays; the bar narrows last (see .menu-bar above). */
@@ -421,14 +415,17 @@ const cls =
   const setControlsHidden = (hidden: boolean) => controls.forEach((el) => (el.style.visibility = hidden ? 'hidden' : ''));
   const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Freeze page scrolling while the menu is open. The scrollbar disappears, so the page gets padding of the same
+  // width (no sideways jump), and the fixed dim / background layers then cover the full width (no blank strip).
   function lockScroll(lock: boolean) {
     const root = document.documentElement;
     if (lock) {
-      // root.style.paddingRight = `${window.innerWidth - root.clientWidth}px`;
+      const bar = window.innerWidth - root.clientWidth;
       root.style.overflow = 'hidden';
+      if (bar > 0) root.style.paddingRight = `${bar}px`;
     } else {
       root.style.overflow = '';
-      // root.style.paddingRight = '';
+      root.style.paddingRight = '';
     }
   }
 
@@ -548,6 +545,42 @@ const cls =
       measure();
       queue();
     });
+  }
+</script>
+
+<script>
+  // Hide on scroll down, show on scroll up. Only once the bar is past its starting area (homepage: once the hero
+  // has gone and the bar is solid) and never while the menu is open or something in the bar has keyboard focus.
+  const header = document.querySelector<HTMLElement>('.site-header[data-sticky]');
+  if (header) {
+    const root = document.documentElement;
+    const isDock = header.hasAttribute('data-dock');
+    const menuEl = document.getElementById('site-menu') as HTMLDialogElement | null;
+    let lastY = window.scrollY;
+    let queued = false;
+
+    const update = () => {
+      queued = false;
+      const y = Math.max(0, window.scrollY);
+      const dy = y - lastY;
+      if (Math.abs(dy) < 6) return; // ignore tiny jitters
+      const past = isDock ? root.classList.contains('hdr-solid') : y > header.offsetHeight + 40;
+      const keep = menuEl?.open || !!header.querySelector(':focus-visible');
+      root.classList.toggle('hdr-hidden', dy > 0 && past && !keep);
+      lastY = y;
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    // Tabbing into the bar always brings it back
+    header.addEventListener('focusin', () => root.classList.remove('hdr-hidden'));
   }
 </script>
 

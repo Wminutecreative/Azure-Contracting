@@ -7,8 +7,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import FeaturedWork from '@/components/FeaturedWork.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects } from '@/lib/content';
+import { ogImageFor } from '@/lib/og';
 
 const projects = await getProjects();
+const ogImage = projects[0] ? await ogImageFor(projects[0].data.cover) : undefined;
 
 const breadcrumbs = {
   '@context': 'https://schema.org',
@@ -21,8 +23,9 @@ const breadcrumbs = {
 ---
 
 <BaseLayout
-  title="Our Projects"
-  description="Hotel, office, retail, clinic and education fit-outs and refurbishments delivered by Azure Contracting across Ireland — including the Morrison Hotel, the Osprey Hotel Spa and The Hari Clinic."
+  title="Azure Contracting | Fit-Out & Refurbishment Projects"
+  description="Browse Azure Contracting’s portfolio of hotel, office, clinic and education fit-outs and refurbishments delivered across Ireland since 2012."
+  ogImage={ogImage}
   schema={[breadcrumbs]}
 >
   <FeaturedWork projects={projects} headingAs="h1" animated={false} class="pt-[clamp(1.5rem,1rem+2vw,3rem)]" />

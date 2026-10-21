@@ -21,6 +21,8 @@ location: 'Dublin 2'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 8
+metaTitle: 'Liferay Dublin 2 | Office Fit-Out by Azure Contracting'
+metaDescription: 'Azure Contracting delivered a complete fit-out of Liferay’s office at 100 Mount Street, Dublin 2, serving as Main Contractor and PSCS for the project.'
 ---
 
 Complete fit-out of 100 Mount Street, Dublin 2.

@@ -24,6 +24,8 @@ location: Ormonde Quay Lower, Dublin 1
 role: Main Contractor & PSCS
 featured: true
 order: 1
+metaTitle: 'Morrison Hotel | 5-Star Fit-Out by Azure Contracting'
+metaDescription: 'Azure Contracting delivered ensuite bedroom refurbishment and a new lobby, bar and restaurant at the Morrison Hotel, Dublin, in a fully live 5-star environment.'
 ---
 
 Our primary scope of works was to take possession of each floor, fully strip back each ensuite bathroom and bedroom and install all new sanitaryware, flooring and wall finishes to all luxury ensuite bedrooms. The refurbishment also included the fit-out of a new lobby, bar and restaurant. Works included new bespoke joinery, seating, new wall and floor finishes. All works were conducted within a fully operational luxurious 5\* hotel in Dublin City Centre.

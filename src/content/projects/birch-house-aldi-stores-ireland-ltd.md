@@ -27,6 +27,8 @@ location: 'Birch House, Millenium Park, Naas, Co Kildare'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 6
+metaTitle: 'Birch House, Naas | ALDI Office Fit-Out by Azure Contracting'
+metaDescription: 'Azure Contracting fitted out ALDI’s Birch House, Naas, across three floors, delivering acoustic meeting rooms, a staff canteen and bespoke joinery throughout.'
 ---
 
 The project consisted of a full Office fit-out and complete M&E and AV installation over 3 floors. The works were focused around the following areas.

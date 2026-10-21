@@ -20,6 +20,8 @@ location: 'Carrick-on-Shannon, Co. Leitrim'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 19
+metaTitle: 'VistaMed | Shell & Core Fit-Out by Azure Contracting'
+metaDescription: 'Azure Contracting fitted out VistaMed’s two-storey shell and core building in Carrick-on-Shannon, Co. Leitrim, acting as Main Contractor and PSCS.'
 ---
 
 The fit out of a two storey shell and core property located in Carrick on Shannon, Co. Leitrim.

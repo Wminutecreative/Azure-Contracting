@@ -22,6 +22,9 @@ const projects = defineCollection({
       year: z.number().int().nullish().transform((v) => v ?? undefined),
       featured: z.boolean().default(false),
       order: z.number().default(99),
+      // Search results / sharing. Empty → the title (+ " | Azure Contracting") and the summary are used.
+      metaTitle: z.string().nullish().transform((v) => v || undefined),
+      metaDescription: z.string().nullish().transform((v) => v || undefined),
     }),
 });
 

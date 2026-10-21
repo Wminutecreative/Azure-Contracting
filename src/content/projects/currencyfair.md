@@ -23,6 +23,8 @@ location: 'Dublin 4'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 12
+metaTitle: 'CurrencyFair | Dublin 4 Office Fit-Out, Azure Contracting'
+metaDescription: 'Azure Contracting fitted out CurrencyFair’s new Dublin 4 office across two floors, creating a workspace for more than 125 employees in the city centre.'
 ---
 
 CurrencyFair needed a new space to house over 125 employees and chose the team of Azure to fit-out their new office home. Construction was performed on the 1st and 2nd floors of this building.

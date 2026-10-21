@@ -19,6 +19,8 @@ location: 'Gorey, Wexford'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 14
+metaTitle: 'Wexford County Council | New Offices by Azure Contracting'
+metaDescription: 'Azure Contracting built a new local authority office development in Gorey, Wexford, comprising six buildings arranged around a covered public internal street.'
 ---
 
 The layout for these new offices features a single facility with six buildings around a public internal street, creating a townscape which is both open and easy for visitors to navigate.

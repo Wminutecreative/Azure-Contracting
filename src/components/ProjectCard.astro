@@ -35,6 +35,7 @@ const multi = slides.length > 1;
     ]}
     data-fw-img
     data-photo-slider={multi ? '' : undefined}
+    data-side={reverse ? 'right' : 'left'}
   >
     <div class="ps-track flex h-full" data-ps-track>
       {
@@ -55,12 +56,14 @@ const multi = slides.length > 1;
     {
       multi && (
         <span class="ps-pill" aria-hidden="true" data-ps-pill>
-          <span class="ps-pill-arrow ps-pill-prev">
-            <NavArrow size={16} direction="left" />
-          </span>
-          <span class="ps-pill-label">Drag Here</span>
-          <span class="ps-pill-arrow ps-pill-next">
-            <NavArrow size={16} />
+          <span class="ps-pill-inner">
+            <span class="ps-pill-arrow ps-pill-prev">
+              <NavArrow size={16} direction="left" />
+            </span>
+            <span class="ps-pill-label">Drag Here</span>
+            <span class="ps-pill-arrow ps-pill-next">
+              <NavArrow size={16} />
+            </span>
           </span>
         </span>
       )
@@ -87,7 +90,7 @@ const multi = slides.length > 1;
 
 <style>
   .ps-track {
-    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
     will-change: transform;
   }
   .ps-track.is-dragging {
@@ -97,13 +100,18 @@ const multi = slides.length > 1;
     touch-action: pan-y;
     user-select: none;
   }
-  /* "Drag Here" cursor (follows the pointer while hovering the photo, mouse / trackpad only):
+  /* "Drag Here" cursor (mouse / trackpad only): the outer span glides after the pointer (positioned by the
+     script), the inner one grows from nothing to full size on hover and shrinks away on leave.
      ◀ tile · "Drag Here" label · ▶ tile, three navy pieces side by side */
   .ps-pill {
     position: absolute;
     top: 0;
     left: 0;
     z-index: 2;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .ps-pill-inner {
     display: flex;
     align-items: stretch;
     gap: 0.375rem;
@@ -112,12 +120,11 @@ const multi = slides.length > 1;
     font-weight: 500;
     line-height: 1;
     white-space: nowrap;
-    pointer-events: none;
     opacity: 0;
-    transform: translate(var(--px, 50%), var(--py, 50%)) translate(-50%, -50%) scale(0.6);
+    transform: translate(-50%, -50%) scale(0);
     transition:
-      opacity 0.25s ease,
-      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.35s ease,
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .ps-pill-label,
   .ps-pill-arrow {
@@ -145,17 +152,17 @@ const multi = slides.length > 1;
     .is-slider .ps-link {
       cursor: none;
     }
-    .is-slider:hover .ps-pill {
+    .is-slider:hover .ps-pill-inner {
       opacity: 1;
-      transform: translate(var(--px, 50%), var(--py, 50%)) translate(-50%, -50%) scale(1);
+      transform: translate(-50%, -50%) scale(1);
     }
-    .is-slider.is-grabbing .ps-pill {
-      transform: translate(var(--px, 50%), var(--py, 50%)) translate(-50%, -50%) scale(0.9);
+    .is-slider.is-grabbing .ps-pill-inner {
+      transform: translate(-50%, -50%) scale(0.9);
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .ps-track,
-    .ps-pill,
+    .ps-pill-inner,
     .ps-pill-arrow {
       transition: none;
     }
@@ -163,12 +170,21 @@ const multi = slides.length > 1;
 </style>
 
 <script>
-  // Project photo slider: drag / swipe the photo sideways to move between the project's photos. The track
-  // follows the pointer and snaps to the nearest photo on release (a quick flick also counts). A click without
-  // dragging still opens the project. The "Drag Here" pill tracks the pointer (CSS vars --px / --py).
+  // Project photo slider. Photos change on their own every few seconds (looping), pausing while the pointer is
+  // over the photo, while it has keyboard focus, while it is off-screen or the tab is hidden (and never with
+  // reduced motion). They can also be dragged / swiped: the track follows the pointer and snaps to the nearest
+  // photo on release (a quick flick also counts); a click without dragging still opens the project.
+  // Every slider runs right → left (the next photo comes in from the right). The "Drag Here" pill glides after the
+  // pointer. (data-side only drives the scroll-in reveal direction, in FeaturedWork.)
+  const AUTOPLAY_MS = 3500;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   document.querySelectorAll<HTMLElement>('[data-photo-slider]').forEach((root) => {
     const track = root.querySelector<HTMLElement>('[data-ps-track]')!;
+    const pill = root.querySelector<HTMLElement>('[data-ps-pill]');
     const count = track.children.length;
+    // The track moves left to show the next photo (it comes in from the right)
+    const dir = 1;
     let index = 0;
     let startX = 0;
     let startT = 0;
@@ -176,18 +192,66 @@ const multi = slides.length > 1;
     let down = false;
     let moved = false;
 
-    const setPill = (e: PointerEvent) => {
-      const r = root.getBoundingClientRect();
-      root.style.setProperty('--px', `${e.clientX - r.left}px`);
-      root.style.setProperty('--py', `${e.clientY - r.top}px`);
-    };
     const go = (i: number) => {
-      index = Math.max(0, Math.min(count - 1, i));
-      track.style.transform = `translateX(${-index * 100}%)`;
+      index = ((i % count) + count) % count; // loops
+      track.style.transform = `translateX(${-index * 100 * dir}%)`;
     };
 
+    // Autoplay
+    let timer = 0;
+    let hovered = false;
+    let visible = false;
+    const schedule = () => {
+      clearTimeout(timer);
+      if (reduceMotion || hovered || down || !visible || document.hidden || root.matches(':focus-within')) return;
+      timer = window.setTimeout(() => {
+        go(index + 1);
+        schedule();
+      }, AUTOPLAY_MS);
+    };
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      schedule();
+    }).observe(root);
+    document.addEventListener('visibilitychange', schedule);
+    root.addEventListener('focusin', schedule);
+    root.addEventListener('focusout', () => setTimeout(schedule));
+
+    // "Drag Here" pill: eases towards the pointer each frame (lerp) rather than sticking to it
+    let tx = 0;
+    let ty = 0;
+    let px = 0;
+    let py = 0;
+    let raf = 0;
+    const follow = () => {
+      px += (tx - px) * 0.2;
+      py += (ty - py) * 0.2;
+      if (pill) pill.style.transform = `translate(${px}px, ${py}px)`;
+      raf = Math.abs(tx - px) + Math.abs(ty - py) > 0.3 ? requestAnimationFrame(follow) : 0;
+    };
+    const setTarget = (e: PointerEvent, jump = false) => {
+      const r = root.getBoundingClientRect();
+      tx = e.clientX - r.left;
+      ty = e.clientY - r.top;
+      if (jump) {
+        px = tx;
+        py = ty;
+      }
+      if (!raf) raf = requestAnimationFrame(follow);
+    };
+
+    root.addEventListener('pointerenter', (e) => {
+      hovered = true;
+      schedule();
+      setTarget(e, true); // appear where the pointer enters, then grow from 0
+    });
+    root.addEventListener('pointerleave', () => {
+      hovered = false;
+      schedule();
+    });
+
     root.addEventListener('pointermove', (e) => {
-      setPill(e);
+      setTarget(e);
       if (!down) return;
       dx = e.clientX - startX;
       if (!moved && Math.abs(dx) > 6) {
@@ -195,12 +259,8 @@ const multi = slides.length > 1;
         moved = true;
         root.setPointerCapture(e.pointerId);
       }
-      // Resist past the first / last photo
-      const atEdge = (index === 0 && dx > 0) || (index === count - 1 && dx < 0);
-      const offset = atEdge ? dx * 0.3 : dx;
-      track.style.transform = `translateX(calc(${-index * 100}% + ${offset}px))`;
+      track.style.transform = `translateX(calc(${-index * 100 * dir}% + ${dx}px))`;
     });
-    root.addEventListener('pointerenter', setPill);
     root.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
       down = true;
@@ -210,6 +270,7 @@ const multi = slides.length > 1;
       startT = performance.now();
       track.classList.add('is-dragging');
       root.classList.add('is-grabbing');
+      clearTimeout(timer);
     });
     const end = () => {
       if (!down) return;
@@ -218,8 +279,10 @@ const multi = slides.length > 1;
       root.classList.remove('is-grabbing');
       const w = root.offsetWidth || 1;
       const fast = Math.abs(dx) / Math.max(1, performance.now() - startT) > 0.5; // px per ms
-      if (Math.abs(dx) > w * 0.2 || (fast && Math.abs(dx) > 20)) go(index + (dx < 0 ? 1 : -1));
+      // Dragging against the direction of travel moves forward (e.g. right → left drag on a right-to-left photo)
+      if (Math.abs(dx) > w * 0.2 || (fast && Math.abs(dx) > 20)) go(index + (dx * dir < 0 ? 1 : -1));
       else go(index);
+      schedule();
     };
     root.addEventListener('pointerup', end);
     root.addEventListener('pointercancel', end);
