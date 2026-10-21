@@ -2,20 +2,20 @@
 title: Osprey Hotel Spa
 sector: hospitality
 excerpt: Construction of new alterations and upgrade construction and fit-out works at the internal ground, first, second and third floor levels, along with works to the ground floor external entrance area.
-cover: ../../assets/projects/osprey-hotel-spa/project-hero-osprey.jpg
-coverAlt: The Osprey Hotel courtyard with a fountain and pool
+cover: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-3.jpg
+coverAlt: 'Spa nail bar with a long timber table, armchairs and green pendant lights'
 
 gallery:
   - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-1.jpg
-    alt: Hotel restaurant with river-view windows, striped awnings and globe pendant lights
+    alt: 'Spa entrance corridor with timber-slatted walls and candlelight'
   - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-2.jpg
-    alt: Hotel restaurant with river-view windows, striped awnings and globe pendant lights
-  - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-3.jpg
-    alt: Restaurant ceiling with dark timber slats and recessed downlights
+    alt: 'Dimly lit relaxation room with loungers and candles'
+  - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey.jpg
+    alt: 'Relaxation room with grey loungers, yellow cushions and log-slice wall panels'
   - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-4.jpg
-    alt: Restaurant ceiling with dark timber slats and recessed downlights
+    alt: 'Guest relaxing in a freestanding roll-top bath'
   - src: ../../assets/projects/osprey-hotel-spa/project-hero-osprey-slide-5.jpg
-    alt: Restaurant ceiling with dark timber slats and recessed downlights    
+    alt: 'Twin treatment room with two massage beds and orchids'
 
 
 client: Osprey Hotel Spa
@@ -24,6 +24,8 @@ role: Main Contractor & PSCS
 featured: true
 
 order: 2
+metaTitle: 'Osprey Hotel Spa | Spa Fit-Out by Azure Contracting'
+metaDescription: 'Azure Contracting delivered alteration, upgrade and fit-out works at the Osprey Hotel Spa in Naas, Co. Kildare, across four floors and the external entrance.'
 ---
 
 Construction of new alterations and upgrade construction and fit-out works at the internal ground, first, second and third floor levels, along with works to the ground floor external entrance area.

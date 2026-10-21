@@ -5,6 +5,8 @@ import '@fontsource-variable/urbanist';
 import '@/styles/global.css';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
+import GradientBackground from '@/components/GradientBackground.astro';
+import { getTestimonials } from '@/lib/content';
 
 interface Props {
   /** Transparent header over a full-bleed hero (homepage) */
@@ -13,13 +15,18 @@ interface Props {
   headerLogo?: boolean;
   /** Fixed header whose logo docks from the full-screen hero into the navbar on scroll (homepage) */
   headerDock?: boolean;
+  /** Meta title. Used as is when it already names the brand ("…Azure…"); otherwise " | Azure Contracting" is added */
   title: string;
   description: string;
-  /** Absolute or root-relative path to the OG image */
+  /** Absolute or root-relative path to this page's OG image (also the WebPage's primaryImageOfPage in JSON-LD) */
   ogImage?: string;
   ogType?: 'website' | 'article';
   noindex?: boolean;
-  /** Extra JSON-LD objects for this page (site-wide LocalBusiness is always included) */
+  /**
+   * Extra JSON-LD nodes for this page, merged into the site-wide @graph (WebSite + GeneralContractor + WebPage).
+   * A node typed AboutPage / ContactPage / CollectionPage / WebPage refines this page's WebPage node instead of
+   * adding a second one; a BreadcrumbList is linked from the WebPage.
+   */
   schema?: Record<string, unknown>[];
 }
 
@@ -27,31 +34,89 @@ const { headerOverlay = false, headerLogo = true, headerDock = false, title, des
   Astro.props;
 
 const siteName = 'Azure Contracting';
-const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
+const fullTitle = /azure/i.test(title) ? title : `${title} | ${siteName}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImageUrl = new URL(ogImage, Astro.site);
 
 const gtmId = import.meta.env.PUBLIC_GTM_ID;
 const clarityId = import.meta.env.PUBLIC_CLARITY_ID;
 
-// Site-wide business schema. TODO: verify address/phone/email against Figma contact page.
-const localBusiness = {
-  '@context': 'https://schema.org',
-  '@type': 'GeneralContractor',
+// ---- JSON-LD: one @graph per page ----
+const siteUrl = new URL('/', Astro.site).toString();
+const orgId = `${siteUrl}#organization`;
+const websiteId = `${siteUrl}#website`;
+const pageId = `${canonical}#webpage`;
+const siteDescription =
+  'Construction, refurbishment and fit-out for offices, hospitality, retail and education. Based in Kildare, working across Ireland.';
+
+// Rating from the testimonials shown on the Testimonials page (count stays in step with the site)
+const reviews = await getTestimonials({ page: true });
+const ratingAvg = reviews.length ? reviews.reduce((sum, r) => sum + r.data.rating, 0) / reviews.length : 0;
+
+const website = {
+  '@type': 'WebSite',
+  '@id': websiteId,
+  url: siteUrl,
   name: siteName,
-  url: Astro.site?.toString(),
-  description:
-    'Construction, refurbishment and fit-out for offices, hospitality, retail and education across Ireland.',
+  description: siteDescription,
+  publisher: { '@id': orgId },
+  inLanguage: 'en-IE',
+};
+
+const organization = {
+  '@type': 'GeneralContractor',
+  '@id': orgId,
+  name: siteName,
+  url: siteUrl,
+  // The real logo (rendered from the site logo), not the 1200×630 share image — Google wants the logo itself here
+  logo: { '@type': 'ImageObject', url: new URL('/logo.png', Astro.site).toString(), width: 1794, height: 410 },
+  image: new URL('/og-default.jpg', Astro.site).toString(),
+  description: siteDescription,
+  // TODO: client to confirm the street address (and add telephone / email once confirmed)
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Osprey Business Centre',
     addressLocality: 'Naas',
-    addressRegion: 'Co. Kildare',
+    addressRegion: 'County Kildare',
     addressCountry: 'IE',
   },
-  areaServed: 'Ireland',
+  areaServed: { '@type': 'Country', name: 'Ireland' },
+  ...(reviews.length && {
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: String(Math.round(ratingAvg * 10) / 10),
+      bestRating: '5',
+      worstRating: '1',
+      reviewCount: String(reviews.length),
+    },
+  }),
 };
-const jsonLd = [localBusiness, ...schema];
+
+// Page nodes: strip @context (the graph has one), fold page-type nodes into the WebPage, link the breadcrumb
+const pageTypes = ['WebPage', 'AboutPage', 'ContactPage', 'CollectionPage'];
+const nodes = schema.map(({ '@context': _ctx, ...node }) => node);
+const pageOverride = nodes.find((n) => pageTypes.includes(String(n['@type'])));
+const breadcrumb = nodes.find((n) => n['@type'] === 'BreadcrumbList');
+if (breadcrumb) breadcrumb['@id'] = `${canonical}#breadcrumb`;
+
+const webPage = {
+  '@type': 'WebPage',
+  ...pageOverride,
+  '@id': pageId,
+  url: canonical.toString(),
+  name: fullTitle,
+  description,
+  isPartOf: { '@id': websiteId },
+  about: { '@id': orgId },
+  primaryImageOfPage: { '@type': 'ImageObject', url: ogImageUrl.toString() },
+  ...(breadcrumb && { breadcrumb: { '@id': breadcrumb['@id'] } }),
+  inLanguage: 'en-IE',
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [website, organization, webPage, ...nodes.filter((n) => n !== pageOverride)],
+};
 ---
 
 <!doctype html>
@@ -86,7 +151,7 @@ const jsonLd = [localBusiness, ...schema];
 
     <slot name="head" />
 
-    {jsonLd.map((item) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
     {
       gtmId && (
@@ -128,8 +193,8 @@ const jsonLd = [localBusiness, ...schema];
       >Skip to content</a
     >
 
-    <!-- Soft page background — TODO: export arcway-gradient-background-long.png from Figma (68% opacity) -->
-    <div aria-hidden="true" class="page-bg pointer-events-none absolute inset-0 -z-10"></div>
+    <!-- Animated lavender / lime gradient behind the whole page (static image without WebGL) -->
+    <GradientBackground />
 
     <Header overlay={headerOverlay} showLogo={headerLogo} dock={headerDock} />
 
@@ -162,13 +227,3 @@ const jsonLd = [localBusiness, ...schema];
     </script>
   </body>
 </html>
-
-<style>
-  /* Soft lavender / pale-neon blobs drifting down the page edges, as in the homepage design.
-     TODO: replace with arcway-gradient-background-long.png exported from Figma (68% opacity). */
-  .page-bg {
-    background-image: url('/src/assets/placeholders/arcway-gradient-background-long.png');      
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
-</style>

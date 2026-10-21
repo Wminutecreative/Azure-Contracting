@@ -38,18 +38,20 @@ const ariaLabel = compact ? label.replace(/<[^>]*>/g, '').trim() : undefined;
 // widens to fill the whole button on hover / focus (.btn-fill). primary = navy button, white square + navy play
 // icon, white label (turns navy as the white fills in); outline = the same in reverse (white button, navy square).
 const solid = 'text-p1 min-h-[3.8rem] min-w-[12.125rem] gap-5 pr-3.5 pl-4';
+// Phones: a smaller button (44px tall, 44px icon square, 16px label); from `sm` up the design size (52px, 18px).
+// --btn-sq is the icon square's size — shared with the .btn-fill::before square so the two always line up.
 const fill =
-  'btn-fill relative isolate overflow-hidden flex-row-reverse justify-end! gap-5 min-h-[3.25rem] border-[1.5px] border-navy pl-0! pr-7 max-sm:pr-0! text-p1 font-medium';
+  'btn-fill relative isolate overflow-hidden flex-row-reverse justify-end! [--btn-sq:2.75rem] sm:[--btn-sq:3.25rem] gap-3.5 sm:gap-5 min-h-(--btn-sq) border-[1.5px] border-navy pl-0! pr-5 sm:pr-7 text-p2 sm:text-p1 font-medium';
 const styles: Record<Variant, { root: string; icon: string }> = {
   primary: {
     root: `${fill} [--btn-fill:var(--color-white)] bg-navy text-white hover:text-navy focus-visible:text-navy`,
-    icon: 'w-[3.25rem] self-stretch text-navy',
+    icon: 'w-(--btn-sq) self-stretch text-navy',
   },
   // "Know More" (design): white pill, navy border, navy square with a white arrow on the LEFT, navy label.
   // Hover / focus: the navy square widens to fill the whole button and the label turns white (.btn-fill).
   outline: {
     root: `${fill} bg-white text-navy hover:text-white focus-visible:text-white`,
-    icon: 'w-[3.25rem] self-stretch text-white',
+    icon: 'w-(--btn-sq) self-stretch text-white',
   },
   neon: {
     root: `${solid} bg-neon text-navy hover:bg-white`,
@@ -68,7 +70,8 @@ const Tag = href ? 'a' : 'button';
   class:list={[
     'group rounded-btn inline-flex items-center font-medium justify-between transition-colors duration-300',
     s.root,
-    compact && 'py-3.5 max-sm:min-w-0 max-sm:gap-0 max-sm:p-2',
+    // Compact: icon only on phones (the label is visually hidden), so no right padding there
+    compact && 'py-3.5 max-sm:min-w-0 max-sm:gap-0 max-sm:p-2 max-sm:pr-0!',
     !icon && 'justify-center! px-8!',
     className,
   ]}
@@ -102,7 +105,7 @@ const Tag = href ? 'a' : 'button';
     position: absolute;
     inset: 0 auto 0 0;
     z-index: -1;
-    width: 3.25rem;
+    width: var(--btn-sq, 3.25rem);
     border-radius: 10px;
     background: var(--btn-fill, var(--color-navy));
     transition: width 0.45s cubic-bezier(0.65, 0, 0.35, 1);

@@ -3,12 +3,12 @@ import type { CollectionEntry } from 'astro:content';
 import BigOutlineHeading from './BigOutlineHeading.astro';
 import ConnectedStack from './ConnectedStack.astro';
 import ProjectCard from './ProjectCard.astro';
-import Button from './Button.astro';
 
 // "Our Featured Work" (homepage design): project rows in the connected-box layout (see ConnectedStack) on a
 // soft lavender → lime section background.
 //
-// Scroll animation (GSAP ScrollTrigger, once): heading rises in; per row the photo wipes in left → right while settling
+// Scroll animation (GSAP ScrollTrigger, once): heading rises in; per row the photo wipes in from its outer edge
+// (left photo: left → right, right photo: right → left) while settling
 // from a slight zoom, then title / text / button fade up in sequence.
 interface Props {
   projects: CollectionEntry<'projects'>[];
@@ -44,7 +44,7 @@ const {
   {
     viewAllHref && (
       <div class="mt-12 text-center md:mt-20 flex justify-center" data-fw-fade>
-        <Button variant="outline" href={viewAllHref} aria-label="View all projects">View All</Button>
+        <a href={viewAllHref} class="link-underline text-p1 text-navy rounded-sm px-1 py-2" aria-label="View all projects">View All</a>
       </div>
     )
   }
@@ -87,9 +87,12 @@ const {
 
       const tl = gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 78%', once: true } });
       if (imgWrap) {
+        // Wipes in from its outer edge: a photo on the left of its row opens left → right, one on the right
+        // opens right → left
+        const fromRight = imgWrap.dataset.side === 'right';
         tl.fromTo(
           imgWrap,
-          { clipPath: `inset(0% 100% 0% 0% round ${radius})` }, // wipes in from left to right
+          { clipPath: fromRight ? `inset(0% 0% 0% 100% round ${radius})` : `inset(0% 100% 0% 0% round ${radius})` },
           { clipPath: `inset(0% 0% 0% 0% round ${radius})`, duration: 1.15, ease: 'expo.inOut', clearProps: 'clipPath' },
           0,
         );

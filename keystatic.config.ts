@@ -70,6 +70,15 @@ export default config({
         year: fields.integer({ label: 'Year completed', description: 'Optional.' }),
         featured: fields.checkbox({ label: 'Show on the homepage (Our Featured Work)', defaultValue: false }),
         order: fields.integer({ label: 'Order', description: 'Lower numbers appear first.', defaultValue: 10 }),
+        metaTitle: fields.text({
+          label: 'SEO title',
+          description: 'Shown in Google and when shared. Aim for 50–60 characters. Leave empty to use the title.',
+        }),
+        metaDescription: fields.text({
+          label: 'SEO description',
+          description: 'Shown under the title in Google. Aim for 140–155 characters. Leave empty to use the summary.',
+          multiline: true,
+        }),
         body: fields.markdoc({ label: 'Project description', extension: 'md' }),
       },
     }),

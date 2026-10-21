@@ -6,17 +6,21 @@ const year = new Date().getFullYear();
 ---
 
 <!-- Measured from the homepage design: 310px tall at 1512, 80px top radius, navy → neon glow on the right -->
-<footer class="footer relative isolate overflow-hidden rounded-t-[2.5rem] text-white md:rounded-t-[5rem]">
-  <span class="footer-outline pointer-events-none absolute hidden lg:block" aria-hidden="true"></span>
+<!-- Scroll motion (script below): as you reach the bottom of the page the WHOLE footer slides up from below into
+     place, finishing exactly at the very bottom; the links follow one after another and the neon outline slides in
+     from the right. The slot clips the footer while it is still partly below, so it never adds extra scroll. -->
+<div class="footer-slot" data-footer-slot>
+<footer class="footer relative isolate overflow-hidden rounded-t-[2.5rem] text-white md:rounded-t-[5rem]" data-footer>
+  <span class="footer-outline pointer-events-none absolute hidden lg:block" aria-hidden="true" data-footer-outline></span>
 
-  <div class="relative px-[clamp(1rem,0.2rem+5vw,5.3rem)] pt-16 pb-10 lg:pt-[6.1rem] lg:pb-[2.4rem]">
+  <div class="relative px-[clamp(1rem,0.2rem+5vw,5.3rem)] pt-16 pb-10 lg:pt-[6.1rem] lg:pb-[2.4rem]" data-footer-inner>
     <div class="flex max-w-[66%] flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
       <a href="/" aria-label="Azure Contracting — home" class="self-start lg:self-auto">
         <Logo class="text-[2.25rem]" />
       </a>
       <nav aria-label="Footer">
         <ul class="text-p1 grid grid-cols-2 gap-x-10 gap-y-4 sm:flex sm:flex-wrap">
-          {footerNav.map((link) => <li><a href={link.href} class="hover:text-neon transition-colors">{link.label}</a></li>)}
+          {footerNav.map((link) => <li data-footer-item><a href={link.href} class="hover:text-neon transition-colors">{link.label}</a></li>)}
         </ul>
       </nav>
     </div>
@@ -29,8 +33,12 @@ const year = new Date().getFullYear();
     </div>
   </div>
 </footer>
+</div>
 
 <style>
+  .footer-slot {
+    overflow: clip;
+  }
   .footer {
     background:
       radial-gradient(38% 110% at 100% 70%, #dfe83d 0%, rgb(199 217 46 / 0.75) 22%, rgb(199 217 46 / 0) 70%),
@@ -47,3 +55,29 @@ const year = new Date().getFullYear();
     border-radius: 3.75rem;
   }
 </style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const slot = document.querySelector<HTMLElement>('[data-footer-slot]');
+  const footer = slot?.querySelector<HTMLElement>('[data-footer]');
+  if (slot && footer) {
+    gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+      const items = footer.querySelectorAll('[data-footer-item]');
+      const outline = footer.querySelector('[data-footer-outline]');
+      gsap
+        .timeline({
+          defaults: { ease: 'power2.out' },
+          // From the footer's slot entering the screen to the very bottom of the page
+          scrollTrigger: { trigger: slot, start: 'top bottom', end: 'bottom bottom', scrub: 0.8 },
+        })
+        // The whole footer (navy panel + content) rises from below its slot
+        .fromTo(footer, { yPercent: 70 }, { yPercent: 0, duration: 1, ease: 'power1.out' }, 0)
+        .fromTo(items, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, stagger: 0.07 }, 0.3)
+        .fromTo(outline, { xPercent: 30, autoAlpha: 0 }, { xPercent: 0, autoAlpha: 1, duration: 1 }, 0.1);
+    });
+  }
+</script>

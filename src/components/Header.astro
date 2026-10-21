@@ -2,7 +2,6 @@
 import { Image } from 'astro:assets';
 import { menuGroups, social } from '@/data/site';
 import Logo from './Logo.astro';
-import Button from './Button.astro';
 import menuImage from '@/assets/menu/blueprints.png'; // cropped 1× from the open-state design — TODO: Figma export
 
 interface Props {
@@ -23,6 +22,8 @@ const isCurrent = (href: string) => path.startsWith(href);
 // In dock mode the foreground colour is driven by CSS (white over the hero → navy on the solid bar)
 const tone = dock ? 'hdr-fg' : overlay ? 'text-white' : 'text-navy';
 const dockLogoSize = 'text-[clamp(4.5rem,8.2vw,7.75rem)]';
+// "ENQUIRE" text link (right of the bar): uppercase, tracked out, underline slides in on hover / focus
+const enquire = `link-underline text-p1 justify-self-end rounded-sm px-1 py-2 ${tone}`;
 
 const socialIcons: Record<string, string> = {
   LinkedIn:
@@ -70,9 +71,7 @@ const socialIcons: Record<string, string> = {
       )
     }
 
-    <div class="justify-self-end" data-hdr-control>
-      <Button href="/contact" track="cta_click" data-cta-location="header" compact>Contact Us</Button>
-    </div>
+    <a href="/contact" class={enquire} data-track="cta_click" data-cta-location="header" data-hdr-control>Enquire</a>
 
     <!-- Docking logo: rendered at hero size and scaled down to dock, so it stays crisp at its largest -->
     {
@@ -94,6 +93,8 @@ const socialIcons: Record<string, string> = {
   Tablet: two columns, no image. Mobile: stacked, scrolls within the viewport.
 -->
 <dialog id="site-menu" class="site-menu m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto bg-transparent p-0" aria-label="Site menu">
+  <!-- Dims the page below the header bar while the menu is open -->
+  <div class="menu-dim" aria-hidden="true"></div>
   <div class="flex min-h-full flex-col" data-menu-dismiss>
     <div class="menu-bar hdr-row grid h-(--hdr-h) shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4" data-menu-dismiss>
       <button
@@ -102,15 +103,16 @@ const socialIcons: Record<string, string> = {
         aria-label="Close menu"
         data-menu-close
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-          <path d="M5 5l14 14M19 5 5 19"></path>
+        <!-- Same three lines as the header's hamburger; they fold into an ✕ as the menu opens -->
+        <svg class="menu-burger" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M3 6h18"></path>
+          <path d="M3 12h18"></path>
+          <path d="M3 18h18"></path>
         </svg>
         <span class="text-p1 max-md:hidden" aria-hidden="true">Menu</span>
       </button>
       <span></span>
-      <div class="justify-self-end">
-        <Button href="/contact" track="cta_click" data-cta-location="menu" compact>Contact Us</Button>
-      </div>
+      <a href="/contact" class={enquire} data-track="cta_click" data-cta-location="menu">Enquire</a>
     </div>
 
     <div class="menu-panel mx-[clamp(0.75rem,3.5vw,3.3rem)] mb-4 rounded-[1.25rem] bg-white p-3 shadow-[0_24px_60px_-24px_rgb(14_31_61/0.35)] md:-mt-1 md:p-[1.875rem]">
@@ -202,7 +204,26 @@ const cls =
     transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* Header controls row. Desktop: "☰ Menu" + Contact Us sit in a compact centred bar (the middle half of the
+  /* Menu open / close motion (modelled on osmo.supply): one easing — slow start, fast middle, long soft landing */
+  :root {
+    --menu-ease: cubic-bezier(0.625, 0.05, 0, 1);
+    --menu-dur: 0.6s;
+    --menu-dur-long: 0.9s;
+  }
+  /* The page behind the open menu moves back slightly (the script sets the origin to the middle of the screen) */
+  #main {
+    transition: transform var(--menu-dur) var(--menu-ease);
+  }
+  :root.menu-open #main {
+    transform: translateY(-2rem) scale(0.975);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :root.menu-open #main {
+      transform: none;
+    }
+  }
+
+  /* Header controls row. Desktop: "☰ Menu" + ENQUIRE sit in a compact centred bar (the middle half of the
      page); opening the menu widens the dialog's copy of the bar to the full page width, closing shrinks it back.
      Phones / tablets: always full width (not enough room for the compact bar). */
   .hdr-row {
@@ -212,11 +233,13 @@ const cls =
     .hdr-row {
       padding-inline: 25%;
     }
+    /* Closing: the bar narrows last, once the panel has folded away */
     .menu-bar {
-      transition: padding-inline 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+      transition: padding-inline var(--menu-dur) var(--menu-ease) 0.2s;
     }
     .site-menu.is-open .menu-bar {
       padding-inline: var(--edge);
+      transition-delay: 0s;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -237,7 +260,17 @@ const cls =
     transition:
       background-color 0.35s ease,
       box-shadow 0.35s ease,
-      backdrop-filter 0.35s ease;
+      backdrop-filter 0.35s ease,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* Scrolling down hides the bar (slides up out of view); scrolling up brings it back (script below) */
+  :root.hdr-hidden .site-header[data-sticky] {
+    transform: translateY(-100%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .site-header[data-sticky] {
+      transition: none;
+    }
   }
   :root.hdr-solid .site-header[data-sticky] {
     background-color: rgb(244 249 253 / 0.85);
@@ -293,69 +326,132 @@ const cls =
     outline-offset: -2px;
   }
 
-  /* Open / close animation */
-  .menu-panel {
+  /* "ENQUIRE": an underline grows from the left on hover / focus */
+  /* Open / close animation (osmo.supply style). Opening: page dims and the bar widens (0.6s) → after 0.3s the
+     panel unfolds downward out of the bar (0.9s) → its columns rise into place one after another (0.3 / 0.375 /
+     0.45s). Closing reverses everything at 0.6s with no delays; the bar narrows last (see .menu-bar above). */
+  .menu-dim {
+    position: fixed;
+    inset: var(--hdr-h) 0 0;
+    z-index: -1;
+    background: rgb(14 31 61 / 0.3);
     opacity: 0;
-    transform: translateY(-0.75rem) scale(0.985);
-    transform-origin: top center;
+    transition: opacity var(--menu-dur) var(--menu-ease);
+  }
+  .site-menu.is-open .menu-dim {
+    opacity: 1;
+  }
+
+  /* The panel is revealed from its top edge down (clip), while settling up from just above.
+     Open state clips outside the box so the drop shadow isn't cut off. */
+  .menu-panel {
+    clip-path: inset(0 0 100% 0 round 1.25rem);
+    transform: translateY(-0.625rem);
     transition:
-      opacity 0.3s ease,
-      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      clip-path var(--menu-dur) var(--menu-ease),
+      transform var(--menu-dur) var(--menu-ease);
   }
   .site-menu.is-open .menu-panel {
-    opacity: 1;
+    clip-path: inset(-3rem -3rem -4rem -3rem round 1.25rem);
     transform: none;
+    transition-duration: var(--menu-dur-long);
+    transition-delay: 0.3s;
   }
+
   .menu-item {
     opacity: 0;
-    transform: translateY(0.75rem);
+    transform: translateY(2rem);
     transition:
-      opacity 0.4s ease,
-      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      transform var(--menu-dur) var(--menu-ease),
+      opacity 0.3s ease;
   }
   .site-menu.is-open .menu-item {
     opacity: 1;
     transform: none;
+    transition:
+      transform var(--menu-dur-long) var(--menu-ease),
+      opacity 0.6s ease;
   }
-  .site-menu.is-open .menu-item:nth-child(1) { transition-delay: 0.06s; }
-  .site-menu.is-open .menu-item:nth-child(2) { transition-delay: 0.12s; }
-  .site-menu.is-open .menu-item:nth-child(3) { transition-delay: 0.18s; }
+  .site-menu.is-open .menu-item:nth-child(1) { transition-delay: 0.3s; }
+  .site-menu.is-open .menu-item:nth-child(2) { transition-delay: 0.375s; }
+  .site-menu.is-open .menu-item:nth-child(3) { transition-delay: 0.45s; }
+
+  /* Hamburger → ✕: outer lines turn ±45° into the middle, the middle line shrinks away */
+  .menu-burger path {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform var(--menu-dur) var(--menu-ease),
+      opacity 0.2s ease;
+  }
+  .site-menu.is-open .menu-burger path:nth-child(1) {
+    transform: translateY(6px) rotate(45deg) scaleX(0.85);
+  }
+  .site-menu.is-open .menu-burger path:nth-child(2) {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  .site-menu.is-open .menu-burger path:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg) scaleX(0.85);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu-dim,
+    .menu-panel,
+    .menu-item,
+    .menu-burger path {
+      transition: none !important;
+    }
+  }
 </style>
 
 <script>
   // <dialog> + showModal() gives Esc handling, focus trapping and an inert page behind the menu.
   const menu = document.getElementById('site-menu') as HTMLDialogElement | null;
   const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
-  // The dialog repeats the header controls ("✕ Menu" + Contact Us) in the same spot, so hide the real ones
+  // The dialog repeats the header controls ("✕ Menu" + ENQUIRE) in the same spot, so hide the real ones
   // underneath. The logo and the solid bar stay visible behind the transparent dialog.
   const controls = document.querySelectorAll<HTMLElement>('[data-hdr-control]');
   const setControlsHidden = (hidden: boolean) => controls.forEach((el) => (el.style.visibility = hidden ? 'hidden' : ''));
   const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Freeze page scrolling while the menu is open. The scrollbar disappears, so the page gets padding of the same
+  // width (no sideways jump), and the fixed dim / background layers then cover the full width (no blank strip).
   function lockScroll(lock: boolean) {
     const root = document.documentElement;
     if (lock) {
-      // root.style.paddingRight = `${window.innerWidth - root.clientWidth}px`;
+      const bar = window.innerWidth - root.clientWidth;
       root.style.overflow = 'hidden';
+      if (bar > 0) root.style.paddingRight = `${bar}px`;
     } else {
       root.style.overflow = '';
-      // root.style.paddingRight = '';
+      root.style.paddingRight = '';
     }
   }
 
+  const page = document.getElementById('main');
+  let closeTimer = 0;
+
   function open() {
     if (!menu || menu.open) return;
+    clearTimeout(closeTimer);
     menu.showModal();
     lockScroll(true);
     setControlsHidden(true);
     openBtn?.setAttribute('aria-expanded', 'true');
+    // The page behind moves back around the middle of the screen, wherever it is scrolled to
+    if (page) page.style.transformOrigin = `50% ${window.scrollY - page.offsetTop + window.innerHeight / 2}px`;
     void menu.offsetWidth; // commit the closed styles first so the open transitions always run
-    requestAnimationFrame(() => menu.classList.add('is-open'));
+    requestAnimationFrame(() => {
+      menu.classList.add('is-open');
+      document.documentElement.classList.add('menu-open');
+    });
   }
 
   function close() {
     if (!menu || !menu.open) return;
     menu.classList.remove('is-open');
+    document.documentElement.classList.remove('menu-open');
     const finish = () => {
       menu.close();
       lockScroll(false);
@@ -364,7 +460,7 @@ const cls =
       openBtn?.focus();
     };
     if (reduceMotion()) finish();
-    else setTimeout(finish, 400); // lets the bar shrink back to its compact width
+    else closeTimer = window.setTimeout(finish, 800); // panel folds away (0.6s), then the bar narrows (0.2s later)
   }
 
   openBtn?.addEventListener('click', open);
@@ -449,6 +545,42 @@ const cls =
       measure();
       queue();
     });
+  }
+</script>
+
+<script>
+  // Hide on scroll down, show on scroll up. Only once the bar is past its starting area (homepage: once the hero
+  // has gone and the bar is solid) and never while the menu is open or something in the bar has keyboard focus.
+  const header = document.querySelector<HTMLElement>('.site-header[data-sticky]');
+  if (header) {
+    const root = document.documentElement;
+    const isDock = header.hasAttribute('data-dock');
+    const menuEl = document.getElementById('site-menu') as HTMLDialogElement | null;
+    let lastY = window.scrollY;
+    let queued = false;
+
+    const update = () => {
+      queued = false;
+      const y = Math.max(0, window.scrollY);
+      const dy = y - lastY;
+      if (Math.abs(dy) < 6) return; // ignore tiny jitters
+      const past = isDock ? root.classList.contains('hdr-solid') : y > header.offsetHeight + 40;
+      const keep = menuEl?.open || !!header.querySelector(':focus-visible');
+      root.classList.toggle('hdr-hidden', dy > 0 && past && !keep);
+      lastY = y;
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    // Tabbing into the bar always brings it back
+    header.addEventListener('focusin', () => root.classList.remove('hdr-hidden'));
   }
 </script>
 

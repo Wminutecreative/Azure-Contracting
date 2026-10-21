@@ -13,13 +13,20 @@ import TeamCard from '@/components/TeamCard.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getTeam, getFaqs } from '@/lib/content';
+import { ogImageFor } from '@/lib/og';
 // TODO: real photos from Figma / the client
 import about_hero_section from '@/assets/about/about-hero-section.png';
 import about_purpose_mission_vision_section from '@/assets/about/about-purpose-mission-vision-section.png';
 import about_building from '@/assets/about/about-building.png';
+// TODO: export the four "Our Process" card photos from Figma (Component 25) — service photos stand in for now
+import process_tendering from '@/assets/process/tendering-process.png';
+import process_management from '@/assets/process/project-management.png';
+import process_construction from '@/assets/process/fitout-construction.png';
+import process_handover from '@/assets/process/handover-aftercare.png';
 
 const team = await getTeam();
 const faqs = await getFaqs('about');
+const ogImage = await ogImageFor(about_building);
 
 const facts = [
   'Founded in 2012 by two chartered surveyors from Irish contractors.',
@@ -43,6 +50,34 @@ const pillars = [
   },
 ];
 
+// "Our Process" cards (design: Component 25). TODO: client to confirm the bullet wording (small in the design export)
+const steps = [
+  {
+    title: 'Tendering Process',
+    items: ['Documentation analysis', 'Tendering process', 'Value engineering'],
+    image: process_tendering,
+    alt: 'Hand annotating drawings in a project notebook',
+  },
+  {
+    title: 'Project Management',
+    items: ['PSCS', 'Coordination', 'Procurement'],
+    image: process_management,
+    alt: 'Site team in hi-vis reviewing a fit-out',
+  },
+  {
+    title: 'Fitout Construction',
+    items: ['Preparation', 'Build', 'Updates'],
+    image: process_construction,
+    alt: 'Engineers inspecting ceiling services on site',
+  },
+  {
+    title: 'Handover & Aftercare',
+    items: ['Quality', 'Sign-off', 'Support'],
+    image: process_handover,
+    alt: 'Finished office interior with a plant and wall-mounted screen',
+  },
+];
+
 const schema = [
   {
     '@context': 'https://schema.org',
@@ -62,8 +97,9 @@ const schema = [
 ---
 
 <BaseLayout
-  title="About Us"
-  description="Azure Contracting was founded in 2012 by two chartered surveyors. Based in Kildare, we are main contractor and PSCS for fit-out, refurbishment and construction projects across Ireland."
+  title="Azure Contracting | Trusted Main Contractor Ireland"
+  description="Azure Contracting has delivered fit-out, refurbishment and construction across Ireland since 2012, acting as main contractor and PSCS on every project."
+  ogImage={ogImage}
   schema={schema}
 >
   <!-- 1. Hero -->
@@ -146,21 +182,57 @@ const schema = [
     </div>
   </section>
 
-  <!-- 4. Building photo. With scroll animation: the stage pins and the photo grows from its rounded card to the
-       full screen, then the page scrolls on. Without it (phones, reduced motion, no JS): a normal rounded image. -->
-  <section class="img-reveal pt-[clamp(4rem,2rem+6vw,8rem)]" data-img-reveal>
-    <div class="img-stage" data-img-stage>
-      <div class="img-frame container-site" data-img-frame>
-        <Image
-          src={about_building}
-          alt="Modern building interior with a double-height concrete and glass atrium"
-          widths={[960, 1440, 1920, 2560]}
-          sizes="100vw"
-          loading="lazy"
-          class="img-photo aspect-[16/7] w-full rounded-[1.25rem] object-cover"
-          width={1959}
-        />
+  <!-- 4. Our Process (design: Component 9 → 25; motion modelled on stanzza.design/awards). With scroll animation the
+       stage pins: the building photo grows to full screen and "OUR PROCESS" rises in → the four process cards grow
+       in from the middle of the screen into a row → the row slides sideways, each card building as it arrives
+       (number, title letter by letter, photo wiping open, bullets). Without it (phones, reduced motion, no JS):
+       the photo with the title, and the cards in a grid below. -->
+  <section class="process pt-[clamp(4rem,2rem+6vw,8rem)]" data-process data-no-text-anim aria-labelledby="process-heading">
+    <div class="process-stage" data-process-stage>
+      <div class="process-frame container-site" data-process-frame>
+        <div class="process-media" data-process-media>
+          <Image
+            src={about_building}
+            alt="Modern building interior with a double-height concrete and glass atrium"
+            widths={[960, 1440, 1920, 2560]}
+            sizes="100vw"
+            loading="lazy"
+            class="process-photo"
+            width={1959}
+          />
+          <h2 id="process-heading" class="process-title text-h-caps" data-process-title>Our Process</h2>
+        </div>
       </div>
+
+      <ol class="process-track container-site" data-process-track>
+        {
+          steps.map((step, i) => (
+            <li class="process-card">
+              <div>
+              <span class="process-num" aria-hidden="true" data-pc-num>
+                {i + 1}
+              </span>
+              <h3 class="process-card-title" data-pc-title>
+                {step.title}
+              </h3>
+
+              </div>
+                            
+              <div class="process-img" data-pc-img>
+                <Image src={step.image} alt={step.alt} widths={[400, 640, 960]} sizes="(min-width: 768px) 28rem, 90vw" loading="lazy" />
+              </div>
+              {/* One comma-separated line; each item is a span so the reveal can bring them in one after another */}
+              <p class="process-list" data-pc-list>
+                {step.items.map((item, i) => (
+                  <>
+                    <span>{i < step.items.length - 1 ? `${item},` : item}</span>{' '}
+                  </>
+                ))}
+              </p>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
 
@@ -187,92 +259,411 @@ const schema = [
 <script>
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
 
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger, SplitText);
 
-  // Fact cards: tied to the scroll. On desktop the three cards rise in one after another as the row scrolls
-  // up the screen (and go back down when scrolling up); on phones, where they stack, each card follows its own
-  // position. Reduced motion: shown as is (the CSS only hides them under .motion).
+  // Fact cards (desktop / tablet):
+  //   card 1 rises in when the row scrolls into view. When the row reaches its hold point (bottom of the row at
+  //   88% of the screen) the page FREEZES there (overflow hidden — the only way to also stop a trackpad gesture
+  //   already in flight) until all three cards are shown: the next scroll gesture (wheel, trackpad, touch swipe,
+  //   ↓ / PgDn / Space) reveals card 2, the one after that card 3, then the page unfreezes and scrolls on.
+  //   One gesture = one card: a trackpad's momentum or a fast wheel spin counts once (a new gesture needs a 250ms
+  //   pause in input; cards are at least 0.4s apart). Scrolling up unfreezes straight away; coming back down
+  //   freezes again at the hold point. Plays once. While frozen the page is padded by the scrollbar's width, so
+  //   nothing shifts sideways.
+  // Phones (stacked): each card as it comes into view. Reduced motion: shown as is (CSS only hides them under .motion).
   {
     const facts = document.querySelector<HTMLElement>('[data-facts]');
     const cards = facts ? gsap.utils.toArray<HTMLElement>('.fact-card', facts) : [];
     if (facts && cards.length) {
       const from = { autoAlpha: 0, y: 64 };
-      const to = { autoAlpha: 1, y: 0, ease: 'power2.out' };
+      const to = { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out' };
       const mm = gsap.matchMedia();
       mm.add('(min-width: 48rem) and (prefers-reduced-motion: no-preference)', () => {
-        gsap
-          .timeline({ scrollTrigger: { trigger: facts, start: 'top bottom', end: 'top 45%', scrub: 0.6 } })
-          .fromTo(cards, from, { ...to, duration: 1, stagger: 0.6 });
+        const html = document.documentElement;
+        gsap.set(cards, from);
+        let shown = 0;
+        let locked = false;
+        let done = false;
+        let lastReveal = 0;
+        let lastInput = 0;
+        let touchY = 0;
+
+        // Scroll position at which the row's bottom sits at 88% of the screen
+        const holdY = () => {
+          const r = facts.getBoundingClientRect();
+          return Math.max(0, Math.round(r.bottom + window.scrollY - window.innerHeight * 0.88));
+        };
+        let lockY = 0;
+        const lock = () => {
+          if (locked) return;
+          locked = true;
+          lockY = holdY();
+          // Stop scrolling first (this also cancels the browser's own smooth-scroll animation of a fast flick),
+          // then put the page back exactly at the hold point. The scrollbar disappears: pad the page by its width
+          // so nothing shifts sideways.
+          const bar = window.innerWidth - html.clientWidth;
+          html.style.overflow = 'hidden';
+          if (bar > 0) html.style.paddingRight = `${bar}px`;
+          window.scrollTo({ top: lockY, behavior: 'instant' });
+        };
+        const unlock = () => {
+          if (!locked) return;
+          locked = false;
+          html.style.overflow = '';
+          html.style.paddingRight = '';
+        };
+
+        const reveal = () => {
+          if (shown >= cards.length) return;
+          gsap.to(cards[shown], to);
+          shown += 1;
+          lastReveal = performance.now();
+          if (shown >= cards.length) {
+            done = true;
+            detach();
+            // Let the gesture that revealed card 3 die down before the page can move again
+            setTimeout(unlock, 600);
+          }
+        };
+        // A new gesture (not the tail of the last one) reveals the next card
+        const step = () => {
+          const now = performance.now();
+          const fresh = now - lastInput > 250;
+          lastInput = now;
+          if (fresh && now - lastReveal > 400) reveal();
+        };
+
+        const onScroll = () => {
+          if (done) return;
+          if (locked) {
+            // A leftover scroll animation moved the page anyway — put it back
+            if (Math.abs(window.scrollY - lockY) > 1) window.scrollTo({ top: lockY, behavior: 'instant' });
+            return;
+          }
+          if (window.scrollY >= holdY() - 1) {
+            // A fast scroll can reach (or pass) the hold point before card 1's trigger has fired: show it now
+            if (shown === 0) reveal();
+            lock();
+          }
+        };
+        const onWheel = (e: WheelEvent) => {
+          if (e.deltaY < 0) return unlock(); // going up is always allowed
+          if (e.deltaY === 0) return;
+          if (!locked) {
+            lastInput = performance.now(); // the gesture that brings the row in can't also reveal a card
+            return;
+          }
+          e.preventDefault();
+          step();
+        };
+        const onTouchStart = (e: TouchEvent) => {
+          touchY = e.touches[0].clientY;
+          lastInput = 0; // each swipe is its own gesture
+        };
+        const onTouchMove = (e: TouchEvent) => {
+          if (!locked) return;
+          const dy = touchY - e.touches[0].clientY; // > 0: swiping up = scrolling down
+          if (dy < -30) return unlock();
+          e.preventDefault();
+          if (dy > 30) {
+            touchY = e.touches[0].clientY;
+            step();
+          }
+        };
+        const onKey = (e: KeyboardEvent) => {
+          if (!locked) return;
+          const t = e.target as HTMLElement | null;
+          if (t?.closest('input, textarea, select, [contenteditable]')) return;
+          if (['ArrowUp', 'PageUp', 'Home'].includes(e.key)) return unlock();
+          if (!['ArrowDown', 'PageDown', ' ', 'Spacebar'].includes(e.key)) return;
+          e.preventDefault();
+          lastInput = 0; // every key press is its own gesture
+          step();
+        };
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('wheel', onWheel, { passive: false });
+        window.addEventListener('touchstart', onTouchStart, { passive: true });
+        window.addEventListener('touchmove', onTouchMove, { passive: false });
+        window.addEventListener('keydown', onKey);
+        function detach() {
+          window.removeEventListener('scroll', onScroll);
+          window.removeEventListener('wheel', onWheel);
+          window.removeEventListener('touchstart', onTouchStart);
+          window.removeEventListener('touchmove', onTouchMove);
+          window.removeEventListener('keydown', onKey);
+        }
+
+        // Card 1: when the row scrolls into view (or straight away if it already is); freeze if already at the
+        // hold point
+        ScrollTrigger.create({
+          trigger: facts,
+          start: 'top 92%',
+          once: true,
+          onEnter: () => {
+            if (shown === 0) reveal(); // (a fast scroll may already have shown it)
+            onScroll();
+          },
+        });
+
+        return () => {
+          detach();
+          unlock();
+        };
       });
       mm.add('(max-width: 47.99rem) and (prefers-reduced-motion: no-preference)', () => {
         cards.forEach((card) =>
-          gsap.fromTo(card, from, {
-            ...to,
-            scrollTrigger: { trigger: card, start: 'top bottom', end: 'top 70%', scrub: 0.6 },
-          }),
+          gsap.fromTo(card, from, { ...to, scrollTrigger: { trigger: card, start: 'top 92%', once: true } }),
         );
       });
     }
   }
 
-  const section = document.querySelector<HTMLElement>('[data-img-reveal]');
-  const stage = section?.querySelector<HTMLElement>('[data-img-stage]');
-  const frame = section?.querySelector<HTMLElement>('[data-img-frame]');
-  const photo = frame?.querySelector<HTMLElement>('img');
+  // Our Process — one pinned, scroll-scrubbed timeline (timeline units), as on stanzza.design:
+  //   0 → 1  photo grows from its rounded card to full screen; "OUR PROCESS" rises in
+  //   1 → 2  the first card rises in from the bottom-right corner (full size, drifting slightly left)
+  //   2 → 5  the row slides left, bringing the cards in from the right one after another, until the last card
+  //          meets the right edge; the title fades as the cards pass over it
+  //   Each card builds as it comes into view: number → title letters → photo wipes open → bullets.
+  // Rebuilt on resize (positions depend on the screen size).
+  {
+    const section = document.querySelector<HTMLElement>('[data-process]');
+    const stage = section?.querySelector<HTMLElement>('[data-process-stage]');
+    const frame = section?.querySelector<HTMLElement>('[data-process-frame]');
+    const media = section?.querySelector<HTMLElement>('[data-process-media]');
+    const title = section?.querySelector<HTMLElement>('[data-process-title]');
+    const track = section?.querySelector<HTMLElement>('[data-process-track]');
 
-  if (section && stage && frame && photo) {
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 48rem) and (prefers-reduced-motion: no-preference)', () => {
-      section.classList.add('is-scrub');
-
-      // Start: the image at its card size (content width, 16:7, rounded) centred in a full-screen stage.
-      // End: the image fills the whole stage (full width and height, square corners).
-      const startW = () => Math.min(stage.clientWidth - 2 * gutter(), 1312);
+    if (section && stage && frame && media && title && track) {
+      const cards = gsap.utils.toArray<HTMLElement>('.process-card', track);
       const gutter = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gutter')) || 16;
+      const mm = gsap.matchMedia();
 
-      gsap.set(frame, { padding: 0, maxWidth: 'none' });
-      const tl = gsap.timeline({
-        defaults: { ease: 'none' },
-        scrollTrigger: {
-          trigger: stage,
-          start: 'top top',
-          end: '+=120%',
-          pin: true,
-          scrub: 0.6,
-          invalidateOnRefresh: true,
-        },
+      mm.add('(min-width: 48rem) and (prefers-reduced-motion: no-preference)', () => {
+        section.classList.add('is-scrub');
+        let ctx: gsap.Context | undefined;
+
+        const build = () => {
+          ctx?.revert();
+          ctx = gsap.context(() => {
+            const vw = stage.clientWidth;
+            const vh = stage.clientHeight;
+            const g = gutter();
+            const startW = Math.min(vw - 2 * g, 1312);
+            const trackW = track.scrollWidth;
+            const cardW = cards[0]?.offsetWidth ?? 0;
+            const x1 = vw - g - cardW; // card 1 settles against the right gutter; the gap keeps card 2 off-screen
+            const xIn = x1 + vw * 0.06; // it rises from just right of there, drifting slightly left
+            const x2 = Math.min(x1, vw - g - trackW); // end: last card at the right gutter
+            const travel = x1 - x2;
+            const slide = travel > 0 ? 3 : 0;
+            const slideAt = 2.35; // the row only starts moving once card 1 is fully in and built
+
+            gsap.set(frame, { padding: 0, maxWidth: 'none' });
+            const tl = gsap.timeline({
+              defaults: { ease: 'none' },
+              scrollTrigger: {
+                trigger: stage,
+                start: 'top top',
+                end: `+=${Math.round(vh * 2.4 + travel * 1.3)}`,
+                pin: true,
+                scrub: 0.8,
+              },
+            });
+
+            // 0 → 1: photo to full screen, title in
+            tl.fromTo(frame, { width: startW, height: (startW * 7) / 16 }, { width: vw, height: vh, duration: 1 }, 0)
+              .fromTo(media, { borderRadius: 20 }, { borderRadius: 0, duration: 1 }, 0)
+              .fromTo(title, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.45);
+
+            // 1 → 2: card 1 rises in from below the bottom-right corner
+            tl.fromTo(track, { x: xIn, y: vh }, { x: x1, y: 0, duration: 1, ease: 'power2.out' }, 1);
+
+            // 2.35 → 5.35: the row slides left, bringing the next cards in from the right one after another;
+            // the title fades as the cards pass over the middle
+            if (slide) tl.to(track, { x: x2, duration: slide }, slideAt);
+            tl.to(title, { autoAlpha: 0, y: -20, duration: 0.8, ease: 'power1.in' }, slide ? slideAt + 0.2 : 1.6);
+
+            // Each card builds as it comes into view: card 1 while it rises, the rest once three quarters of
+            // the card is on screen during the slide
+            cards.forEach((card) => {
+              const left = card.offsetLeft;
+              let at = 1.3;
+              const enter = vw - cardW * 0.75;
+              if (slide && left + x1 > enter) at = slideAt + (slide * (left + x1 - enter)) / travel;
+
+              const num = card.querySelector('[data-pc-num]');
+              const head = card.querySelector('[data-pc-title]');
+              const img = card.querySelector('[data-pc-img]');
+              const items = card.querySelectorAll('[data-pc-list] span');
+              const chars = head ? new SplitText(head, { type: 'chars' }).chars : [];
+
+              tl.fromTo(num, { autoAlpha: 0, yPercent: 40 }, { autoAlpha: 1, yPercent: 0, duration: 0.35, ease: 'power2.out' }, at)
+                .fromTo(chars, { autoAlpha: 0, xPercent: -60 }, { autoAlpha: 1, xPercent: 0, duration: 0.25, stagger: { amount: 0.3 }, ease: 'power2.out' }, at)
+                .fromTo(img, { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.5, ease: 'power2.inOut' }, at + 0.05)
+                .fromTo(items, { autoAlpha: 0, x: -14 }, { autoAlpha: 1, x: 0, duration: 0.3, stagger: 0.08, ease: 'power2.out' }, at + 0.2);
+            });
+
+            tl.to({}, { duration: 0.3 }); // short hold on the last card before the page scrolls on
+          }, section);
+
+          // Pins further down the page (the FAQ) must be measured after this one
+          ScrollTrigger.sort();
+          ScrollTrigger.refresh();
+        };
+
+        build();
+        // Rebuild when the width changes (not on phone address-bar height jitter)
+        let lastW = window.innerWidth;
+        let timer = 0;
+        const onResize = () => {
+          if (window.innerWidth === lastW) return;
+          lastW = window.innerWidth;
+          clearTimeout(timer);
+          timer = window.setTimeout(build, 200);
+        };
+        window.addEventListener('resize', onResize);
+
+        return () => {
+          window.removeEventListener('resize', onResize);
+          clearTimeout(timer);
+          ctx?.revert();
+          section.classList.remove('is-scrub');
+        };
       });
-      tl.fromTo(
-        frame,
-        { width: () => startW(), height: () => (startW() * 7) / 16 },
-        { width: () => stage.clientWidth, height: () => stage.clientHeight, duration: 1 },
-      ).fromTo(photo, { borderRadius: 20 }, { borderRadius: 0, duration: 1 }, 0);
-
-      // Pins further down the page (the FAQ) must be measured after this one
-      ScrollTrigger.sort();
-      ScrollTrigger.refresh();
-
-      return () => {
-        section.classList.remove('is-scrub');
-        gsap.set([frame, photo], { clearProps: 'all' });
-      };
-    });
+    }
   }
 </script>
 
 <style>
-  /* Image reveal (class added by the script): full-screen stage, image centred and filling its frame */
-  .img-reveal.is-scrub .img-stage {
+  /* Our Process — static layout (phones, reduced motion, no JS): rounded photo with the title on it, cards below */
+  .process-media {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+  }
+  .process-photo {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+  }
+  .process-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(14 31 61 / 0.25);
+    pointer-events: none;
+  }
+  .process-title {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    color: var(--color-white);
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+  .process-track {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  @media (min-width: 40rem) {
+    .process-track {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .process-card {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    border-radius: 1.25rem;
+    background: var(--color-white);
+    padding: clamp(1.25rem, 2rem + 1vw, 5rem);
+  }
+  .process-num {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 1.6rem + 1.2vw, 4rem);
+    font-weight: 500;
+    line-height: 1;
+    color: var(--color-neon);
+  }
+  .process-card-title {
+    
+    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 2.25rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-text-dark);
+  }
+  .process-img {
+    width: 100%;
+    aspect-ratio: 4 / 3.3;
+    overflow: hidden;
+    border-radius: 0.875rem;
+  }
+  .process-img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .process-list {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    color: var(--color-text-medium);
+  }
+  /* inline-block so each item can slide in during the reveal */
+  .process-list span {
+    display: inline-block;
+  }
+
+  /* Scroll animation (class added by the script): full-screen pinned stage; the photo fills its frame; the cards
+     sit in one row laid over the photo, positioned by the script */
+  .process.is-scrub .process-stage {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100svh;
     overflow: hidden;
   }
-  .img-reveal.is-scrub .img-photo {
+  .process.is-scrub .process-media,
+  .process.is-scrub .process-photo {
     width: 100%;
     height: 100%;
+    aspect-ratio: auto;
+  }
+  /* Cards are centred vertically with equal space above and below (--card-gap each). 6rem clears the solid
+     header bar (5.75rem) if it slides back in while scrolling up. Fixed values, not --hdr-h (which changes while
+     scrolling and would throw off the sizes the script measures). The gap between cards is a little narrower
+     than the side gutter, so while card 1 sits at the right edge only a sliver of card 2 shows (as on stanzza) */
+  .process.is-scrub {
+    --card-gap: 6rem;
+    --card-h: calc(100svh - 2 * var(--card-gap));
+  }
+  .process.is-scrub .process-track {
+    position: absolute;
+    top: var(--card-gap);
+    left: 0;
+    z-index: 2;
+    display: flex;
+    gap: max(0.5rem, calc(var(--gutter) - 1.5rem));
+    width: max-content;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  .process.is-scrub .process-card {
+    flex: none;
+    height: var(--card-h);
+    width: min(calc(var(--card-h) * 0.76), 44vw);
+  }
+  .process.is-scrub .process-img {
+    flex: 1 1 auto;
+    min-height: 0;
     aspect-ratio: auto;
   }
 

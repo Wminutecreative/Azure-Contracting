@@ -24,8 +24,7 @@ const images: Record<SectorId, ImageMetadata> = { offices, hospitality, retail, 
   {
     sectors.map((sector) => (
       <li class="relative hover:z-10 focus-within:z-10" data-reveal>
-        <a
-          href="/projects"
+        <div
           class="sector-card group hover:bg-neon focus-visible:bg-neon relative flex items-center justify-between gap-6 rounded-[1.375rem] bg-white px-6 py-6 shadow-[0_1px_0_rgb(14_31_61/0.04)] transition-colors duration-300 md:px-9 md:py-7"
         >
           <div class="flex flex-col gap-2">
@@ -41,16 +40,19 @@ const images: Record<SectorId, ImageMetadata> = { offices, hospitality, retail, 
             <PlayIcon class="sector-arrow translate-x-px" size={45} />
           </span>
 
+          {/* Drawn up to 428px wide (22vw) — `sizes` must say so, or browsers pick a small file and it blurs */}
           <Image
             src={images[sector.id]}
             alt=""
-            widths={[300, 600]}
-            sizes="300px"
+            widths={[480, 720, 960, 1280]}
+            sizes="(min-width: 1946px) 428px, (min-width: 1091px) 22vw, 240px"
+            quality={85}
             loading="lazy"
+            decoding="async"
             aria-hidden="true"
             class="sector-preview"
           />
-        </a>
+        </div>
       </li>
     ))
   }
@@ -63,29 +65,52 @@ const images: Record<SectorId, ImageMetadata> = { offices, hospitality, retail, 
     transform: translateX(2px) scale(1.9);
   }
 
-  /* Photo: fixed position over the card (centred at ~60% across), fades in — no movement */
+  /* The cards are 18px apart: stretch each card's hover area over half the gap above and below, so moving the
+     mouse from one card to the next never passes through "no card hovered" (which made the photo flicker) */
+  .sector-card::after {
+    content: '';
+    position: absolute;
+    inset: -0.5625rem 0;
+  }
+
+  /* Photo: fixed position over the card (centred at ~60% across); fades in while growing slightly from 94%.
+     Only opacity + transform animate (GPU, no layout), and it stays rendered (no visibility switching) so it
+     never blinks; the layer is kept ready with will-change. */
   .sector-preview {
     position: absolute;
     top: 50%;
     left: 60%;
+    z-index: 1;
     width: clamp(15rem, 22vw, 26.75rem);
     aspect-ratio: 3 / 2;
     object-fit: cover;
     border-radius: 0.875rem;
-    /* box-shadow: 0 24px 50px -20px rgb(8 18 40 / 0.45); */
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(0.94);
     pointer-events: none;
     opacity: 0;
-    visibility: hidden;
+    will-change: opacity, transform;
+    backface-visibility: hidden;
     transition:
-      opacity 0.3s ease,
-      visibility 0s linear 0.3s;
+      opacity 0.35s ease,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .sector-card:hover .sector-preview,
   .sector-card:focus-visible .sector-preview {
     opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease;
+    transform: translate(-50%, -50%) scale(1);
+    transition:
+      opacity 0.45s ease,
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sector-preview {
+      transform: translate(-50%, -50%);
+      transition: opacity 0.2s ease;
+    }
+    .sector-card:hover .sector-preview,
+    .sector-card:focus-visible .sector-preview {
+      transform: translate(-50%, -50%);
+    }
   }
   /* Touch screens have no hover, and small screens have no room for the photo */
   @media not ((hover: hover) and (pointer: fine)), (max-width: 47.99rem) {

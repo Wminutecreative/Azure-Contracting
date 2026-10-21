@@ -34,6 +34,7 @@ const {
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
+  "@id": `${new URL(Astro.url.pathname, Astro.site)}#faq`,
   mainEntity: items.map((item) => ({
     "@type": "Question",
     name: item.question,

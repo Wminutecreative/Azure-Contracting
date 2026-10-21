@@ -21,7 +21,7 @@ export const menuGroups: { title: string; links: NavLink[] }[] = [
     links: [
       { label: 'Know About Us', href: '/about' },
       { label: 'Services We Offer', href: '/services' },
-      { label: 'Client testimonials', href: '/testimonials' },
+      { label: 'Client Testimonials', href: '/testimonials' },
     ],
   },
   {
@@ -45,7 +45,7 @@ export const footerNav: NavLink[] = [
   { label: 'Projects', href: '/projects' },
   { label: 'Testimonials', href: '/testimonials' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Career', href: '/careers' },
+  // { label: 'Career', href: '/careers' },
   { label: 'Contact Us', href: '/contact' },
 ];
 

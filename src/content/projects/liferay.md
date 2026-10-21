@@ -2,25 +2,27 @@
 title: 'Liferay'
 sector: offices
 excerpt: 'Complete fit-out of 100 Mount Street, Dublin 2.'
-cover: ../../assets/projects/liferay/project-hero-liferay.jpg
-coverAlt: 'Liferay — project photo 1'
-# Photos from the current live site (azurecontracting.ie). TODO: client to check alt text
+cover: ../../assets/projects/liferay/project-hero-liferay-slide-1.jpg
+coverAlt: 'Reception lounge with grey armchairs, a blue rug and a slatted Liferay sign wall'
+# Photos from the current live site (azurecontracting.ie)
 gallery:
-  - src: ../../assets/projects/liferay/project-hero-liferay-slide-1.jpg
-    alt: 'Liferay — project photo 2'
+  - src: ../../assets/projects/liferay/project-hero-liferay.jpg
+    alt: 'Kitchen and dining area with navy booth seating, metal stools and a yellow-lined servery'
   - src: ../../assets/projects/liferay/project-hero-liferay-slide-2.jpg
-    alt: 'Liferay — project photo 3'
+    alt: 'Relaxation room with a hanging chair, plants and inset window shelves'
   - src: ../../assets/projects/liferay/project-hero-liferay-slide-3.jpg
-    alt: 'Liferay — project photo 4'
+    alt: 'Reception with a grey sofa and armchair in front of the slatted Liferay sign'
   - src: ../../assets/projects/liferay/project-hero-liferay-slide-4.jpg
-    alt: 'Liferay — project photo 5'
+    alt: 'Close-up of a yellow-framed meeting room window with a frosted pixel pattern'
   - src: ../../assets/projects/liferay/project-hero-liferay-slide-5.jpg
-    alt: 'Liferay — project photo 6'
+    alt: 'Corridor lined with timber panels, yellow door frames and climbing plants'
 client: 'Liferay'
 location: 'Dublin 2'
 role: 'Main Contractor & PSCS'
 featured: false
 order: 8
+metaTitle: 'Liferay Dublin 2 | Office Fit-Out by Azure Contracting'
+metaDescription: 'Azure Contracting delivered a complete fit-out of Liferay’s office at 100 Mount Street, Dublin 2, serving as Main Contractor and PSCS for the project.'
 ---
 
 Complete fit-out of 100 Mount Street, Dublin 2.
