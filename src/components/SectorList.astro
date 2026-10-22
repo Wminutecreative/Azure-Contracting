@@ -8,6 +8,9 @@ import hospitality from '@/assets/sectors/hospitality.png'; // cropped 1× from 
 import offices from '@/assets/sectors/offices.png';
 import retail from '@/assets/sectors/retail.png';
 import education from '@/assets/sectors/education.png';
+// TODO: real Healthcare / Public Buildings sector photos — project photos stand in (Hermitage Clinic, Wexford Co. Council)
+import healthcare from '@/assets/projects/hermitage-clinic/hermitage-4.jpg';
+import publicBuildings from '@/assets/projects/wexford-county-council/project-hero-wexfordcc.jpg';
 
 // Four stacked white link cards (22px radius, 18px gap) with an arrow chip on the right.
 // Hover (design): the card turns neon, the arrow becomes a large white play icon, and a photo of that sector
@@ -17,7 +20,15 @@ interface Props {
 }
 const { class: className } = Astro.props;
 
-const images: Record<SectorId, ImageMetadata> = { offices, hospitality, retail, education };
+// Every sector id needs a photo here (TypeScript flags a missing one)
+const images: Record<SectorId, ImageMetadata> = {
+  offices,
+  hospitality,
+  retail,
+  education,
+  healthcare,
+  'public-buildings': publicBuildings,
+};
 ---
 
 <ul class:list={['space-y-[1.125rem]', className]}>
