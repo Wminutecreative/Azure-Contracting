@@ -71,8 +71,13 @@ const services = defineCollection({
       order: z.number().default(99),
       items: z.array(z.string()).default([]),
       description: z.string().nullish().transform((v) => v || undefined),
-      image: image(),
+      // Optional: a service without its own photo shows the main panel's photo
+      image: image().nullish().transform((v) => v ?? undefined),
       imageAlt: z.string().default(''),
+      /** The service shown in the big photo panel when the page opens (only one should have this) */
+      hero: z.boolean().default(false),
+      /** Listed as a row on the Services page */
+      showInList: z.boolean().default(true),
     }),
 });
 

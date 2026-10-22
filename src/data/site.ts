@@ -19,8 +19,8 @@ export const menuGroups: { title: string; links: NavLink[] }[] = [
   {
     title: 'Company',
     links: [
-      { label: 'Know About Us', href: '/about' },
-      { label: 'Services We Offer', href: '/services' },
+      { label: 'About Us', href: '/about' },
+      { label: 'Our Services', href: '/services' },
       { label: 'Client Testimonials', href: '/testimonials' },
     ],
   },

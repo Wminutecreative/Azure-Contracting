@@ -1,5 +1,5 @@
-category: Audio Visual
-order: 6
+category: 'Audio Visual'
+order: 3
 items:
   - 'Video conferencing'
   - 'Audio systems'
@@ -8,3 +8,5 @@ items:
 # TODO: real photo from Figma/client - upload in Keystatic
 image: ../../assets/services/audio-visual/audio-visual.png
 imageAlt: Boardroom with a large table and wall-mounted screen
+hero: false
+showInList: true

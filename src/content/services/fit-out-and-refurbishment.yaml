@@ -1,5 +1,5 @@
-category: Fit-out and Refurbishment
-order: 3
+category: 'Fit-Out & Refurbishment'
+order: 0
 items:
   - 'Partitions'
   - 'Glazing, internal and external'
@@ -9,3 +9,5 @@ items:
 # TODO: real photo from Figma/client - upload in Keystatic
 image: ../../assets/services/fit-out-and-refurbishment/fit-out-and-refurbishment.png
 imageAlt: Site team in hi-vis reviewing a fit-out
+hero: true
+showInList: false

@@ -1,5 +1,5 @@
-category: Mechanical and Electrical Services
-order: 4
+category: 'Mechanical & Electrical Services'
+order: 1
 items:
   - 'Electrics'
   - 'Air conditioning and ventilation'
@@ -9,3 +9,5 @@ items:
 # TODO: real photo from Figma/client - upload in Keystatic
 image: ../../assets/services/mechanical-and-electrical-services/mechenical-and-electircal-services.png
 imageAlt: Engineers inspecting ceiling services on site
+hero: false
+showInList: true
