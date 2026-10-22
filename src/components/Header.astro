@@ -95,7 +95,9 @@ const socialIcons: Record<string, string> = {
 <dialog id="site-menu" class="site-menu m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto bg-transparent p-0" aria-label="Site menu">
   <!-- Dims the page below the header bar while the menu is open -->
   <div class="menu-dim" aria-hidden="true"></div>
-  <div class="flex min-h-full flex-col" data-menu-dismiss>
+  <!-- 1px taller than the screen so the menu layer is always scrollable: with overscroll-behavior: contain
+       (see .site-menu) scrolling then stays inside the menu instead of moving the page behind -->
+  <div class="flex min-h-[calc(100%+1px)] flex-col" data-menu-dismiss>
     <div class="menu-bar hdr-row grid h-(--hdr-h) shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4" data-menu-dismiss>
       <button
         type="button"
@@ -210,18 +212,6 @@ const cls =
     --menu-dur: 0.6s;
     --menu-dur-long: 0.9s;
   }
-  /* The page behind the open menu moves back slightly (the script sets the origin to the middle of the screen) */
-  #main {
-    transition: transform var(--menu-dur) var(--menu-ease);
-  }
-  :root.menu-open #main {
-    transform: translateY(-2rem) scale(0.975);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    :root.menu-open #main {
-      transform: none;
-    }
-  }
 
   /* Header controls row. Desktop: "☰ Menu" + ENQUIRE sit in a compact centred bar (the middle half of the
      page); opening the menu widens the dialog's copy of the bar to the full page width, closing shrinks it back.
@@ -304,6 +294,13 @@ const cls =
 </style>
 
 <style>
+  .site-menu {
+    overscroll-behavior: contain;
+    scrollbar-width: none; /* the 1px of extra scroll shouldn't show a second scrollbar */
+  }
+  .site-menu::-webkit-scrollbar {
+    display: none;
+  }
   .site-menu::backdrop {
     background: transparent;
   }
@@ -415,32 +412,18 @@ const cls =
   const setControlsHidden = (hidden: boolean) => controls.forEach((el) => (el.style.visibility = hidden ? 'hidden' : ''));
   const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Freeze page scrolling while the menu is open. The scrollbar disappears, so the page gets padding of the same
-  // width (no sideways jump), and the fixed dim / background layers then cover the full width (no blank strip).
-  function lockScroll(lock: boolean) {
-    const root = document.documentElement;
-    if (lock) {
-      const bar = window.innerWidth - root.clientWidth;
-      root.style.overflow = 'hidden';
-      if (bar > 0) root.style.paddingRight = `${bar}px`;
-    } else {
-      root.style.overflow = '';
-      root.style.paddingRight = '';
-    }
-  }
+  // The page can't scroll while the menu is open, without hiding the scrollbar (hiding it left a blank strip on
+  // the right): the full-screen menu layer is always 1px scrollable and has overscroll-behavior: contain (CSS),
+  // so wheel / touch / keyboard scrolling stays inside it and never reaches the page behind.
 
-  const page = document.getElementById('main');
   let closeTimer = 0;
 
   function open() {
     if (!menu || menu.open) return;
     clearTimeout(closeTimer);
     menu.showModal();
-    lockScroll(true);
     setControlsHidden(true);
     openBtn?.setAttribute('aria-expanded', 'true');
-    // The page behind moves back around the middle of the screen, wherever it is scrolled to
-    if (page) page.style.transformOrigin = `50% ${window.scrollY - page.offsetTop + window.innerHeight / 2}px`;
     void menu.offsetWidth; // commit the closed styles first so the open transitions always run
     requestAnimationFrame(() => {
       menu.classList.add('is-open');
@@ -454,7 +437,6 @@ const cls =
     document.documentElement.classList.remove('menu-open');
     const finish = () => {
       menu.close();
-      lockScroll(false);
       setControlsHidden(false);
       openBtn?.setAttribute('aria-expanded', 'false');
       openBtn?.focus();
