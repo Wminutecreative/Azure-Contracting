@@ -1,37 +1,52 @@
 ---
-// Services — Figma 534:1449 (prototype 535:5950).
-// Big title "Services We Offer" (static) · one card per service (name, bullet list with Read More, photo) ·
-// client logos → footer. Services are managed in Keystatic (/keystatic → Services).
+// Services — redesign (Services design, Oct 2026).
+// Big title "Services We Offer" · a large photo panel with the service name over it (starts on the service ticked
+// "Use as the main photo panel") · one white row per service. Hovering / focusing a row crossfades the panel to
+// that service's photo and name (services without a photo keep the main photo). Client logos → footer.
+// Services are managed in Keystatic (/keystatic → Services): name, order, points, photo, "main photo panel",
+// "show in the list".
+import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
-import ServiceCard from '@/components/ServiceCard.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getServices } from '@/lib/content';
 import { ogImageFor } from '@/lib/og';
 import ogSource from '@/assets/projects/iconic-offices/Hume_Atrium_Photo00001-scaled.jpg';
 
-const services = await getServices();
+const all = await getServices();
+const hero = all.find((s) => s.data.hero) ?? all[0];
+const rows = all.filter((s) => s.data.showInList && s.id !== hero.id);
 const ogImage = await ogImageFor(ogSource);
+
+// Panel photos: the main photo plus each listed service's own photo (services without one reuse the main photo)
+const heroImage = hero.data.image ?? ogSource;
+const photos = [{ src: heroImage, alt: hero.data.imageAlt }];
+const photoIndex = (s: (typeof all)[number]) => {
+  if (!s.data.image) return 0;
+  const i = photos.findIndex((p) => p.src.src === s.data.image!.src);
+  if (i >= 0) return i;
+  photos.push({ src: s.data.image, alt: s.data.imageAlt });
+  return photos.length - 1;
+};
+const list = rows.map((s) => ({ id: s.id, name: s.data.category, photo: photoIndex(s) }));
 
 const schema = [
   {
-    '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Services We Offer',
-    itemListElement: services.map((s, i) => ({
+    itemListElement: [hero, ...rows].map((s, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       item: {
         '@type': 'Service',
         name: s.data.category,
-        description: s.data.items.join(', '),
-        provider: { '@type': 'GeneralContractor', name: 'Azure Contracting' },
-        areaServed: 'Ireland',
+        ...(s.data.items.length && { description: s.data.items.join(', ') }),
+        provider: { '@id': `${new URL('/', Astro.site)}#organization` },
+        areaServed: { '@type': 'Country', name: 'Ireland' },
       },
     })),
   },
   {
-    '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
@@ -47,12 +62,41 @@ const schema = [
   ogImage={ogImage}
   schema={schema}
 >
-  <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
+  <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]" data-services>
     <BigOutlineHeading text="Services We Offer" as="h1">
       <div class="container-site">
-        <div class="mx-auto space-y-3.5 md:space-y-4">
-          {services.map((service, i) => <ServiceCard service={service} eager={i === 0} />)}
+        <!-- Photo panel: every photo is stacked; the active one is shown. The name over it follows the row in use. -->
+        <div class="svc-panel" data-svc-panel data-no-text-anim>
+          {
+            photos.map((p, i) => (
+              <Image
+                src={p.src}
+                alt={i === 0 ? p.alt : ''}
+                widths={[640, 960, 1280, 1600, 1920]}
+                sizes="(min-width: 1360px) 1312px, 100vw"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                fetchpriority={i === 0 ? 'high' : undefined}
+                class:list={['svc-panel-photo', i === 0 && 'is-active']}
+                data-photo={i}
+              />
+            ))
+          }
+          <p class="svc-panel-title text-h-caps" aria-live="polite" data-svc-title data-default={hero.data.category}>
+            {hero.data.category}
+          </p>
         </div>
+
+        <ul class="svc-list" data-no-text-anim>
+          {
+            list.map((s) => (
+              <li class="svc-row" data-svc-row data-photo={s.photo} data-title={s.name}>
+                <div class="svc-head" tabindex="0">
+                  <h2 class="svc-name">{s.name}</h2>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
       </div>
     </BigOutlineHeading>
   </section>
@@ -60,65 +104,143 @@ const schema = [
   <LogoStrip class="mt-[clamp(3rem,6vw,6rem)]" />
 </BaseLayout>
 
+<style>
+  /* Photo panel: wide rounded banner, navy tint, service name centred in white capitals */
+  .svc-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    aspect-ratio: 16 / 10;
+    background: var(--color-navy);
+    isolation: isolate;
+  }
+  @media (min-width: 48rem) {
+    .svc-panel {
+      aspect-ratio: 2.3 / 1;
+    }
+  }
+  .svc-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgb(14 31 61 / 0.32);
+    pointer-events: none;
+  }
+  .svc-panel-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.04);
+    transition:
+      opacity 0.6s ease,
+      transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .svc-panel-photo.is-active {
+    opacity: 1;
+    transform: none;
+  }
+  .svc-panel-title {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    color: var(--color-white);
+    text-align: center;
+    letter-spacing: 0.04em;
+    transition: opacity 0.25s ease;
+  }
+  .svc-panel-title.is-swapping {
+    opacity: 0;
+  }
+
+  /* Service rows: white rounded rows, 8px apart */
+  .svc-list {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  .svc-row {
+    border-radius: 0.875rem;
+    background: var(--color-white);
+    transition: background-color 0.3s ease;
+  }
+  .svc-head {
+    padding: clamp(1.5rem, 0.1rem + 0.5vw, 2rem);
+    border-radius: inherit;
+  }
+  .svc-head:focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: 2px;
+  }
+  .svc-name {
+    font-family: var(--font-body);
+    font-size: clamp(1.25rem, 0.1rem + 0.25vw, 2rem);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--color-text-dark);
+  }
+  /* Hover / focus: the row turns neon (as the homepage sector cards) */
+  /* .svc-row:hover,
+  .svc-row:focus-within {
+    background: var(--color-neon);
+  } */
+  /* .svc-row:hover .svc-name,
+  .svc-row:focus-within .svc-name {
+    color: var(--color-navy);
+  } */
+
+  @media (prefers-reduced-motion: reduce) {
+    .svc-panel-photo,
+    .svc-panel-title,
+    .svc-row {
+      transition: none;
+    }
+    .svc-panel-photo {
+      transform: none;
+    }
+  }
+</style>
+
 <script>
-  // Read More / Read Less: collapse long lists to their first items; open and close with a smooth height
-  // animation while the extra items fade in / out. Reduced motion: instant toggle.
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  // Photo panel follows the row in use: hovering or focusing a row crossfades to that service's photo and name;
+  // leaving the list goes back to the main service.
+  const panel = document.querySelector<HTMLElement>('[data-svc-panel]');
+  const title = panel?.querySelector<HTMLElement>('[data-svc-title]');
+  const photos = panel ? Array.from(panel.querySelectorAll<HTMLElement>('[data-photo]')) : [];
+  const list = document.querySelector<HTMLElement>('.svc-list');
 
-  document.querySelectorAll<HTMLButtonElement>('[data-svc-toggle]').forEach((btn) => {
-    const list = document.getElementById(btn.getAttribute('aria-controls') ?? '');
-    if (!list) return;
-    const visible = Number(list.dataset.visible) || 5;
-    const extras = Array.from(list.children).slice(visible) as HTMLElement[];
-    let running: Animation | null = null;
+  if (panel && title && list) {
+    const fallback = title.dataset.default ?? '';
+    let current = '';
+    let swapTimer = 0;
 
-    list.classList.add('is-collapsed');
-    btn.hidden = false;
-
-    const setOpen = (open: boolean) => {
-      btn.setAttribute('aria-expanded', String(open));
-      btn.textContent = open ? 'Read Less…' : 'Read More…';
+    const show = (photo: number, name: string) => {
+      if (name === current) return;
+      current = name;
+      photos.forEach((p) => p.classList.toggle('is-active', Number(p.dataset.photo) === photo));
+      // Name: quick fade out → new text → fade in
+      clearTimeout(swapTimer);
+      title.classList.add('is-swapping');
+      swapTimer = window.setTimeout(() => {
+        title.textContent = name;
+        title.classList.remove('is-swapping');
+      }, 180);
+    };
+    const fromRow = (row: HTMLElement | null) => {
+      if (row) show(Number(row.dataset.photo) || 0, row.dataset.title ?? fallback);
     };
 
-    btn.addEventListener('click', () => {
-      const opening = list.classList.contains('is-collapsed');
-      setOpen(opening);
-
-      if (reduceMotion.matches) {
-        list.classList.toggle('is-collapsed', !opening);
-        return;
-      }
-
-      // Start from the current on-screen height (also mid-animation, if the user clicks again)
-      const from = list.getBoundingClientRect().height;
-      running?.cancel();
-
-      // Measure the target height in the final state
-      list.classList.toggle('is-collapsed', !opening);
-      const to = list.getBoundingClientRect().height;
-      // While closing, keep the extra items visible until the list has shrunk
-      if (!opening) list.classList.remove('is-collapsed');
-
-      list.style.overflow = 'hidden';
-      running = list.animate({ height: [`${from}px`, `${to}px`] }, { duration: 450, easing: EASE });
-      extras.forEach((li, i) =>
-        li.animate(
-          opening
-            ? { opacity: [0, 1], transform: ['translateY(6px)', 'none'] }
-            : { opacity: [1, 0] },
-          opening
-            ? { duration: 350, delay: 60 + i * 25, easing: EASE, fill: 'backwards' }
-            : { duration: 200, easing: 'ease-out', fill: 'forwards' },
-        ),
-      );
-
-      running.onfinish = () => {
-        list.style.overflow = '';
-        if (!opening) list.classList.add('is-collapsed');
-        extras.forEach((li) => li.getAnimations().forEach((a) => a.cancel()));
-        running = null;
-      };
+    list.querySelectorAll<HTMLElement>('[data-svc-row]').forEach((row) => {
+      row.addEventListener('pointerenter', () => fromRow(row));
+      row.addEventListener('focusin', () => fromRow(row));
     });
-  });
+    list.addEventListener('pointerleave', () => show(0, fallback));
+    current = fallback;
+  }
 </script>

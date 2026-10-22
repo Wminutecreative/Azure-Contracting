@@ -209,19 +209,12 @@ const schema = [
           steps.map((step, i) => (
             <li class="process-card">
               <div>
-              <span class="process-num" aria-hidden="true" data-pc-num>
+              {/* <span class="process-num" aria-hidden="true" data-pc-num>
                 {i + 1}
-              </span>
+              </span> */}
               <h3 class="process-card-title" data-pc-title>
                 {step.title}
               </h3>
-
-              </div>
-                            
-              <div class="process-img" data-pc-img>
-                <Image src={step.image} alt={step.alt} widths={[400, 640, 960]} sizes="(min-width: 768px) 28rem, 90vw" loading="lazy" />
-              </div>
-              {/* One comma-separated line; each item is a span so the reveal can bring them in one after another */}
               <p class="process-list" data-pc-list>
                 {step.items.map((item, i) => (
                   <>
@@ -229,6 +222,13 @@ const schema = [
                   </>
                 ))}
               </p>
+
+              </div>
+                            
+              <div class="process-img" data-pc-img>
+                <Image src={step.image} alt={step.alt} widths={[400, 640, 960]} sizes="(min-width: 768px) 28rem, 90vw" loading="lazy" />
+              </div>
+              {/* One comma-separated line; each item is a span so the reveal can bring them in one after another */}
             </li>
           ))
         }
@@ -263,38 +263,40 @@ const schema = [
 
   gsap.registerPlugin(ScrollTrigger, SplitText);
 
-  // Fact cards (desktop / tablet):
+  // Fact cards (desktop / tablet) — plays EVERY time the row is scrolled to, not just once:
   //   card 1 rises in when the row scrolls into view. When the row reaches its hold point (bottom of the row at
   //   88% of the screen) the page FREEZES there (overflow hidden — the only way to also stop a trackpad gesture
-  //   already in flight) until all three cards are shown: the next scroll gesture (wheel, trackpad, touch swipe,
-  //   ↓ / PgDn / Space) reveals card 2, the one after that card 3, then the page unfreezes and scrolls on.
-  //   One gesture = one card: a trackpad's momentum or a fast wheel spin counts once (a new gesture needs a 250ms
-  //   pause in input; cards are at least 0.4s apart). Scrolling up unfreezes straight away; coming back down
-  //   freezes again at the hold point. Plays once. While frozen the page is padded by the scrollbar's width, so
+  //   already in flight) until all three cards are shown: any downward scroll (wheel, trackpad, touch swipe,
+  //   ↓ / PgDn / Space) reveals the next card, at least 0.3s apart, then the page unfreezes and scrolls on.
+  //   Scrolling up unfreezes straight away. Once you scroll back up well above the cards (35% of a screen above
+  //   the hold point, or to the very top of the page) they reset — cards 2 and 3 hide again (card 1 too if the row has left the screen) — so the
+  //   sequence plays again on the way back down. While frozen the page is padded by the scrollbar's width, so
   //   nothing shifts sideways.
-  // Phones (stacked): each card as it comes into view. Reduced motion: shown as is (CSS only hides them under .motion).
+  // Phones (stacked): each card rises in as it comes into view and hides again when scrolled back above it.
+  // Reduced motion: shown as is (CSS only hides them under .motion).
   {
     const facts = document.querySelector<HTMLElement>('[data-facts]');
     const cards = facts ? gsap.utils.toArray<HTMLElement>('.fact-card', facts) : [];
     if (facts && cards.length) {
       const from = { autoAlpha: 0, y: 64 };
-      const to = { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out' };
+      const to = { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' };
       const mm = gsap.matchMedia();
       mm.add('(min-width: 48rem) and (prefers-reduced-motion: no-preference)', () => {
         const html = document.documentElement;
         gsap.set(cards, from);
         let shown = 0;
         let locked = false;
-        let done = false;
         let lastReveal = 0;
-        let lastInput = 0;
         let touchY = 0;
+        let unlockTimer = 0;
 
         // Scroll position at which the row's bottom sits at 88% of the screen
         const holdY = () => {
           const r = facts.getBoundingClientRect();
           return Math.max(0, Math.round(r.bottom + window.scrollY - window.innerHeight * 0.88));
         };
+        const rowInView = () => facts.getBoundingClientRect().top < window.innerHeight * 0.92;
+
         let lockY = 0;
         const lock = () => {
           if (locked) return;
@@ -309,6 +311,7 @@ const schema = [
           window.scrollTo({ top: lockY, behavior: 'instant' });
         };
         const unlock = () => {
+          clearTimeout(unlockTimer);
           if (!locked) return;
           locked = false;
           html.style.overflow = '';
@@ -317,50 +320,52 @@ const schema = [
 
         const reveal = () => {
           if (shown >= cards.length) return;
-          gsap.to(cards[shown], to);
+          gsap.to(cards[shown], { ...to, overwrite: true });
           shown += 1;
           lastReveal = performance.now();
-          if (shown >= cards.length) {
-            done = true;
-            detach();
-            // Let the gesture that revealed card 3 die down before the page can move again
-            setTimeout(unlock, 600);
-          }
+          // All three out: give card 3 a moment on screen, then let the page move again
+          if (shown >= cards.length) unlockTimer = window.setTimeout(unlock, 250);
         };
-        // A new gesture (not the tail of the last one) reveals the next card
+        // Reset for next time: hide cards 2 and 3 (and card 1 too if the row is off-screen)
+        const rearm = () => {
+          const keep = rowInView() ? 1 : 0;
+          cards.slice(keep).forEach((card) => gsap.to(card, { ...from, duration: 0.4, ease: 'power2.in', overwrite: true }));
+          shown = keep;
+        };
+        // Any downward scroll while held reveals the next card (at least 0.16s apart)
         const step = () => {
-          const now = performance.now();
-          const fresh = now - lastInput > 250;
-          lastInput = now;
-          if (fresh && now - lastReveal > 400) reveal();
+          if (performance.now() - lastReveal > 160) reveal();
         };
 
         const onScroll = () => {
-          if (done) return;
           if (locked) {
-            // A leftover scroll animation moved the page anyway — put it back
-            if (Math.abs(window.scrollY - lockY) > 1) window.scrollTo({ top: lockY, behavior: 'instant' });
+            // A leftover scroll animation moved the page anyway — put it back (unless all cards are already out)
+            if (shown < cards.length && Math.abs(window.scrollY - lockY) > 1) {
+              window.scrollTo({ top: lockY, behavior: 'instant' });
+            }
             return;
           }
-          if (window.scrollY >= holdY() - 1) {
-            // A fast scroll can reach (or pass) the hold point before card 1's trigger has fired: show it now
+          const y = window.scrollY;
+          const hy = holdY();
+          // Scrolled back up well above the cards (or all the way to the top — the hold point can be close to the
+          // top of the page) after they all played → reset so they play again
+          if (shown >= cards.length && (y <= 1 || y < hy - window.innerHeight * 0.35)) rearm();
+          // Card 1: when the row scrolls into view
+          if (shown === 0 && rowInView()) reveal();
+          // Reached the hold point with cards still to come → freeze (a fast scroll may arrive here before card 1)
+          if (shown < cards.length && y >= hy - 1) {
             if (shown === 0) reveal();
             lock();
           }
         };
         const onWheel = (e: WheelEvent) => {
           if (e.deltaY < 0) return unlock(); // going up is always allowed
-          if (e.deltaY === 0) return;
-          if (!locked) {
-            lastInput = performance.now(); // the gesture that brings the row in can't also reveal a card
-            return;
-          }
+          if (e.deltaY === 0 || !locked) return;
           e.preventDefault();
           step();
         };
         const onTouchStart = (e: TouchEvent) => {
           touchY = e.touches[0].clientY;
-          lastInput = 0; // each swipe is its own gesture
         };
         const onTouchMove = (e: TouchEvent) => {
           if (!locked) return;
@@ -379,7 +384,6 @@ const schema = [
           if (['ArrowUp', 'PageUp', 'Home'].includes(e.key)) return unlock();
           if (!['ArrowDown', 'PageDown', ' ', 'Spacebar'].includes(e.key)) return;
           e.preventDefault();
-          lastInput = 0; // every key press is its own gesture
           step();
         };
 
@@ -388,34 +392,24 @@ const schema = [
         window.addEventListener('touchstart', onTouchStart, { passive: true });
         window.addEventListener('touchmove', onTouchMove, { passive: false });
         window.addEventListener('keydown', onKey);
-        function detach() {
+        // The row may already be on screen when the page opens
+        requestAnimationFrame(onScroll);
+
+        return () => {
           window.removeEventListener('scroll', onScroll);
           window.removeEventListener('wheel', onWheel);
           window.removeEventListener('touchstart', onTouchStart);
           window.removeEventListener('touchmove', onTouchMove);
           window.removeEventListener('keydown', onKey);
-        }
-
-        // Card 1: when the row scrolls into view (or straight away if it already is); freeze if already at the
-        // hold point
-        ScrollTrigger.create({
-          trigger: facts,
-          start: 'top 92%',
-          once: true,
-          onEnter: () => {
-            if (shown === 0) reveal(); // (a fast scroll may already have shown it)
-            onScroll();
-          },
-        });
-
-        return () => {
-          detach();
           unlock();
         };
       });
       mm.add('(max-width: 47.99rem) and (prefers-reduced-motion: no-preference)', () => {
         cards.forEach((card) =>
-          gsap.fromTo(card, from, { ...to, scrollTrigger: { trigger: card, start: 'top 92%', once: true } }),
+          gsap.fromTo(card, from, {
+            ...to,
+            scrollTrigger: { trigger: card, start: 'top 92%', toggleActions: 'play none none reverse' },
+          }),
         );
       });
     }
@@ -569,7 +563,7 @@ const schema = [
   }
   .process-track {
     display: grid;
-    gap: 0.75rem;
+    /* gap: 0.75rem; */
     margin-top: 0.75rem;
   }
   @media (min-width: 40rem) {
@@ -611,8 +605,9 @@ const schema = [
     object-fit: cover;
   }
   .process-list {
-    font-size: 1.25rem;
-    line-height: 1.5;
+    font-size: 1.125rem;
+    line-height: 1.3;
+    margin-top: 1rem;
     color: var(--color-text-medium);
   }
   /* inline-block so each item can slide in during the reveal */
@@ -650,7 +645,7 @@ const schema = [
     left: 0;
     z-index: 2;
     display: flex;
-    gap: max(0.5rem, calc(var(--gutter) - 1.5rem));
+    /* gap: max(0.5rem, calc(var(--gutter) - 1.5rem)); */
     width: max-content;
     max-width: none;
     margin: 0;

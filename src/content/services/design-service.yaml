@@ -1,5 +1,5 @@
 category: Design Service
-order: 1
+order: 90
 items:
   - 'Initial consultation'
   - 'Company research'
@@ -15,3 +15,5 @@ items:
 # TODO: real photo from Figma/client - upload in Keystatic
 image: ../../assets/services/design-service/design-service.png
 imageAlt: Designer comparing carpet, fabric and stone samples
+hero: false
+showInList: false

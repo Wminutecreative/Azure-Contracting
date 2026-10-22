@@ -1,5 +1,5 @@
-category: Furniture and Joinery
-order: 7
+category: 'Bespoke Furniture & Joinery'
+order: 2
 items:
   - 'Client consultation and brief'
   - 'Design and visuals'
@@ -9,3 +9,5 @@ items:
 # TODO: real photo from Figma/client - upload in Keystatic
 image: ../../assets/services/furniture-and-joinery/furniture-and-joinery.png
 imageAlt: Joiner assembling a custom desk unit
+hero: false
+showInList: true

@@ -1,5 +1,5 @@
 category: Other Services
-order: 8
+order: 92
 items:
   - 'Access control systems'
   - 'Security cameras'
@@ -9,3 +9,5 @@ items:
 # TODO: real photo from Figma/client - upload in Keystatic
 image: ../../assets/services/other-services/other-services.png
 imageAlt: Office interior with a plant and wall-mounted screen
+hero: false
+showInList: false

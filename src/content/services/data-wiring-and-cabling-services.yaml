@@ -1,5 +1,5 @@
-category: Data Wiring and Cabling Services
-order: 5
+category: 'Data Wiring & Cabling Services'
+order: 4
 items:
   - 'Fibre optic backbones'
   - 'Multicore backbones'
@@ -9,3 +9,5 @@ items:
 # TODO: real photo from Figma/client - upload in Keystatic
 image: ../../assets/services/data-wiring-and-cabling-services/data-wiring-and-cabling-services.png
 imageAlt: Technician installing cabling in an open-plan office ceiling
+hero: false
+showInList: true
