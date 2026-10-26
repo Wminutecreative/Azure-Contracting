@@ -1,8 +1,7 @@
 ---
 // Services — redesign (Services design, Oct 2026).
-// Big title "Services We Offer" · a large photo panel with the service name over it (starts on the service ticked
-// "Use as the main photo panel") · one white row per service. Hovering / focusing a row crossfades the panel to
-// that service's photo and name (services without a photo keep the main photo). Client logos → footer.
+// Big title "Services We Offer" · a large fixed photo panel with the main service's name over it (the service ticked
+// "Use as the main photo panel") · one white row per service. Client logos → footer.
 // Services are managed in Keystatic (/keystatic → Services): name, order, points, photo, "main photo panel",
 // "show in the list".
 import { Image } from 'astro:assets';
@@ -12,23 +11,14 @@ import LogoStrip from '@/components/LogoStrip.astro';
 import { getServices } from '@/lib/content';
 import { ogImageFor } from '@/lib/og';
 import ogSource from '@/assets/projects/iconic-offices/Hume_Atrium_Photo00001-scaled.jpg';
+import panelPhoto from '@/assets/services/panel/services-panel.jpg';
 
 const all = await getServices();
 const hero = all.find((s) => s.data.hero) ?? all[0];
 const rows = all.filter((s) => s.data.showInList && s.id !== hero.id);
 const ogImage = await ogImageFor(ogSource);
 
-// Panel photos: the main photo plus each listed service's own photo (services without one reuse the main photo)
-const heroImage = hero.data.image ?? ogSource;
-const photos = [{ src: heroImage, alt: hero.data.imageAlt }];
-const photoIndex = (s: (typeof all)[number]) => {
-  if (!s.data.image) return 0;
-  const i = photos.findIndex((p) => p.src.src === s.data.image!.src);
-  if (i >= 0) return i;
-  photos.push({ src: s.data.image, alt: s.data.imageAlt });
-  return photos.length - 1;
-};
-const list = rows.map((s) => ({ id: s.id, name: s.data.category, photo: photoIndex(s) }));
+const list = rows.map((s) => ({ id: s.id, name: s.data.category }));
 
 const schema = [
   {
@@ -65,32 +55,25 @@ const schema = [
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]" data-services>
     <BigOutlineHeading text="Services We Offer" as="h1">
       <div class="container-site">
-        <!-- Photo panel: every photo is stacked; the active one is shown. The name over it follows the row in use. -->
-        <div class="svc-panel" data-svc-panel data-no-text-anim>
-          {
-            photos.map((p, i) => (
-              <Image
-                src={p.src}
-                alt={i === 0 ? p.alt : ''}
-                widths={[640, 960, 1280, 1600, 1920]}
-                sizes="(min-width: 1360px) 1312px, 100vw"
-                loading={i === 0 ? 'eager' : 'lazy'}
-                fetchpriority={i === 0 ? 'high' : undefined}
-                class:list={['svc-panel-photo', i === 0 && 'is-active']}
-                data-photo={i}
-              />
-            ))
-          }
-          <p class="svc-panel-title text-h-caps" aria-live="polite" data-svc-title data-default={hero.data.category}>
-            {hero.data.category}
-          </p>
+        <!-- Photo panel: one fixed photo with the main service's name over it -->
+        <div class="svc-panel" data-no-text-anim>
+          <Image
+            src={panelPhoto}
+            alt="Gloved fitter lifting an aluminium profile from a foam-lined tool case"
+            widths={[640, 960, 1280, 1600, 1920, 2560]}
+            sizes="(min-width: 1360px) 1312px, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            class="svc-panel-photo"
+          />
+          <p class="svc-panel-title text-h-caps">{hero.data.category}</p>
         </div>
 
         <ul class="svc-list" data-no-text-anim>
           {
             list.map((s) => (
-              <li class="svc-row" data-svc-row data-photo={s.photo} data-title={s.name}>
-                <div class="svc-head" tabindex="0">
+              <li class="svc-row">
+                <div class="svc-head">
                   <h2 class="svc-name">{s.name}</h2>
                 </div>
               </li>
@@ -133,15 +116,6 @@ const schema = [
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0;
-    transform: scale(1.04);
-    transition:
-      opacity 0.6s ease,
-      transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .svc-panel-photo.is-active {
-    opacity: 1;
-    transform: none;
   }
   .svc-panel-title {
     position: absolute;
@@ -153,10 +127,6 @@ const schema = [
     color: var(--color-white);
     text-align: center;
     letter-spacing: 0.04em;
-    transition: opacity 0.25s ease;
-  }
-  .svc-panel-title.is-swapping {
-    opacity: 0;
   }
 
   /* Service rows: white rounded rows, 8px apart */
@@ -180,7 +150,7 @@ const schema = [
   }
   .svc-name {
     font-family: var(--font-body);
-    font-size: clamp(1.25rem, 0.1rem + 0.25vw, 2rem);
+    font-size: clamp(1.5rem, 0.1rem + 0.25vw, 2rem);
     font-weight: 500;
     line-height: 1.3;
     color: var(--color-text-dark);
@@ -196,51 +166,9 @@ const schema = [
   } */
 
   @media (prefers-reduced-motion: reduce) {
-    .svc-panel-photo,
-    .svc-panel-title,
     .svc-row {
       transition: none;
-    }
-    .svc-panel-photo {
-      transform: none;
     }
   }
 </style>
 
-<script>
-  // Photo panel follows the row in use: hovering or focusing a row crossfades to that service's photo and name;
-  // leaving the list goes back to the main service.
-  const panel = document.querySelector<HTMLElement>('[data-svc-panel]');
-  const title = panel?.querySelector<HTMLElement>('[data-svc-title]');
-  const photos = panel ? Array.from(panel.querySelectorAll<HTMLElement>('[data-photo]')) : [];
-  const list = document.querySelector<HTMLElement>('.svc-list');
-
-  if (panel && title && list) {
-    const fallback = title.dataset.default ?? '';
-    let current = '';
-    let swapTimer = 0;
-
-    const show = (photo: number, name: string) => {
-      if (name === current) return;
-      current = name;
-      photos.forEach((p) => p.classList.toggle('is-active', Number(p.dataset.photo) === photo));
-      // Name: quick fade out → new text → fade in
-      clearTimeout(swapTimer);
-      title.classList.add('is-swapping');
-      swapTimer = window.setTimeout(() => {
-        title.textContent = name;
-        title.classList.remove('is-swapping');
-      }, 180);
-    };
-    const fromRow = (row: HTMLElement | null) => {
-      if (row) show(Number(row.dataset.photo) || 0, row.dataset.title ?? fallback);
-    };
-
-    list.querySelectorAll<HTMLElement>('[data-svc-row]').forEach((row) => {
-      row.addEventListener('pointerenter', () => fromRow(row));
-      row.addEventListener('focusin', () => fromRow(row));
-    });
-    list.addEventListener('pointerleave', () => show(0, fallback));
-    current = fallback;
-  }
-</script>

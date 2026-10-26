@@ -100,6 +100,7 @@ const team = defineCollection({
       name: z.string(),
       role: z.string(),
       photo: image(),
+      bio: z.string().nullish().transform((v) => v || undefined),
       linkedin: z.string().nullish().transform((v) => v || undefined),
       order: z.number().default(99),
     }),

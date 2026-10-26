@@ -51,7 +51,7 @@ const words = text.split(/\s+/);
     /* Always ONE line: the design size (12.4vw, max 200px), or smaller for a longer title — sized from its
        character count (--chars, set on the element) to fit the page width between the gutters (~0.56em per
        character in this font). The script below fine-tunes it after the font has loaded. */
-    --big-size: min(12.4vw, 12.5rem, calc((100vw - 2 * var(--gutter)) / (var(--chars, 12) * 0.56)));
+    --big-size: min(12.4vw, 12.5rem, calc((100vw - 2 * var(--gutter)) / (var(--chars, 12) * 0)));
   }
   .big-heading {
     font-family: var(--font-display);
