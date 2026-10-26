@@ -23,7 +23,7 @@ client: Centauro Investments XI S.à r.l.
 location: Ormonde Quay Lower, Dublin 1
 role: Main Contractor & PSCS
 featured: true
-order: 1
+order: 2
 metaTitle: 'Morrison Hotel | 5-Star Fit-Out by Azure Contracting'
 metaDescription: 'Azure Contracting delivered ensuite bedroom refurbishment and a new lobby, bar and restaurant at the Morrison Hotel, Dublin, in a fully live 5-star environment.'
 ---

@@ -22,7 +22,7 @@ gallery:
 
 location: Dublin
 featured: true
-order: 3
+order: 4
 metaTitle: 'The Hari Clinic, Dublin | Refurbishment by Azure Contracting'
 metaDescription: 'Azure Contracting refurbished The Hari Clinic, an IVF centre attached to the Rotunda Hospital, Dublin, creating a new reception and glazed screen meeting room.'
 ---
