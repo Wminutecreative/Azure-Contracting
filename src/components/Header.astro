@@ -55,7 +55,7 @@ const socialIcons: Record<string, string> = {
       data-menu-open
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-        <path d="M3 6h18M3 12h18M3 18h18"></path>
+        <path d="M3 9h18M3 15h18"></path>
       </svg>
       <span class="text-p1 max-md:hidden" aria-hidden="true">Menu</span>
     </button>
@@ -105,11 +105,10 @@ const socialIcons: Record<string, string> = {
         aria-label="Close menu"
         data-menu-close
       >
-        <!-- Same three lines as the header's hamburger; they fold into an ✕ as the menu opens -->
+        <!-- Same two lines as the header's hamburger; they fold into an ✕ as the menu opens -->
         <svg class="menu-burger" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-          <path d="M3 6h18"></path>
-          <path d="M3 12h18"></path>
-          <path d="M3 18h18"></path>
+          <path d="M3 9h18"></path>
+          <path d="M3 15h18"></path>
         </svg>
         <span class="text-p1 max-md:hidden" aria-hidden="true">Menu</span>
       </button>
@@ -373,23 +372,17 @@ const cls =
   .site-menu.is-open .menu-item:nth-child(2) { transition-delay: 0.375s; }
   .site-menu.is-open .menu-item:nth-child(3) { transition-delay: 0.45s; }
 
-  /* Hamburger → ✕: outer lines turn ±45° into the middle, the middle line shrinks away */
+  /* Hamburger → ✕: the two lines meet in the middle and turn ±45° */
   .menu-burger path {
     transform-box: fill-box;
     transform-origin: center;
-    transition:
-      transform var(--menu-dur) var(--menu-ease),
-      opacity 0.2s ease;
+    transition: transform var(--menu-dur) var(--menu-ease);
   }
   .site-menu.is-open .menu-burger path:nth-child(1) {
-    transform: translateY(6px) rotate(45deg) scaleX(0.85);
+    transform: translateY(3px) rotate(45deg) scaleX(0.85);
   }
   .site-menu.is-open .menu-burger path:nth-child(2) {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  .site-menu.is-open .menu-burger path:nth-child(3) {
-    transform: translateY(-6px) rotate(-45deg) scaleX(0.85);
+    transform: translateY(-3px) rotate(-45deg) scaleX(0.85);
   }
 
   @media (prefers-reduced-motion: reduce) {
