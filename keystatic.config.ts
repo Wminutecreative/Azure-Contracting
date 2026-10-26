@@ -171,6 +171,11 @@ export default config({
           publicPath: '../../assets/team/',
           validation: { isRequired: true },
         }),
+        bio: fields.text({
+          label: 'Short bio',
+          description: 'Shown on the card when hovered (about 80–110 words).',
+          multiline: true,
+        }),
         linkedin: fields.url({ label: 'LinkedIn profile URL', description: 'Optional — shows the LinkedIn icon on the card.' }),
         order: fields.integer({ label: 'Order', description: 'Lower numbers appear first.', defaultValue: 10 }),
       },

@@ -241,10 +241,9 @@ const schema = [
     team.length > 0 && (
       <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
         <BigOutlineHeading text="Our Team Members">
-          <div class="container-site">
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-              {team.map((member) => <TeamCard member={member} />)}
-            </div>
+          {/* Full-bleed row that starts in line with the content column; scroll / swipe / drag sideways */}
+          <div class="team-track flex gap-4 overflow-x-auto pb-2 lg:gap-5" data-team-track aria-label="Team members" role="region" tabindex="-1">
+            {team.map((member) => <TeamCard member={member} />)}
           </div>
         </BigOutlineHeading>
       </section>
@@ -252,7 +251,7 @@ const schema = [
   }
 
   <!-- 6. FAQ → logos (footer from BaseLayout) -->
-  <FaqAccordion items={faqs} class="mt-[clamp(3rem,6vw,6rem)]" />
+  <FaqAccordion items={faqs} />
   <LogoStrip />
 </BaseLayout>
 
@@ -529,6 +528,41 @@ const schema = [
       });
     }
   }
+
+  // Team row: click-and-drag to scroll with a mouse (touch and trackpads scroll natively)
+  const track = document.querySelector<HTMLElement>('[data-team-track]');
+  if (track) {
+    let startX = 0;
+    let startScroll = 0;
+    let moved = false;
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      startX = e.clientX;
+      startScroll = track.scrollLeft;
+      moved = false;
+      track.classList.add('is-dragging');
+      const onMove = (ev: PointerEvent) => {
+        const dx = ev.clientX - startX;
+        if (Math.abs(dx) > 4) moved = true;
+        track.scrollLeft = startScroll - dx;
+      };
+      const onUp = () => {
+        track.classList.remove('is-dragging');
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    });
+    // A drag shouldn't also count as a click on the LinkedIn link underneath
+    track.addEventListener('click', (e) => {
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      }
+    }, true);
+  }
 </script>
 
 <style>
@@ -726,5 +760,23 @@ const schema = [
   .pillar-card:hover .pillar-title,
   .pillar-card:focus-visible .pillar-title {
     color: var(--color-black);
+  }
+
+  /* Team row: bleeds to the screen edges but the first card lines up with the content column */
+  .team-track {
+    --track-inset: max(var(--gutter), calc((100% - var(--container-site)) / 2));
+    padding-inline: var(--track-inset);
+    scroll-padding-inline: var(--track-inset);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .team-track::-webkit-scrollbar {
+    display: none;
+  }
+  .team-track.is-dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
   }
 </style>
