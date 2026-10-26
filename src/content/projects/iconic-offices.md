@@ -19,8 +19,8 @@ gallery:
 client: 'Iconic Offices'
 location: 'Hume Street, Dublin'
 role: 'Main Contractor & PSCS'
-featured: false
-order: 4
+featured: true
+order: 1
 metaTitle: 'Iconic Offices, Dublin | Fit-Out by Azure Contracting'
 metaDescription: 'Azure Contracting delivered a high-end fit-out across six floors of Iconic Offices, Hume Street, Dublin, phased to keep the business fully operational.'
 ---
