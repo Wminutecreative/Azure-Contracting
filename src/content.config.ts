@@ -103,6 +103,7 @@ const team = defineCollection({
       bio: z.string().nullish().transform((v) => v || undefined),
       linkedin: z.string().nullish().transform((v) => v || undefined),
       order: z.number().default(99),
+      hidden: z.boolean().default(false),
     }),
 });
 

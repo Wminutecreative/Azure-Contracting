@@ -178,6 +178,7 @@ export default config({
         }),
         linkedin: fields.url({ label: 'LinkedIn profile URL', description: 'Optional — shows the LinkedIn icon on the card.' }),
         order: fields.integer({ label: 'Order', description: 'Lower numbers appear first.', defaultValue: 10 }),
+        hidden: fields.checkbox({ label: 'Hide from the website', description: 'Keeps the entry but leaves it off the About Us page.' }),
       },
     }),
 

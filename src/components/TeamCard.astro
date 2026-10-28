@@ -21,7 +21,7 @@ const paragraphs = bio?.split(/\n+/).filter(Boolean) ?? [];
         src={photo}
         alt=""
         widths={[400, 600, 800, 1000]}
-        sizes="(min-width: 1024px) 480px, 80vw"
+        sizes="(min-width: 1360px) 646px, (min-width: 768px) 50vw, 100vw"
         loading="lazy"
         draggable="false"
         class="team-photo size-full object-cover object-top select-none"
@@ -47,7 +47,7 @@ const paragraphs = bio?.split(/\n+/).filter(Boolean) ?? [];
 
 <style>
   .team-card {
-    width: clamp(16rem, 78vw, 30rem); /* 480px at the 1512 design width */
+    width: 100%;
     aspect-ratio: 17 / 16;
     perspective: 1600px;
     border-radius: 1.25rem;

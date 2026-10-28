@@ -28,7 +28,7 @@ export async function getServices() {
 }
 
 export async function getTeam() {
-  return (await getCollection('team')).sort(byOrder);
+  return (await getCollection('team', ({ data }) => !data.hidden)).sort(byOrder);
 }
 
 /** FAQs for one page (home, about, testimonials, contact) */

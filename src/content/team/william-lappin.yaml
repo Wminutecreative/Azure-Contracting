@@ -1,6 +1,6 @@
 # TODO: client copy (bio is lorem ipsum placeholder). TODO: real photo (and name/role where marked) - edit in Keystatic
 name: 'William Lappin'
-role: 'Contracts Manager at Azure Contracting | Commercial Fit-Out'
+role: 'Contracts Manager'
 photo: ../../assets/team/william-lappin/william-lappin.png
 bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
 linkedin: 'https://www.linkedin.com/in/william-lappin/'

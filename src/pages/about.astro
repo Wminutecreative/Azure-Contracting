@@ -241,17 +241,9 @@ const schema = [
     team.length > 0 && (
       <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
         <BigOutlineHeading text="Our Team Members">
-          {/* Full-bleed ticker: the cards drift left in an endless loop and pause while one is hovered / focused /
-              flipped. The set is drawn twice so the loop is seamless; the copy is inert (hidden from keyboard and
-              screen readers). Reduced motion: a plain row that scrolls sideways. */}
-          <div class="team-track" role="region" aria-label="Team members">
-            <div class="team-ticker" style={`--team-count: ${team.length}`}>
-              <div class="team-set">
-                {team.map((member) => <TeamCard member={member} />)}
-              </div>
-              <div class="team-set" aria-hidden="true" inert>
-                {team.map((member) => <TeamCard member={member} />)}
-              </div>
+          <div class="container-site">
+            <div class="grid gap-4 md:grid-cols-3 lg:gap-5">
+              {team.map((member) => <TeamCard member={member} />)}
             </div>
           </div>
         </BigOutlineHeading>
@@ -735,44 +727,5 @@ const schema = [
   .pillar-card:hover .pillar-title,
   .pillar-card:focus-visible .pillar-title {
     color: var(--color-black);
-  }
-
-  /* Team ticker: two identical sets side by side; sliding left by one set's width loops seamlessly */
-  .team-track {
-    overflow: hidden;
-    padding-block: 0.5rem; /* room for the keyboard focus ring */
-  }
-  .team-ticker {
-    --team-gap: clamp(1rem, 0.6rem + 0.8vw, 1.25rem);
-    display: flex;
-    width: max-content;
-    animation: team-loop calc(var(--team-count) * 7s) linear infinite;
-  }
-  .team-set {
-    display: flex;
-    gap: var(--team-gap);
-    padding-right: var(--team-gap);
-  }
-  .team-track:hover .team-ticker,
-  .team-track:focus-within .team-ticker,
-  .team-track:has(.is-flipped) .team-ticker {
-    animation-play-state: paused;
-  }
-  @keyframes team-loop {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .team-track {
-      overflow-x: auto;
-      padding-inline: max(var(--gutter), calc((100% - var(--container-site)) / 2));
-    }
-    .team-ticker {
-      animation: none;
-    }
-    .team-set[aria-hidden] {
-      display: none;
-    }
   }
 </style>
