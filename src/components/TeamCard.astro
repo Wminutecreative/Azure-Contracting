@@ -2,143 +2,115 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 
-// Team member card (About Us design, Component 28): square-ish portrait in a rounded card. Hover / keyboard focus:
-// a white panel with a lime border rises over the photo — name, job title, LinkedIn button and short bio.
-// Touch screens (no hover) show name + role on a small panel; tapping the card opens the full bio.
+// Team member flip card (About Us design, Teams Section). Front: portrait with a white, lime-bordered panel
+// holding name + job title. Back: white card with the short bio. Hover / keyboard focus flips the card;
+// touch screens flip it on tap.
 interface Props {
   member: CollectionEntry<'team'>;
 }
 const { member } = Astro.props;
-const { name, role, photo, linkedin, bio } = member.data;
+const { name, role, photo, bio } = member.data;
 const paragraphs = bio?.split(/\n+/).filter(Boolean) ?? [];
 ---
 
-<article class="team-card relative shrink-0 snap-start overflow-hidden rounded-[1.25rem] bg-[#eef1f4]" tabindex="0">
-  <Image
-    src={photo}
-    alt={`${name}, ${role}`}
-    widths={[400, 600, 800]}
-    sizes="(min-width: 1024px) 340px, 80vw"
-    loading="lazy"
-    draggable="false"
-    class="team-photo aspect-square w-full object-cover object-top select-none"
-  />
-  <div class="team-info border-neon absolute inset-x-5 bottom-4 flex flex-col rounded-2xl border bg-white px-4 py-4 sm:inset-x-10 sm:bottom-10 sm:px-5">
-    <div class="flex items-start justify-between gap-4">
-      <div class="min-w-0">
+<article class="team-card shrink-0" tabindex="0" aria-label={`${name}, ${role}`}>
+  <div class="team-flip">
+    <!-- Front -->
+    <div class="team-face team-front bg-[#eef1f4]">
+      <Image
+        src={photo}
+        alt=""
+        widths={[400, 600, 800, 1000]}
+        sizes="(min-width: 1024px) 480px, 80vw"
+        loading="lazy"
+        draggable="false"
+        class="team-photo size-full object-cover object-top select-none"
+      />
+      <div class="border-neon absolute inset-x-4 bottom-4 rounded-2xl border bg-white px-5 py-4 sm:inset-x-6 sm:bottom-6 sm:px-6">
         <h3 class="text-text-dark font-body text-h5 leading-tight font-medium">{name}</h3>
-        <p class="text-stat-label mt-0.5 text-p1">{role}</p>
+        <p class="text-stat-label text-p1 mt-0.5">{role}</p>
       </div>
+    </div>
+
+    <!-- Back -->
+    <div class="team-face team-back bg-white">
       {
-        linkedin && (
-          <a
-            href={linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`${name} on LinkedIn`}
-            class="grid size-9 shrink-0 place-items-center rounded-full bg-black text-white transition-transform hover:scale-110"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="currentColor"
-                d="M6.94 8.5H4.2V19h2.74zM5.57 4.2a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2M19.8 13.1c0-2.9-1.55-4.8-4.1-4.8-1.35 0-2.27.7-2.66 1.37V8.5h-2.63V19h2.74v-5.3c0-1.4.36-2.6 1.9-2.6 1.52 0 1.53 1.43 1.53 2.7V19h2.74z"
-              />
-            </svg>
-          </a>
+        paragraphs.length > 0 && (
+          <div class="team-bio text-text-medium text-p2 space-y-[1.4em]">
+            {paragraphs.map((p) => <p>{p}</p>)}
+          </div>
         )
       }
     </div>
-    {
-      paragraphs.length > 0 && (
-        <div class="team-bio text-text-medium overflow-y-auto text-p3 opacity-[68%] leading-[1.45]">
-          {paragraphs.map((p) => <p>{p}</p>)}
-        </div>
-      )
-    }
   </div>
 </article>
 
 <style>
   .team-card {
-    width: clamp(16rem, 78vw, 30rem); /* 340px at the 1512 design width */
+    width: clamp(16rem, 78vw, 30rem); /* 480px at the 1512 design width */
+    aspect-ratio: 17 / 16;
+    perspective: 1600px;
+    border-radius: 1.25rem;
+    cursor: pointer;
   }
-  .team-photo {
-    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  .team-card:focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: 4px;
   }
-  .team-info {
-    transition:
-      top 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.35s ease,
-      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  .team-flip {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  /* Bio collapsed by default; revealed when the panel grows to cover the card */
+  .team-face {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .team-back {
+    display: flex;
+    align-items: center;
+    padding: clamp(1.5rem, 0.6rem + 2.4vw, 3rem);
+    transform: rotateY(180deg);
+  }
   .team-bio {
-    max-height: 0;
-    opacity: 0;
-    transition:
-      opacity 0.3s ease,
-      margin 0.3s ease;
-  }
-  .team-card.is-open .team-info,
-  .team-card:focus-within .team-info {
-    top: 1.25rem;
-  }
-  .team-card.is-open .team-bio,
-  .team-card:focus-within .team-bio {
-    max-height: none;
-    flex: 1 1 0;
-    margin-top: 0.875rem;
-    opacity: 1;
-    transition-delay: 0.15s;
+    max-height: 100%;
+    overflow-y: auto;
+    text-transform: capitalize; /* Figma sets the bios in title case */
   }
 
+  /* Flip: hover / focus on mouse devices, tap (.is-flipped) on touch */
+  .team-card.is-flipped .team-flip,
+  .team-card:focus-within .team-flip {
+    transform: rotateY(180deg);
+  }
   @media (hover: hover) and (pointer: fine) {
-    /* Desktop: the whole panel stays hidden until hover / focus */
-    .team-info {
-      top: 2.5rem;
-      opacity: 0;
-      transform: translateY(1.5rem);
-    }
-    .team-bio {
-      max-height: none;
-      flex: 1 1 0;
-      margin-top: 0.875rem;
-    }
-    .team-card:hover .team-info,
-    .team-card:focus-within .team-info {
-      opacity: 1;
-      transform: none;
-    }
-    .team-card:hover .team-bio,
-    .team-card:focus-within .team-bio {
-      opacity: 1;
-      transition-delay: 0.15s;
-    }
-    .team-card:hover .team-photo,
-    .team-card:focus-within .team-photo {
-      transform: scale(1.04);
+    .team-card:hover .team-flip {
+      transform: rotateY(180deg);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .team-photo,
-    .team-info,
-    .team-bio {
-      transition: none !important;
+    .team-flip {
+      transition: none;
     }
   }
 </style>
 
 <script>
-  // Touch screens: tap a card to open its bio, tap again (or another card) to close
+  // Touch screens: tap a card to flip it, tap again (or another card) to flip back
   document.querySelectorAll<HTMLElement>('.team-card').forEach((card) => {
-    card.addEventListener('click', (e) => {
+    card.addEventListener('click', () => {
       if (matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-      if ((e.target as HTMLElement).closest('a')) return;
-      const open = !card.classList.contains('is-open');
-      document.querySelectorAll('.team-card.is-open').forEach((c) => c.classList.remove('is-open'));
-      card.classList.toggle('is-open', open);
-      if (!open) card.blur();
+      const flip = !card.classList.contains('is-flipped');
+      document.querySelectorAll('.team-card.is-flipped').forEach((c) => c.classList.remove('is-flipped'));
+      card.classList.toggle('is-flipped', flip);
+      if (!flip) card.blur();
     });
   });
 </script>

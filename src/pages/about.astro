@@ -241,9 +241,18 @@ const schema = [
     team.length > 0 && (
       <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
         <BigOutlineHeading text="Our Team Members">
-          {/* Full-bleed row that starts in line with the content column; scroll / swipe / drag sideways */}
-          <div class="team-track flex gap-4 overflow-x-auto pb-2 lg:gap-5" data-team-track aria-label="Team members" role="region" tabindex="-1">
-            {team.map((member) => <TeamCard member={member} />)}
+          {/* Full-bleed ticker: the cards drift left in an endless loop and pause while one is hovered / focused /
+              flipped. The set is drawn twice so the loop is seamless; the copy is inert (hidden from keyboard and
+              screen readers). Reduced motion: a plain row that scrolls sideways. */}
+          <div class="team-track" role="region" aria-label="Team members">
+            <div class="team-ticker" style={`--team-count: ${team.length}`}>
+              <div class="team-set">
+                {team.map((member) => <TeamCard member={member} />)}
+              </div>
+              <div class="team-set" aria-hidden="true" inert>
+                {team.map((member) => <TeamCard member={member} />)}
+              </div>
+            </div>
           </div>
         </BigOutlineHeading>
       </section>
@@ -529,40 +538,6 @@ const schema = [
     }
   }
 
-  // Team row: click-and-drag to scroll with a mouse (touch and trackpads scroll natively)
-  const track = document.querySelector<HTMLElement>('[data-team-track]');
-  if (track) {
-    let startX = 0;
-    let startScroll = 0;
-    let moved = false;
-    track.addEventListener('pointerdown', (e) => {
-      if (e.pointerType !== 'mouse' || e.button !== 0) return;
-      startX = e.clientX;
-      startScroll = track.scrollLeft;
-      moved = false;
-      track.classList.add('is-dragging');
-      const onMove = (ev: PointerEvent) => {
-        const dx = ev.clientX - startX;
-        if (Math.abs(dx) > 4) moved = true;
-        track.scrollLeft = startScroll - dx;
-      };
-      const onUp = () => {
-        track.classList.remove('is-dragging');
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onUp);
-      };
-      window.addEventListener('pointermove', onMove);
-      window.addEventListener('pointerup', onUp);
-    });
-    // A drag shouldn't also count as a click on the LinkedIn link underneath
-    track.addEventListener('click', (e) => {
-      if (moved) {
-        e.preventDefault();
-        e.stopPropagation();
-        moved = false;
-      }
-    }, true);
-  }
 </script>
 
 <style>
@@ -762,21 +737,42 @@ const schema = [
     color: var(--color-black);
   }
 
-  /* Team row: bleeds to the screen edges but the first card lines up with the content column */
+  /* Team ticker: two identical sets side by side; sliding left by one set's width loops seamlessly */
   .team-track {
-    --track-inset: max(var(--gutter), calc((100% - var(--container-site)) / 2));
-    padding-inline: var(--track-inset);
-    scroll-padding-inline: var(--track-inset);
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    cursor: grab;
+    overflow: hidden;
+    padding-block: 0.5rem; /* room for the keyboard focus ring */
   }
-  .team-track::-webkit-scrollbar {
-    display: none;
+  .team-ticker {
+    --team-gap: clamp(1rem, 0.6rem + 0.8vw, 1.25rem);
+    display: flex;
+    width: max-content;
+    animation: team-loop calc(var(--team-count) * 7s) linear infinite;
   }
-  .team-track.is-dragging {
-    cursor: grabbing;
-    scroll-snap-type: none;
-    user-select: none;
+  .team-set {
+    display: flex;
+    gap: var(--team-gap);
+    padding-right: var(--team-gap);
+  }
+  .team-track:hover .team-ticker,
+  .team-track:focus-within .team-ticker,
+  .team-track:has(.is-flipped) .team-ticker {
+    animation-play-state: paused;
+  }
+  @keyframes team-loop {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .team-track {
+      overflow-x: auto;
+      padding-inline: max(var(--gutter), calc((100% - var(--container-site)) / 2));
+    }
+    .team-ticker {
+      animation: none;
+    }
+    .team-set[aria-hidden] {
+      display: none;
+    }
   }
 </style>
