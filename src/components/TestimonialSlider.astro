@@ -191,6 +191,36 @@ const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ?
     display: none;
   }
 
+  /* Below desktop: no tiles — just a small navy prev / next arrow pair, bottom right (labels stay on aria-label) */
+  @media (max-width: 74.99rem) {
+    .t-nav {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+    .t-tile {
+      min-height: 0;
+      padding: 0.625rem;
+      border-radius: 999px;
+      background: transparent;
+    }
+    .t-tile-prev {
+      order: -1;
+    }
+    .t-tile > span {
+      display: none;
+    }
+    .t-tile :global(svg) {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: var(--color-navy);
+    }
+    .t-tile:focus-visible {
+      outline: 2px solid var(--color-navy);
+      outline-offset: 2px;
+    }
+  }
+
   /* Desktop: joined tiles. --o = how far each tile reaches past the centre (they overlap there),
      --r = radius of the curved inner corners, --g = gap between the shape and the photo. */
   @media (min-width: 75rem) {

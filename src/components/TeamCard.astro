@@ -84,9 +84,10 @@ const paragraphs = bio?.split(/\n+/).filter(Boolean) ?? [];
     text-transform: capitalize; /* Figma sets the bios in title case */
   }
 
-  /* Flip: hover / focus on mouse devices, tap (.is-flipped) on touch */
+  /* Flip: hover on mouse devices, keyboard focus (not mouse-click focus, which would hold the card flipped after
+     the pointer leaves), tap (.is-flipped) on touch */
   .team-card.is-flipped .team-flip,
-  .team-card:focus-within .team-flip {
+  .team-card:focus-visible .team-flip {
     transform: rotateY(180deg);
   }
   @media (hover: hover) and (pointer: fine) {

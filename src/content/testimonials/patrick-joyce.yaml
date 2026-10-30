@@ -1,0 +1,9 @@
+name: Patrick Joyce
+role: Hotel Manager
+company: The Morrison
+# TODO: add a high-res The Morrison logo in Keystatic (src/assets/clients/morrison.png is only 152px wide). Client site: https://www.morrisonhotel.ie/
+quote: In 2022 we engaged Azure Contracting Ltd to refurbish/fit-out the Morrison Hotel. I found them to be extremely professional, attentive and the experienced team have the expertise to promptly resolve any/all issues encountered during the project. Refurbishing areas of a hotel can be very challenging, especially when you remain open with guests, but Azure goes above and beyond to ensure the work got completed with no disturbance to the hotel or our guests. Furthermore, we have continued to work with Azure for all ongoing projects in the hotel. The work they have completed has helped turn the hotel around; at the end of 2022 the hotel was granted a five-star rating and moved to the Hilton Curio Collection, which is classified as an upper/upscale Hilton hotel brand, the 1st hotel in Ireland to be granted this ranking. I would have no hesitation in recommending Azure Contracting Ltd.
+rating: 5
+showOnPage: true
+featured: false
+order: 10

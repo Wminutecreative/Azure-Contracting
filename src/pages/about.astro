@@ -10,6 +10,7 @@ import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
 import Button from '@/components/Button.astro';
 import ValueCards from '@/components/ValueCards.astro';
 import TeamCard from '@/components/TeamCard.astro';
+import NavArrow from '@/components/NavArrow.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getTeam, getFaqs } from '@/lib/content';
@@ -241,10 +242,19 @@ const schema = [
     team.length > 0 && (
       <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
         <BigOutlineHeading text="Our Team Members">
-          <div class="container-site">
-            <div class="grid gap-4 md:grid-cols-3 lg:gap-5">
-              {team.map((member) => <TeamCard member={member} />)}
-            </div>
+          {/* Slider: the row starts in line with the content column and runs off the right edge (three cards fit the
+              column, the next one peeks in). Prev / next arrows move one card; trackpads, touch and mouse drag also
+              scroll it. */}
+          <div class="team-track" role="region" aria-label="Team members" data-team-track>
+            {team.map((member) => <TeamCard member={member} />)}
+          </div>
+          <div class="container-site mt-[clamp(1.25rem,0.8rem+1.2vw,2rem)] flex justify-end gap-4">
+            <button type="button" class="team-arrow" aria-label="Previous team member" data-team-prev disabled>
+              <NavArrow direction="left" size={24} />
+            </button>
+            <button type="button" class="team-arrow" aria-label="Next team member" data-team-next>
+              <NavArrow size={24} />
+            </button>
           </div>
         </BigOutlineHeading>
       </section>
@@ -530,6 +540,62 @@ const schema = [
     }
   }
 
+
+  // Team slider: arrows move one card at a time and dim at either end; mouse users can also click-and-drag
+  const track = document.querySelector<HTMLElement>('[data-team-track]');
+  const prev = document.querySelector<HTMLButtonElement>('[data-team-prev]');
+  const next = document.querySelector<HTMLButtonElement>('[data-team-next]');
+  if (track && prev && next) {
+    const step = () => {
+      const card = track.querySelector<HTMLElement>('.team-card');
+      return card ? card.offsetWidth + parseFloat(getComputedStyle(track).columnGap || '0') : track.clientWidth;
+    };
+    const update = () => {
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
+    };
+    prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+    next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+
+    let startX = 0;
+    let startScroll = 0;
+    let moved = false;
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      startX = e.clientX;
+      startScroll = track.scrollLeft;
+      moved = false;
+      const onMove = (ev: PointerEvent) => {
+        const dx = ev.clientX - startX;
+        if (!moved && Math.abs(dx) > 4) {
+          moved = true;
+          track.classList.add('is-dragging');
+        }
+        if (moved) track.scrollLeft = startScroll - dx;
+      };
+      const onUp = () => {
+        track.classList.remove('is-dragging');
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    });
+    // A drag shouldn't also count as a tap that flips a card
+    track.addEventListener(
+      'click',
+      (e) => {
+        if (!moved) return;
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      },
+      true,
+    );
+  }
 </script>
 
 <style>
@@ -727,5 +793,62 @@ const schema = [
   .pillar-card:hover .pillar-title,
   .pillar-card:focus-visible .pillar-title {
     color: var(--color-black);
+  }
+
+  /* Team slider: bleeds off the right edge, first card in line with the content column */
+  .team-track {
+    --track-inset: max(var(--gutter), calc((100% - var(--container-site)) / 2));
+    --team-gap: clamp(1rem, 0.6rem + 0.8vw, 1.25rem);
+    display: flex;
+    gap: var(--team-gap);
+    overflow-x: auto;
+    padding: 0.5rem var(--track-inset); /* block padding: room for the focus ring */
+    scroll-padding-inline: var(--track-inset);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .team-track::-webkit-scrollbar {
+    display: none;
+  }
+  .team-track > :global(.team-card) {
+    /* Three across the content column on desktop, ~1.2 on phones */
+    width: clamp(16rem, calc((min(100vw - var(--gutter) * 2, var(--container-site)) - var(--team-gap) * 2) / 3), 100vw);
+    scroll-snap-align: start;
+  }
+  @media (max-width: 47.99rem) {
+    .team-track > :global(.team-card) {
+      width: 80vw;
+    }
+  }
+  .team-track.is-dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
+  }
+  .team-arrow {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    color: var(--color-navy);
+    cursor: pointer;
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+  .team-arrow:hover:not(:disabled) {
+    transform: translateX(3px);
+  }
+  .team-arrow[data-team-prev]:hover:not(:disabled) {
+    transform: translateX(-3px);
+  }
+  .team-arrow:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+  .team-arrow:focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: 2px;
   }
 </style>
