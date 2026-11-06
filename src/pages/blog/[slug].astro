@@ -9,8 +9,10 @@ import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
 import BlogCard from '@/components/BlogCard.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getPosts } from '@/lib/content';
+import { showBlog } from '@/data/site';
 
 export async function getStaticPaths() {
+  if (!showBlog) return [];
   const posts = await getPosts();
   return posts.map((post) => ({ params: { slug: post.id }, props: { post, all: posts } }));
 }

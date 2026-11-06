@@ -12,14 +12,14 @@ import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects, getTestimonials, getFaqs } from '@/lib/content';
 // Hero background video (served as a hashed file from the build). TODO: compress — see note in the hero below.
-import heroVideo from '@/assets/placeholders/Header Video.mp4?url';
+import heroVideo from '@/assets/placeholders/hero-video.mp4?url';
 
 const featured = (await getProjects({ featured: true })).slice(0, 3);
 const testimonials = await getTestimonials({ featured: true });
 const faqs = await getFaqs('home');
 
 const stats = [
-  { value: '20+', label: 'Years of experience' },
+  { value: '30+', label: 'Years of experience' },
   { value: '500+', label: 'Projects delivered successfully' },
   { value: '98%', label: 'Overall client satisfaction rate' },
 ];

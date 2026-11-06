@@ -8,6 +8,11 @@ import westin from '@/assets/clients/westin.png';
 import wexford from '@/assets/clients/wexford-county-council.png';
 import fineos from '@/assets/clients/fineos.png';
 import intercontinental from '@/assets/clients/intercontinental.png';
+import mhl from '@/assets/testimonials/eanna-murtagh/mhl-hotel-collection-logo.png';
+
+// Blog hidden for now: no pages are built, so /blog and every post 404. To bring it back set this to true and
+// uncomment the two Blog links below.
+export const showBlog = false;
 
 export interface NavLink {
   label: string;
@@ -28,23 +33,21 @@ export const menuGroups: { title: string; links: NavLink[] }[] = [
     title: 'Resources',
     links: [
       { label: 'Our Projects', href: '/projects' },
-      { label: 'Blogs', href: '/blog' },
+      // { label: 'Blogs', href: '/blog' },
     ],
   },
 ];
 
 // TODO: client to supply profile URLs. Icons render as non-links until a URL is set.
-export const social: { name: 'LinkedIn' | 'Instagram' | 'X'; href: string }[] = [
+export const social: { name: 'LinkedIn'; href: string }[] = [
   { name: 'LinkedIn', href: '' },
-  { name: 'Instagram', href: '' },
-  { name: 'X', href: '' },
 ];
 
 export const footerNav: NavLink[] = [
   { label: 'About Us', href: '/about' },
   { label: 'Projects', href: '/projects' },
   { label: 'Testimonials', href: '/testimonials' },
-  { label: 'Blog', href: '/blog' },
+  // { label: 'Blog', href: '/blog' },
   // { label: 'Career', href: '/careers' },
   { label: 'Contact Us', href: '/contact' },
 ];
@@ -56,17 +59,17 @@ export const legalNav: NavLink[] = [
 ];
 
 export const contact = {
-  // From the Contact Us design. TODO: confirm email; phone (and the Eircode) were unreadable in the design export —
-  // add them here and they appear on the Contact page, menu and footer automatically.
+  // From the Contact Us design. TODO: confirm email; the Eircode was unreadable in the design export.
   email: 'info@azurecontracting.ie',
-  phone: '',
+  phone: '+353 1 541 7201',
   address: ['Osprey Business Centre, Block C', 'Naas West, Naas', 'Co. Kildare, Ireland'],
   // Used for the Google Maps embed and directions link
   mapQuery: 'Osprey Business Centre, Naas West, Naas, Co. Kildare, Ireland',
 };
 
 // Logos cropped from the homepage design at 1:1. TODO: replace with SVG/hi-res exports from Figma.
-export const clients: { name: string; logo: ImageMetadata }[] = [
+// `scale`: for logo files with no built-in padding, so they sit at the same visual size as the others
+export const clients: { name: string; logo: ImageMetadata; scale?: number }[] = [
   { name: 'Morrison Dublin', logo: morrison },
   { name: 'Osprey Spa', logo: ospreySpa },
   { name: 'The Rotunda Hospital Dublin', logo: rotunda },
@@ -74,4 +77,5 @@ export const clients: { name: string; logo: ImageMetadata }[] = [
   { name: 'Wexford County Council', logo: wexford },
   { name: 'Fineos', logo: fineos },
   { name: 'InterContinental Dublin', logo: intercontinental },
+  { name: 'MHL Hotel Collection', logo: mhl, scale: 0.7 },
 ];

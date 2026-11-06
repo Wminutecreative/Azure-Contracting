@@ -32,13 +32,13 @@ const ogImage = await ogImageFor(about_building);
 const facts = [
   'Founded in 2012 by two chartered surveyors from Irish contractors.',
   'Main contractor and PSCS on every project we deliver.',
-  'Experienced in hotels, offices & live public buildings.',
+  'Experienced in hospitality, offices & live public buildings.',
 ];
 
 const pillars = [
   {
     title: 'Purpose',
-    text: 'We are main contractors for fit-out, refurbishment and construction across Ireland, spanning offices, hotels, healthcare, education and public buildings.',
+    text: 'We are main contractors for fit-out, refurbishment and construction across Ireland, spanning offices, hospitality, healthcare, education and public buildings.',
   },
   // TODO: client copy — Mission and Vision text are not in the design yet; these are drafts to replace.
   {
@@ -47,7 +47,7 @@ const pillars = [
   },
   {
     title: 'Vision',
-    text: 'To be the contractor Irish clients call first for fit-out work in buildings that have to stay open while we work.',
+    text: 'To be the contractor clients call first for fit-out work in buildings that have to stay open while we work.',
   },
 ];
 
@@ -262,7 +262,7 @@ const schema = [
   }
 
   <!-- 6. FAQ → logos (footer from BaseLayout) -->
-  <FaqAccordion items={faqs} />
+  <FaqAccordion items={faqs} class="max-md:mt-16" />
   <LogoStrip />
 </BaseLayout>
 
@@ -645,6 +645,12 @@ const schema = [
     border-radius: 1.25rem;
     background: var(--color-white);
     padding: clamp(1.25rem, 2rem + 1vw, 5rem);
+  }
+  @media (max-width: 47.99rem) {
+    .process-card {
+      gap: 1.5rem;
+      padding: 1.5rem;
+    }
   }
   .process-num {
     font-family: var(--font-heading);

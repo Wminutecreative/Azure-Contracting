@@ -58,6 +58,8 @@ Files: `src/content/services/<name>.yaml` and `src/assets/services/<name>/…` (
 
 ## Blog fields
 
+**Blog is hidden for now** (`showBlog` in `src/data/site.ts`): posts can still be edited, but no blog pages go live.
+
 Files: `src/content/blog/<url>.md` and `src/assets/blog/<url>/…` (cover). Listed newest first on /blog (12 per page).
 
 | Field | Notes |
@@ -90,5 +92,5 @@ Files: `src/content/team/<name>.yaml` and `src/assets/team/<name>/…` (photo). 
 | Quote | No surrounding quotation marks — added automatically |
 | Star rating | 1–5 |
 | Show on the Testimonials page | Tick to list it on /testimonials |
-| Show in the homepage slider | Tick to include it in "Trusted By Builders" |
+| Show in the homepage slider | Tick to include it in "Trusted By Clients" |
 | Order | Lower numbers first |

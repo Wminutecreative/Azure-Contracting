@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import NavArrow from './NavArrow.astro';
 
-// "Trusted By Builders" layout from the homepage design (1512px):
+// "Trusted By Clients" layout from the homepage design (1512px):
 //   [heading + current photo 230w] [quote card 563w] [2×2: _, Next tile / Prev tile, next person's photo]
 // All testimonials are rendered and stacked; the script switches the active one. Without JS the first shows.
 interface Props {
@@ -14,8 +14,8 @@ interface Props {
 }
 const {
   testimonials,
-  heading = 'Trusted By Builders',
-  subheading = 'Trusted by builders',
+  heading = 'Trusted By Clients',
+  subheading = 'Trusted by clients',
   class: className,
 } = Astro.props;
 const count = testimonials.length;
@@ -195,7 +195,7 @@ const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ?
   @media (max-width: 74.99rem) {
     .t-nav {
       display: flex;
-      justify-content: flex-end;
+      justify-content: center;
       gap: 0.75rem;
     }
     .t-tile {

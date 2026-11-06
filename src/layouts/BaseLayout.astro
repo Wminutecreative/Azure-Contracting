@@ -7,6 +7,7 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import GradientBackground from '@/components/GradientBackground.astro';
 import { getTestimonials } from '@/lib/content';
+import { contact } from '@/data/site';
 
 interface Props {
   /** Transparent header over a full-bleed hero (homepage) */
@@ -72,7 +73,8 @@ const organization = {
   logo: { '@type': 'ImageObject', url: new URL('/logo.png', Astro.site).toString(), width: 1794, height: 410 },
   image: new URL('/og-default.jpg', Astro.site).toString(),
   description: siteDescription,
-  // TODO: client to confirm the street address (and add telephone / email once confirmed)
+  telephone: contact.phone,
+  // TODO: client to confirm the street address (and add email once confirmed)
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Osprey Business Centre',

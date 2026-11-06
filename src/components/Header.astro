@@ -28,7 +28,6 @@ const enquire = `link-underline text-p1 justify-self-end rounded-sm px-1 py-2 ${
 const socialIcons: Record<string, string> = {
   LinkedIn:
     'M6.94 8.5H4.2V19h2.74zM5.57 4.2a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2M19.8 13.1c0-2.9-1.55-4.8-4.1-4.8-1.35 0-2.27.7-2.66 1.37V8.5h-2.63V19h2.74v-5.3c0-1.4.36-2.6 1.9-2.6 1.52 0 1.53 1.43 1.53 2.7V19h2.74z',
-  X: 'M17.75 3h3.06l-6.69 7.64L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.15-8.18L2 3h6.33l4.37 5.78zm-1.07 16.2h1.7L7.4 4.73H5.58z',
 };
 ---
 
@@ -147,18 +146,11 @@ const socialIcons: Record<string, string> = {
               {gi === 1 && (
                 <ul class="mt-6 flex gap-2 px-5 md:mt-auto md:justify-end md:px-0 md:pt-6 cursor-pointer" aria-label="Social media">
                   {social.map((s) => {
-                    const icon =
-                      s.name === 'Instagram' ? (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                          <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
-                          <circle cx="12" cy="12" r="4" />
-                          <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
-                        </svg>
-                      ) : (
-                        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-                          <path fill="currentColor" d={socialIcons[s.name]} />
-                        </svg>
-                      );
+                    const icon = (
+                      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="currentColor" d={socialIcons[s.name]} />
+                      </svg>
+                    );
                     // const cls = 'grid size-8 place-items-center rounded-full bg-black text-white';
 const cls =
   'grid size-8 place-items-center rounded-full bg-black text-white transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-110 hover:bg-white hover:text-black hover:shadow-md';
