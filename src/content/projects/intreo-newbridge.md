@@ -1,6 +1,6 @@
 ---
 title: 'Intreo Newbridge'
-sector: offices
+sector: public-buildings
 excerpt: 'Azure Contracting completed all refurbishment works within an extremely tight time frame while at the same time facilitating INTREO’s continuous operation. Azure Contracting acted as main contractors on this project and also took on the role of PSCS.'
 cover: ../../assets/projects/intreo-newbridge/project-hero-intreo.jpg
 coverAlt: 'Public office counter with timber-clad service booths under a curved upper floor'

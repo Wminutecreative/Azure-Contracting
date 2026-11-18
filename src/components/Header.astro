@@ -125,7 +125,7 @@ const socialIcons: Record<string, string> = {
                 gi === 0 ? 'menu-company md:px-[1.8rem]' : 'md:px-0 md:pb-0',
               ]}
             >
-              <h2 class="text-p2 text-text-dark mb-3 px-5 opacity-70 md:mb-5">{group.title}</h2>
+              <p class="text-p2 text-text-dark mb-3 px-5 opacity-70 md:mb-5">{group.title}</p>
               <ul class="flex flex-col">
                 {group.links.map((link) => (
                   <li>
@@ -173,7 +173,7 @@ const cls =
         }
 
         <div class="menu-item hidden overflow-hidden rounded-xl lg:block">
-          <Image src={menuImage} alt="" class="h-full w-full object-cover" loading="lazy" />
+          <Image src={menuImage} alt="Floor plans, keys, a spirit level and a hard hat laid out on a concrete floor" class="h-full w-full object-cover" loading="lazy" />
         </div>
       </nav>
     </div>

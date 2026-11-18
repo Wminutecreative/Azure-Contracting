@@ -14,6 +14,8 @@ import NavArrow from '@/components/NavArrow.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getTeam, getFaqs } from '@/lib/content';
+import { valueCards } from '@/data/site';
+import { termList } from '@/lib/schema';
 import { ogImageFor } from '@/lib/og';
 // TODO: real photos from Figma / the client
 import about_hero_section from '@/assets/about/about-hero-section.png';
@@ -79,22 +81,41 @@ const steps = [
   },
 ];
 
+// ---- JSON-LD (SEO brief): AboutPage, Purpose / Mission / Vision, How we work, Our Process, team members ----
+const site = new URL('/', Astro.site).toString();
+const aboutUrl = new URL('/about', Astro.site).toString();
+const personId = (id: string) => `${aboutUrl}#person-${id}`;
+// Founded by Liam Fogarty and Adrian McDermott (team entry ids)
+const founders = ['liam-fogarty', 'adrian-mcdermott'].filter((id) => team.some((m) => m.id === id));
+// A role that is only post-nominal letters ("MSCSI, MRICS") is an honorific, not a job title
+const isPostNominals = (role: string) => /^[A-Z]{2,}(,\s*[A-Z]{2,})*$/.test(role.trim());
+
 const schema = [
+  { '@type': 'AboutPage', mainEntity: { '@id': `${site}#organization` } },
   {
-    '@context': 'https://schema.org',
-    '@type': 'AboutPage',
-    name: 'About Azure Contracting',
-    url: new URL('/about', Astro.site).toString(),
-  },
-  {
-    '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
-      { '@type': 'ListItem', position: 2, name: 'About Us', item: new URL('/about', Astro.site).toString() },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site },
+      { '@type': 'ListItem', position: 2, name: 'About Us', item: aboutUrl },
     ],
   },
+  termList(`${aboutUrl}#mission-vision`, 'Purpose, Mission and Vision', pillars.map((p) => ({ name: p.title, description: p.text }))),
+  termList(`${aboutUrl}#how-we-work`, 'How we work', valueCards.map((v) => ({ name: v.title, description: v.description }))),
+  termList(`${aboutUrl}#our-process`, 'Our Process', steps.map((st) => ({ name: st.title, description: st.items.join(', ') }))),
+  ...team.map((m) => ({
+    '@type': 'Person',
+    '@id': personId(m.id),
+    name: m.data.name,
+    ...(isPostNominals(m.data.role) ? { honorificSuffix: m.data.role } : { jobTitle: m.data.role }),
+    worksFor: { '@id': `${site}#organization` },
+    url: aboutUrl,
+  })),
 ];
+const orgExtra = {
+  foundingDate: '2012',
+  founders: founders.map((id) => ({ '@id': personId(id) })),
+  employee: team.map((m) => ({ '@id': personId(m.id) })),
+};
 ---
 
 <BaseLayout
@@ -102,6 +123,8 @@ const schema = [
   description="Azure Contracting has delivered fit-out, refurbishment and construction across Ireland since 2012, acting as main contractor and PSCS on every project."
   ogImage={ogImage}
   schema={schema}
+  orgDescription="Founded in 2012 by two chartered surveyors from Irish contractors. Main contractor and PSCS on every project we deliver. Experienced in hospitality, offices and live public buildings."
+  orgExtra={orgExtra}
 >
   <!-- 1. Hero -->
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">

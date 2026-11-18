@@ -8,6 +8,10 @@ coverAlt: 'Hotel lobby lounge with curved sofas, orange chairs and sculptural pe
 gallery:
   - src: ../../assets/projects/morrison-hotel/One Bed Suite.jpg
     alt: 'Suite living and dining room with a glass table, an orchid and full-height curtains'
+  - src: ../../assets/projects/morrison-hotel/Bedroom 18-1.jpg
+    alt: 'Bedroom with a tan leather headboard, a willow-print feature wall and a curved leather banquette'
+  - src: ../../assets/projects/morrison-hotel/Bedroom 20-2.jpg
+    alt: 'Bedroom with a slatted oak TV wall, a tan leather banquette and a framed Dublin quayside photo'
   - src: ../../assets/projects/morrison-hotel/Halo Breakfast.jpg
     alt: 'Breakfast restaurant with banquette seating, a buffet counter and herringbone floor'
   - src: ../../assets/projects/morrison-hotel/entrance-2.jpg

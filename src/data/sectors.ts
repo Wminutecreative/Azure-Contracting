@@ -11,3 +11,13 @@ export const sectors: { id: SectorId; label: string; description: string }[] = [
 ];
 
 export const sectorLabel = (id: SectorId) => sectors.find((s) => s.id === id)?.label ?? id;
+
+// Schema.org serviceType for each sector (homepage sector Services + project pages)
+export const sectorServiceType: Record<SectorId, string> = {
+  offices: 'Office Fit-Out',
+  hospitality: 'Hospitality Construction',
+  retail: 'Retail Fit-Out',
+  education: 'Education Construction',
+  healthcare: 'Healthcare Fit-Out',
+  'public-buildings': 'Public Building Construction',
+};

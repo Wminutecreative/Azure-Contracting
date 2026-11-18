@@ -2,6 +2,7 @@
 import precise from '@/assets/icons/value-precise.svg';
 import engineered from '@/assets/icons/value-engineered.svg';
 import versatile from '@/assets/icons/value-versatile.svg';
+import { valueCards } from '@/data/site';
 
 // Three tall white cards (min 490px, 52px gap at desktop): icon top-left, title bottom-left.
 // Hover (design): the card fills with a white → olive gradient, the icon turns near-black, and the description
@@ -12,17 +13,8 @@ interface Props {
 }
 const { class: className } = Astro.props;
 
-const values = [
-  {
-    title: 'Precise',
-    icon: precise,
-    description:
-      'Close attention to detail at every stage, so the finished space matches the vision it started with.',
-  },
-  // TODO: confirm with the hover design — copy below is from the Claude Design homepage
-  { title: 'Engineered', icon: engineered, description: 'Real construction expertise behind every fit-out, translating drawings into finished spaces that hold up to use.' },
-  { title: 'Versatile', icon: versatile, description: "Equally at home across each sector's specific needs shape how we approach the work." },
-];
+const icons = { Precise: precise, Engineered: engineered, Versatile: versatile };
+const values = valueCards.map((v) => ({ ...v, icon: icons[v.title as keyof typeof icons] }));
 ---
 
 <ul class:list={['grid gap-4 sm:grid-cols-3 md:gap-8 lg:gap-[3.25rem]', className]}>

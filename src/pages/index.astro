@@ -11,6 +11,9 @@ import TestimonialSlider from '@/components/TestimonialSlider.astro';
 import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects, getTestimonials, getFaqs } from '@/lib/content';
+import { sectors, sectorServiceType } from '@/data/sectors';
+import { valueCards } from '@/data/site';
+import { slogan, termList, reviewNode } from '@/lib/schema';
 // Hero background video (served as a hashed file from the build). TODO: compress — see note in the hero below.
 import heroVideo from '@/assets/placeholders/hero-video.mp4?url';
 
@@ -23,12 +26,55 @@ const stats = [
   { value: '500+', label: 'Projects delivered successfully' },
   { value: '98%', label: 'Overall client satisfaction rate' },
 ];
+
+// ---- JSON-LD (SEO brief): sectors as Services, featured work, how we work, homepage reviews ----
+const site = new URL('/', Astro.site).toString();
+const orgId = `${site}#organization`;
+const projectsUrl = new URL('/projects', Astro.site).toString();
+const schema = [
+  { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: site }] },
+  ...sectors.map((sector) => ({
+    '@type': 'Service',
+    '@id': `${site}#service-${sector.id}`,
+    name: sector.label,
+    description: `${sector.description}.`,
+    provider: { '@id': orgId },
+    serviceType: sectorServiceType[sector.id],
+    areaServed: { '@type': 'Country', name: 'Ireland' },
+    url: projectsUrl,
+  })),
+  {
+    '@type': 'ItemList',
+    '@id': `${site}#featured-projects`,
+    name: 'Our Featured Work',
+    numberOfItems: featured.length,
+    itemListElement: featured.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'CreativeWork',
+        name: p.data.title,
+        description: p.data.excerpt,
+        url: new URL(`/projects/${p.id}`, Astro.site).toString(),
+      },
+    })),
+  },
+  termList(`${site}#how-we-work`, 'How we work', valueCards.map((v) => ({ name: v.title, description: v.description }))),
+  ...testimonials.map((t) => reviewNode(t, site, orgId)),
+];
+const orgExtra = {
+  slogan,
+  additionalProperty: stats.map((st) => ({ '@type': 'PropertyValue', name: st.label, value: st.value })),
+};
 ---
 
 <BaseLayout
   title="Azure Contracting | Fit-Out & Refurbishment Ireland"
   description="Azure Contracting delivers construction, refurbishment and fit-out for offices, hospitality, retail and education across Ireland. Based in Kildare."
   headerDock
+  schema={schema}
+  orgDescription="Azure Contracting brings hands-on site experience to construction, refurbishment and fit-out work in offices, hospitality, retail and education."
+  orgExtra={orgExtra}
 >
   <!-- 1. Hero — full viewport, photo anchored to the bottom, darkened behind the logo.
        With JS + motion, the visible logo is the header's docking logo (see Header.astro); this one is the
@@ -49,23 +95,23 @@ const stats = [
       data-hero-video
     ></video>
     <div class="hero-shade absolute inset-0 -z-10" aria-hidden="true"></div>
-    <h1 class="px-4">
+    <p class="px-4">
       <span class="sr-only">Azure Contracting — fit-out specialists in construction, refurbishment and fit-out, Kildare, Ireland</span>
       <span aria-hidden="true" class="hero-logo"><Logo class="text-[clamp(4.5rem,8.2vw,7.75rem)]" /></span>
-    </h1>
+    </p>
   </section>
 
   <!-- 2. Intro statement + stats -->
   <section class="py-[clamp(4.5rem,8vw,7.5rem)]">
     <div class="container-site">
-      <h2
+      <h1
         class="mx-auto max-w-[75rem] text-center text-[clamp(1.25rem,2.6vw,2.5rem)] leading-[1.45] font-medium  text-[#585858] uppercase"
         data-line-reveal
       >
         Azure Contracting brings <strong class="font-medium text-[#0E1F3D]">hands-on</strong> site experience to
         <strong class="font-medium text-[#0E1F3D]">construction, refurbishment and fit-out</strong> work in
         <strong class="font-medium text-[#0E1F3D]">offices, hospitality, retail and education.</strong>
-    </h2>
+    </h1>
       <StatRow stats={stats} class="mt-[clamp(3rem,6vw,7.5rem)]" />
     </div>
   </section>  

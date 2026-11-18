@@ -36,7 +36,7 @@ const {
   <BigOutlineHeading text={heading} as={headingAs}>
     <div class="container-site">
       <ConnectedStack>
-        {projects.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} eager={i === 0} />)}
+        {projects.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} eager={i === 0} headingLevel={headingAs === 'h1' ? 'h2' : 'h3'} />)}
       </ConnectedStack>
     </div>
   </BigOutlineHeading>

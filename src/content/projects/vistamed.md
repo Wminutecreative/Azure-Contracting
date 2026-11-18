@@ -15,6 +15,8 @@ gallery:
     alt: 'Meeting room with a white oval table and grey chairs on yellow carpet'
   - src: ../../assets/projects/vistamed/project-hero-vistamed-slide-6.jpg
     alt: 'Green sofa beside a lattice-screened room with the VistaMed logo'
+  - src: ../../assets/projects/vistamed/project-hero-vistamed.jpg
+    alt: 'Breakout area with orange upholstered banquettes beside tall tinted windows'
 client: 'VistaMed Ltd'
 location: 'Carrick-on-Shannon, Co. Leitrim'
 role: 'Main Contractor & PSCS'

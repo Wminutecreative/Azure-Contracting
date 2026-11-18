@@ -79,3 +79,17 @@ export const clients: { name: string; logo: ImageMetadata; scale?: number }[] = 
   { name: 'InterContinental Dublin', logo: intercontinental },
   { name: 'MHL Hotel Collection', logo: mhl, scale: 0.7 },
 ];
+
+// "How we work" value cards (homepage + About Us); also used for their JSON-LD
+// TODO: confirm with the hover design — Engineered / Versatile copy is from the Claude Design homepage
+export const valueCards: { title: string; description: string }[] = [
+  {
+    title: 'Precise',
+    description: 'Close attention to detail at every stage, so the finished space matches the vision it started with.',
+  },
+  {
+    title: 'Engineered',
+    description: 'Real construction expertise behind every fit-out, translating drawings into finished spaces that hold up to use.',
+  },
+  { title: 'Versatile', description: "Equally at home across each sector's specific needs shape how we approach the work." },
+];

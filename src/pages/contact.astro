@@ -19,8 +19,7 @@ const schema = [
   {
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
-    name: 'Contact Azure Contracting',
-    url: new URL('/contact', Astro.site).toString(),
+    mainEntity: { '@id': `${new URL('/', Astro.site)}#organization` },
   },
   {
     '@context': 'https://schema.org',

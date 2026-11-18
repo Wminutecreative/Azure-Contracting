@@ -42,7 +42,7 @@ const multi = slides.length > 1;
         slides.map((s, i) => (
           <Image
             src={s.src}
-            alt={i === 0 ? s.alt : ''}
+            alt={s.alt}
             widths={[640, 960, 1280, 1600, 1920, 2560]}
             sizes="(min-width: 1340px) 960px, (min-width: 768px) 70vw, 150vw"
             loading={eager && i === 0 ? 'eager' : 'lazy'}

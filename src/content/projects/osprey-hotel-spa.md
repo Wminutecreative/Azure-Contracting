@@ -24,8 +24,8 @@ role: Main Contractor & PSCS
 featured: true
 
 order: 3
-metaTitle: 'Osprey Hotel Spa | Spa Fit-Out by Azure Contracting'
-metaDescription: 'Azure Contracting delivered alteration, upgrade and fit-out works at the Osprey Hotel Spa in Naas, Co. Kildare, across four floors and the external entrance.'
+metaTitle: 'Osprey Hotel Spa | Fit-Out & Upgrade by Azure Contracting'
+metaDescription: 'Azure Contracting fitted out the Osprey Hotel Spa in Naas, Co. Kildare, across four internal floor levels including the ground-floor external entrance.'
 ---
 
 Construction of new alterations and upgrade construction and fit-out works at the internal ground, first, second and third floor levels, along with works to the ground floor external entrance area.

@@ -6,8 +6,7 @@ import '@/styles/global.css';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import GradientBackground from '@/components/GradientBackground.astro';
-import { getTestimonials } from '@/lib/content';
-import { contact } from '@/data/site';
+import { contact, clients } from '@/data/site';
 
 interface Props {
   /** Transparent header over a full-bleed hero (homepage) */
@@ -29,9 +28,28 @@ interface Props {
    * adding a second one; a BreadcrumbList is linked from the WebPage.
    */
   schema?: Record<string, unknown>[];
+  /** This page's description of the company in the GeneralContractor node (SEO brief: one per page) */
+  orgDescription?: string;
+  /** Extra GeneralContractor properties for this page (slogan, stats, founders, employees…) */
+  orgExtra?: Record<string, unknown>;
+  /** Add the "Clients we have worked with" list (the logo strip above the footer). On by default. */
+  clientsSchema?: boolean;
 }
 
-const { headerOverlay = false, headerLogo = true, headerDock = false, title, description, ogImage = '/og-default.jpg', ogType = 'website', noindex = false, schema = [] } =
+const {
+  headerOverlay = false,
+  headerLogo = true,
+  headerDock = false,
+  title,
+  description,
+  ogImage = '/og-default.jpg',
+  ogType = 'website',
+  noindex = false,
+  schema = [],
+  orgDescription,
+  orgExtra = {},
+  clientsSchema = true,
+} =
   Astro.props;
 
 const siteName = 'Azure Contracting';
@@ -49,10 +67,6 @@ const websiteId = `${siteUrl}#website`;
 const pageId = `${canonical}#webpage`;
 const siteDescription =
   'Construction, refurbishment and fit-out for offices, hospitality, retail and education. Based in Kildare, working across Ireland.';
-
-// Rating from the testimonials shown on the Testimonials page (count stays in step with the site)
-const reviews = await getTestimonials({ page: true });
-const ratingAvg = reviews.length ? reviews.reduce((sum, r) => sum + r.data.rating, 0) / reviews.length : 0;
 
 const website = {
   '@type': 'WebSite',
@@ -72,26 +86,32 @@ const organization = {
   // The real logo (rendered from the site logo), not the 1200×630 share image — Google wants the logo itself here
   logo: { '@type': 'ImageObject', url: new URL('/logo.png', Astro.site).toString(), width: 1794, height: 410 },
   image: new URL('/og-default.jpg', Astro.site).toString(),
-  description: siteDescription,
+  description: orgDescription ?? siteDescription,
+  email: contact.email,
   telephone: contact.phone,
-  // TODO: client to confirm the street address (and add email once confirmed)
+  // TODO: client to confirm the street address
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Osprey Business Centre',
+    streetAddress: 'Osprey Business Centre, Block C, Naas West',
     addressLocality: 'Naas',
-    addressRegion: 'County Kildare',
+    addressRegion: 'Co. Kildare',
     addressCountry: 'IE',
   },
   areaServed: { '@type': 'Country', name: 'Ireland' },
-  ...(reviews.length && {
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: String(Math.round(ratingAvg * 10) / 10),
-      bestRating: '5',
-      worstRating: '1',
-      reviewCount: String(reviews.length),
-    },
-  }),
+  ...orgExtra,
+};
+
+// The client logo strip shown above the footer
+const clientList = {
+  '@type': 'ItemList',
+  '@id': `${canonical}#clients`,
+  name: 'Clients we have worked with',
+  numberOfItems: clients.length,
+  itemListElement: clients.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: { '@type': 'Organization', name: c.name },
+  })),
 };
 
 // Page nodes: strip @context (the graph has one), fold page-type nodes into the WebPage, link the breadcrumb
@@ -110,14 +130,14 @@ const webPage = {
   description,
   isPartOf: { '@id': websiteId },
   about: { '@id': orgId },
-  primaryImageOfPage: { '@type': 'ImageObject', url: ogImageUrl.toString() },
+  primaryImageOfPage: pageOverride?.primaryImageOfPage ?? { '@type': 'ImageObject', url: ogImageUrl.toString() },
   ...(breadcrumb && { breadcrumb: { '@id': breadcrumb['@id'] } }),
   inLanguage: 'en-IE',
 };
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@graph': [website, organization, webPage, ...nodes.filter((n) => n !== pageOverride)],
+  '@graph': [website, organization, webPage, ...nodes.filter((n) => n !== pageOverride), ...(clientsSchema ? [clientList] : [])],
 };
 ---
 

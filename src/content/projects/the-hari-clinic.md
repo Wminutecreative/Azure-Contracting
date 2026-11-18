@@ -1,7 +1,7 @@
 ---
 title: The Hari Clinic
 # TODO: confirm sector — an IVF clinic doesn't obviously fit offices/hospitality/retail/education
-sector: retail
+sector: healthcare
 excerpt: Azure were responsible for stripping out the existing interior decor and refurbishing the Hari Clinic, an IVF centre of excellence attached to the Rotunda Hospital. This project included a complete new reception area incorporating a glazed screen meeting room.
 cover: ../../assets/projects/the-hari-clinic/the-hari-clinic-6.jpg
 coverAlt: 'Corridor beside a curved glazed room with a blue sunburst frosted graphic'
@@ -18,6 +18,8 @@ gallery:
     alt: 'Clinic reception with a curved white desk and a window onto the grounds'
   - src: ../../assets/projects/the-hari-clinic/the-hari-clinic-5.jpg
     alt: 'Desk area beside a curved glass consultation room with a frosted graphic'
+  - src: ../../assets/projects/the-hari-clinic/project-hero-hariclinic.jpg
+    alt: 'Reception with a slatted timber desk, glass doors and a waiting area under a rooflight'
 
 
 location: Dublin

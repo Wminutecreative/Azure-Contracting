@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { sectors, type SectorId } from '@/data/sectors';
+import { getProjects } from '@/lib/content';
 import PlayIcon from './PlayIcon.astro';
 import hospitality from '@/assets/sectors/hospitality.png'; // cropped 1× from the hover design — TODO: Figma export
 // TODO: real sector photos from the client/Figma — copies of project photos stand in for now.
@@ -12,6 +13,8 @@ import education from '@/assets/sectors/education.png';
 import healthcare from '@/assets/projects/hermitage-clinic/hermitage-4.jpg';
 import publicBuildings from '@/assets/projects/wexford-county-council/project-hero-wexfordcc.jpg';
 
+// Each card links to the closest project for that sector: its first project by Keystatic "Order" (or the Projects
+// page if the sector has none yet).
 // Four stacked white link cards (22px radius, 18px gap) with an arrow chip on the right.
 // Hover (design): the card turns neon, the arrow becomes a large white play icon, and a photo of that sector
 // fades in at a fixed spot over the card, overlapping the cards above and below. No movement.
@@ -29,13 +32,29 @@ const images: Record<SectorId, ImageMetadata> = {
   healthcare,
   'public-buildings': publicBuildings,
 };
+const projects = await getProjects();
+const hrefFor = (id: SectorId) => {
+  const project = projects.find((p) => p.data.sector === id);
+  return project ? `/projects/${project.id}` : '/projects';
+};
+
+// Alt text for each sector photo (describes the photo, not just the sector name)
+const alts: Record<SectorId, string> = {
+  offices: 'Office breakout lounge behind glass walls with a timber slatted ceiling, armchairs and planters',
+  hospitality: 'Hotel bedroom with a white bed, wingback armchairs and tall sash windows',
+  retail: 'Retail fit-out interior',
+  education: 'Education fit-out interior',
+  healthcare: 'Clinic reception with a curved white desk and a window onto the grounds',
+  'public-buildings': 'Double-height foyer with a timber reception desk and black seating under concrete panels',
+};
 ---
 
 <ul class:list={['space-y-[1.125rem]', className]}>
   {
     sectors.map((sector) => (
       <li class="relative hover:z-10 focus-within:z-10" data-reveal>
-        <div
+        <a
+          href={hrefFor(sector.id)}
           class="sector-card group hover:bg-neon focus-visible:bg-neon relative flex items-center justify-between gap-6 rounded-[1.375rem] bg-white px-6 py-6 shadow-[0_1px_0_rgb(14_31_61/0.04)] transition-colors duration-300 md:px-9 md:py-7"
         >
           <div class="flex flex-col gap-2">
@@ -54,7 +73,7 @@ const images: Record<SectorId, ImageMetadata> = {
           {/* Drawn up to 428px wide (22vw) — `sizes` must say so, or browsers pick a small file and it blurs */}
           <Image
             src={images[sector.id]}
-            alt=""
+            alt={alts[sector.id]}
             widths={[480, 720, 960, 1280]}
             sizes="(min-width: 1946px) 428px, (min-width: 1091px) 22vw, 240px"
             quality={85}
@@ -63,7 +82,7 @@ const images: Record<SectorId, ImageMetadata> = {
             aria-hidden="true"
             class="sector-preview"
           />
-        </div>
+        </a>
       </li>
     ))
   }

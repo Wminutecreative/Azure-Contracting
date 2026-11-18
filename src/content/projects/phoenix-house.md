@@ -2,20 +2,21 @@
 title: 'Phoenix House'
 sector: offices
 excerpt: 'The project consisted of a fit-out of 3 floors of Phoenix House on Conyngham Road in Dublin 8. The 3 floors were refurbished to CAT A standard. There is no area within the entire office that doesn’t have a design-heavy element. From ceilings to multi-zoned finishes and styles, bespoke joinery to soft furnishings etc.'
-cover: ../../assets/projects/phoenix-house/phoenix-3.jpg
-coverAlt: 'Meeting room with white chairs, a felt acoustic wall panel and a circular light'
-# Photos from the current live site (azurecontracting.ie)
+cover: ../../assets/projects/phoenix-house/SM_1296_0020.jpg
+coverAlt: 'Meeting room with white chairs, a green felt acoustic wall and a circular light under white ceiling baffles'
 gallery:
-  - src: ../../assets/projects/phoenix-house/phoenix-2.jpg
-    alt: 'Boardroom with a timber table, wall-mounted screen and black-framed glazed partition'
-  - src: ../../assets/projects/phoenix-house/phoenix-4.jpg
-    alt: 'Long canteen with white tables, a serving counter and filament pendants under an exposed ceiling'
-  - src: ../../assets/projects/phoenix-house/phoenix-5.jpg
-    alt: 'Canteen and breakout area with suspended acoustic rafts and pendant lights'
-  - src: ../../assets/projects/phoenix-house/phoenix-6.jpg
-    alt: 'Dining area with timber pendant lights, a slatted timber screen and shelving'
-  - src: ../../assets/projects/phoenix-house/phoenix-1.jpg
-    alt: 'Corridor with a timber floor and black-framed glass partitions'
+  - src: ../../assets/projects/phoenix-house/SM_1296_0060.jpg
+    alt: 'Staff canteen with white tables, suspended acoustic rafts and pendant lights under an exposed services ceiling'
+  - src: ../../assets/projects/phoenix-house/SM_1296_0092 (1).jpg
+    alt: 'Boardroom with an oak table, a wall-mounted screen, a rooflight and black-framed glazed partitions'
+  - src: ../../assets/projects/phoenix-house/SM_1296_0107-Pano.jpg
+    alt: 'Black-framed reeded-glass offices beside a bank of white lockers under an exposed ceiling with a linear light'
+  - src: ../../assets/projects/phoenix-house/SM_1296_0119.jpg
+    alt: 'Corridor with a slatted timber ceiling, black-framed glass doors and a blue feature wall'
+  - src: ../../assets/projects/phoenix-house/SM_1296_0151.jpg
+    alt: 'Corridor with angled linear lights in a slatted timber ceiling, glass offices and white storage walls'
+  - src: ../../assets/projects/phoenix-house/SM_1296_0163.jpg
+    alt: 'Open-plan office walkway with a blue wall, desks and an exposed ceiling with ductwork and a linear light'
 client: 'The Office of Public Works'
 location: 'Phoenix House, Coynagham Road, Dublin 8'
 role: 'Main Contractor & PSCS'
