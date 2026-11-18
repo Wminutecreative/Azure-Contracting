@@ -92,7 +92,7 @@ const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ?
               {testimonials.map((t, i) => (
                 <Image
                   src={pic(t)}
-                  alt=""
+                  alt={picAlt(t)}
                   width={460}
                   densities={[1, 2]}
                   class:list={['t-next size-full rounded-[1.375rem]', fit(t, 'p-8'), i === 1 % count && 'is-active']}

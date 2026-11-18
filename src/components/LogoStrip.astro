@@ -22,7 +22,7 @@ const { class: className } = Astro.props;
               <li class="shrink-0">
                 <Image
                   src={c.logo}
-                  alt={copy === 1 ? '' : c.name}
+                  alt={`${c.name} logo`}
                   height={Math.min(c.logo.height, 144)}
                   style={c.scale ? `transform: scale(${c.scale})` : undefined}
                   class="h-12 w-auto opacity-90 grayscale transition-opacity hover:opacity-100 md:h-16 lg:h-[4.5rem]"
