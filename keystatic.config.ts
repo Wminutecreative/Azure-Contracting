@@ -164,6 +164,10 @@ export default config({
       schema: {
         name: fields.slug({ name: { label: 'Name', validation: { isRequired: true } } }),
         role: fields.text({ label: 'Job title', validation: { isRequired: true } }),
+        qualifications: fields.text({
+          label: 'Qualifications',
+          description: 'Post-nominal letters, e.g. "MSCSI, MRICS". Shown after the job title. Optional.',
+        }),
         photo: fields.image({
           label: 'Photo',
           description: 'Portrait (taller than wide), at least 800px wide. Shown on the About Us page.',

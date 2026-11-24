@@ -62,8 +62,8 @@ const socialIcons: Record<string, string> = {
     {
       showLogo && !dock ? (
         <a href="/" aria-label="Azure Contracting — home" class="justify-self-center">
-          {/* 3.45rem → 184px wide (2.6rem → 140px on phones), the same size as the docked homepage logo */}
-          <Logo tone={overlay ? 'light' : 'dark'} class="text-[2.6rem] md:text-[3.45rem]" />
+          {/* 3.86rem → 206px wide (2.9rem → 157px on phones), ~12% over the 184px design spec, the same size as the docked homepage logo */}
+          <Logo tone={overlay ? 'light' : 'dark'} class="text-[2.9rem] md:text-[3.86rem]" />
         </a>
       ) : (
         <span />
@@ -462,14 +462,14 @@ const cls =
     let travel = 0;
     let endScale = 1;
     let queued = false;
-    // Docked logo width: 184px (design spec) from tablet up, 140px on phones so it clears the menu + button
-    const dockW = () => (md.matches ? 184 : 140);
+    // Docked logo width: 206px from tablet up (~12% over the 184px design spec), 157px on phones so it clears the menu + button
+    const dockW = () => (md.matches ? 206 : 157);
 
     const measure = () => {
       heroH = hero.offsetHeight;
       barH = (md.matches ? 8.5 : 5) * rem();
       travel = Math.max(1, (heroH - barH) / 2);
-      // Docked logo is 184px wide (design spec: 184 × 49). offsetWidth ignores the transform, so this is the
+      // Docked logo width comes from dockW(). offsetWidth ignores the transform, so this is the
       // logo's full hero width (the client logo SVG lands at ~184 × 42).
       endScale = dockW() / logoInner.offsetWidth;
     };

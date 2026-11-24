@@ -87,8 +87,6 @@ const aboutUrl = new URL('/about', Astro.site).toString();
 const personId = (id: string) => `${aboutUrl}#person-${id}`;
 // Founded by Liam Fogarty and Adrian McDermott (team entry ids)
 const founders = ['liam-fogarty', 'adrian-mcdermott'].filter((id) => team.some((m) => m.id === id));
-// A role that is only post-nominal letters ("MSCSI, MRICS") is an honorific, not a job title
-const isPostNominals = (role: string) => /^[A-Z]{2,}(,\s*[A-Z]{2,})*$/.test(role.trim());
 
 const schema = [
   { '@type': 'AboutPage', mainEntity: { '@id': `${site}#organization` } },
@@ -106,7 +104,8 @@ const schema = [
     '@type': 'Person',
     '@id': personId(m.id),
     name: m.data.name,
-    ...(isPostNominals(m.data.role) ? { honorificSuffix: m.data.role } : { jobTitle: m.data.role }),
+    jobTitle: m.data.role,
+    ...(m.data.qualifications && { honorificSuffix: m.data.qualifications }),
     worksFor: { '@id': `${site}#organization` },
     url: aboutUrl,
   })),
@@ -133,7 +132,7 @@ const orgExtra = {
         <div class="grid items-stretch gap-8 md:grid-cols-[1.05fr_1fr] md:gap-12">
           <div class="flex flex-col justify-between gap-8 py-2">
             <h2 class="font-display text-[clamp(1.75rem,1.2rem+2.2vw,3rem)] leading-[1.25] font-medium text-[#303030] uppercase">
-              Based in <span class="text-navy">Kildare</span> and working on projects
+              working on projects
               <span class="text-navy">across Ireland</span>
             </h2>
             <div>
@@ -264,7 +263,7 @@ const orgExtra = {
   {
     team.length > 0 && (
       <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
-        <BigOutlineHeading text="Our Team Members">
+        <BigOutlineHeading text="Key Team Members">
           {/* Slider: the row starts in line with the content column and runs off the right edge (three cards fit the
               column, the next one peeks in). Prev / next arrows move one card; trackpads, touch and mouse drag also
               scroll it. */}

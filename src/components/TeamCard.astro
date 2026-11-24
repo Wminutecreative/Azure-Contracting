@@ -9,11 +9,12 @@ interface Props {
   member: CollectionEntry<'team'>;
 }
 const { member } = Astro.props;
-const { name, role, photo, bio } = member.data;
+const { name, role, qualifications, photo, bio } = member.data;
+const title = qualifications ? `${role}, ${qualifications}` : role;
 const paragraphs = bio?.split(/\n+/).filter(Boolean) ?? [];
 ---
 
-<article class="team-card shrink-0" tabindex="0" aria-label={`${name}, ${role}`}>
+<article class="team-card shrink-0" tabindex="0" aria-label={`${name}, ${title}`}>
   <div class="team-flip">
     <!-- Front -->
     <div class="team-face team-front bg-[#eef1f4]">
@@ -28,7 +29,7 @@ const paragraphs = bio?.split(/\n+/).filter(Boolean) ?? [];
       />
       <div class="border-neon absolute inset-x-4 bottom-4 rounded-2xl border bg-white px-5 py-4 sm:inset-x-6 sm:bottom-6 sm:px-6">
         <h3 class="text-text-dark font-body text-h5 leading-tight font-medium">{name}</h3>
-        <p class="text-stat-label text-p1 mt-0.5">{role}</p>
+        <p class="text-stat-label text-p1 mt-0.5">{title}</p>
       </div>
     </div>
 
