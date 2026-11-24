@@ -270,7 +270,7 @@ const orgExtra = {
           <div class="team-track" role="region" aria-label="Team members" data-team-track>
             {team.map((member) => <TeamCard member={member} />)}
           </div>
-          <div class="container-site mt-[clamp(1.25rem,0.8rem+1.2vw,2rem)] flex justify-end gap-4">
+          <div class="container-site mt-[clamp(1.25rem,0.8rem+1.2vw,2rem)] flex justify-end gap-4" data-team-nav>
             <button type="button" class="team-arrow" aria-label="Previous team member" data-team-prev disabled>
               <NavArrow direction="left" size={24} />
             </button>
@@ -567,6 +567,7 @@ const orgExtra = {
   const track = document.querySelector<HTMLElement>('[data-team-track]');
   const prev = document.querySelector<HTMLButtonElement>('[data-team-prev]');
   const next = document.querySelector<HTMLButtonElement>('[data-team-next]');
+  const nav = document.querySelector<HTMLElement>('[data-team-nav]');
   if (track && prev && next) {
     const step = () => {
       const card = track.querySelector<HTMLElement>('.team-card');
@@ -575,6 +576,8 @@ const orgExtra = {
     const update = () => {
       prev.disabled = track.scrollLeft <= 2;
       next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
+      // All cards fit (e.g. two members on desktop): no arrows
+      if (nav) nav.hidden = prev.disabled && next.disabled;
     };
     prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
     next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));

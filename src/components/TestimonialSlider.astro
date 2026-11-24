@@ -1,7 +1,7 @@
 ---
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import NavArrow from './NavArrow.astro';
+import TestimonialPic from './TestimonialPic.astro';
 
 // "Trusted By Clients" layout from the homepage design (1512px):
 //   [heading + current photo 230w] [quote card 563w] [2×2: _, Next tile / Prev tile, next person's photo]
@@ -19,11 +19,6 @@ const {
   class: className,
 } = Astro.props;
 const count = testimonials.length;
-// Each person's picture: their photo, or else their company logo, which is shown whole on white instead of
-// cropped to fill the frame (getTestimonials only passes in testimonials that have one or the other)
-const pic = (t: CollectionEntry<'testimonials'>) => (t.data.photo ?? t.data.logo)!;
-const picAlt = (t: CollectionEntry<'testimonials'>) => (t.data.photo ? `Photo of ${t.data.name}` : `${t.data.company} logo`);
-const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ? 'object-cover' : `object-contain bg-white ${pad}`);
 ---
 
 {
@@ -39,7 +34,7 @@ const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ?
             </div>
             <div class="stack hidden aspect-[0.95] max-w-[17.5rem] lg:grid" data-main-photo>
               {testimonials.map((t, i) => (
-                <Image src={pic(t)} alt={picAlt(t)} width={560} class:list={['t-item size-full rounded-[1.375rem] !bg-transparent', fit(t, 'p-8'), i === 0 && 'is-active']} data-i={i} />
+                <TestimonialPic t={t} width={560} pad="p-8" class:list={['t-item t-pic size-full rounded-[1.375rem]', t.data.logo && !t.data.photo && '!bg-transparent', i === 0 && 'is-active']} data-i={i} />
               ))}
             </div>
           </div>
@@ -64,7 +59,7 @@ const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ?
                   </div>
                 </div>
                 <figcaption class="flex items-center gap-4">
-                  <Image src={pic(t)} alt={picAlt(t)} width={96} class:list={['size-12 rounded-full lg:hidden', fit(t, 'p-1.5')]} />
+                  <TestimonialPic t={t} width={96} pad="p-1.5" decorative class="size-12 shrink-0 rounded-full lg:hidden" />
                   <span>
                     <span class="text-navy block text-p1 font-medium">{t.data.name}</span>
                     <span class="text-stat-label block text-sm">{t.data.role ? `${t.data.role}, ${t.data.company}` : t.data.company}</span>
@@ -90,14 +85,7 @@ const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ?
             <span class="t-fillet t-fillet-b" aria-hidden="true"></span>
             <div class="t-photo stack hidden lg:grid" aria-hidden="true" data-next-photo>
               {testimonials.map((t, i) => (
-                <Image
-                  src={pic(t)}
-                  alt={picAlt(t)}
-                  width={460}
-                  densities={[1, 2]}
-                  class:list={['t-next size-full rounded-[1.375rem]', fit(t, 'p-8'), i === 1 % count && 'is-active']}
-                  data-i={i}
-                />
+                <TestimonialPic t={t} width={460} densities={[1, 2]} pad="p-8" class:list={['t-next size-full rounded-[1.375rem]', i === 1 % count && 'is-active']} data-i={i} />
               ))}
             </div>
           </div>
@@ -147,7 +135,7 @@ const fit = (t: CollectionEntry<'testimonials'>, pad: string) => (t.data.photo ?
     visibility: visible;
     pointer-events: auto;
   }
-  :global(.t-track > img.t-item) {
+  :global(.t-track > .t-pic) {
     z-index: 2;
   }
   :global(.is-track .t-photo .t-next.t-next) {

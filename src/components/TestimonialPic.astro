@@ -1,0 +1,60 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+// A testimonial's picture for the homepage slider: their photo (cropped to fill), else their company logo (shown
+// whole on white), else their initials on navy. Extra attributes (class, data-i) go on the rendered element.
+interface Props {
+  t: CollectionEntry<'testimonials'>;
+  width: number;
+  /** Padding around a logo, e.g. "p-8" */
+  pad: string;
+  class?: string;
+  decorative?: boolean;
+  densities?: number[];
+  [key: `data-${string}`]: unknown;
+}
+const { t, width, pad, class: className, decorative = false, densities, ...rest } = Astro.props;
+const { photo, logo, name, company } = t.data;
+const alt = photo ? `Photo of ${name}` : `${company} logo`;
+const initials = name
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((w) => w[0])
+  .filter((c) => /\p{Lu}/u.test(c))
+  .slice(0, 2)
+  .join('');
+---
+
+{
+  photo || logo ? (
+    <Image
+      src={(photo ?? logo)!}
+      alt={alt}
+      width={width}
+      densities={densities}
+      class:list={[className, photo ? 'object-cover' : `object-contain bg-white ${pad}`]}
+      {...rest}
+    />
+  ) : (
+    <div
+      class:list={[className, 't-initials bg-navy text-neon font-body flex items-center justify-center font-medium']}
+      role={decorative ? undefined : 'img'}
+      aria-label={decorative ? undefined : `${name}, ${company}`}
+      {...rest}
+    >
+      <span aria-hidden="true">{initials}</span>
+    </div>
+  )
+}
+
+<style>
+  .t-initials {
+    container-type: size;
+  }
+  .t-initials span {
+    font-size: 38cqmin;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+</style>
