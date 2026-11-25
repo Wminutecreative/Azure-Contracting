@@ -1,0 +1,41 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+// Cover photo at the top of an inner page, under the header: a wide, rounded photo in the content column.
+// It is the page's first big image, so it loads eagerly with high priority (LCP). The same photo is the page's
+// share image (pass it to ogImageFor). On load the photo settles from a slight zoom; none under reduced motion.
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  class?: string;
+}
+const { src, alt, class: className } = Astro.props;
+---
+
+<div class:list={['container-site pt-[clamp(1rem,0.5rem+1.5vw,2rem)]', className]}>
+  <div class="page-cover overflow-hidden rounded-[1.5rem] md:rounded-[2.25rem]">
+    <Image
+      src={src}
+      alt={alt}
+      widths={[640, 960, 1280, 1600, 2000, 2640]}
+      sizes="(min-width: 1400px) 1320px, calc(100vw - 2rem)"
+      loading="eager"
+      fetchpriority="high"
+      class="page-cover-img h-[clamp(13rem,7rem+24vw,32rem)] w-full object-cover"
+    />
+  </div>
+</div>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .page-cover-img {
+      animation: cover-settle 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+  @keyframes cover-settle {
+    from {
+      transform: scale(1.08);
+    }
+  }
+</style>

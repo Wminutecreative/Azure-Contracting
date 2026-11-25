@@ -36,3 +36,9 @@ export async function getFaqs(page: string): Promise<FaqItem[]> {
   const all = await getCollection('faqs', ({ data }) => data.pages.includes(page));
   return all.sort(byOrder).map(({ data }) => ({ question: data.question, answer: data.answer }));
 }
+
+/** A project's cover photo + alt text, for page cover banners / share images (undefined if the project is gone) */
+export async function getProjectCover(id: string) {
+  const project = (await getCollection('projects')).find((p) => p.id === id);
+  return project ? { src: project.data.cover, alt: project.data.coverAlt } : undefined;
+}

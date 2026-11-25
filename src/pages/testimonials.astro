@@ -12,6 +12,7 @@ import FaqAccordion from '@/components/FaqAccordion.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getTestimonials, getFaqs, getProjects } from '@/lib/content';
 import { ogImageFor } from '@/lib/og';
+import PageCover from '@/components/PageCover.astro';
 import { reviewNode } from '@/lib/schema';
 
 const testimonials = await getTestimonials({ page: true });
@@ -42,6 +43,8 @@ const reviews = testimonials.map((t) => reviewNode(t, pageUrl, orgId));
   schema={[breadcrumbs, ...reviews]}
   orgDescription="Azure Contracting has earned consistent five-star feedback from hotel groups, architects and office managers across fit-out and refurbishment projects in Ireland."
 >
+  {westin && <PageCover src={westin.data.cover} alt={westin.data.coverAlt} />}
+
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
     <BigOutlineHeading text="Client Testimonials" as="h1">
       <div class="container-site">

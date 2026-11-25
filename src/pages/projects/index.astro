@@ -10,12 +10,16 @@ import FeaturedWork from '@/components/FeaturedWork.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects } from '@/lib/content';
 import { ogImageFor } from '@/lib/og';
+import PageCover from '@/components/PageCover.astro';
+import { getProjectCover } from '@/lib/content';
 import { projectCategories } from '@/data/sectors';
 
 const projects = await getProjects();
 // Filter chips: only categories that have at least one project
 const categories = projectCategories.filter((c) => projects.some((p) => p.data.sector === c.id));
-const ogImage = projects[0] ? await ogImageFor(projects[0].data.cover) : undefined;
+// Page cover + share image: Birch House atrium (falls back to the first project)
+const cover = (await getProjectCover('birch-house-aldi-stores-ireland-ltd')) ?? (projects[0] && { src: projects[0].data.cover, alt: projects[0].data.coverAlt });
+const ogImage = cover ? await ogImageFor(cover.src) : undefined;
 
 // ---- JSON-LD (SEO brief): CollectionPage listing every project ----
 const site = new URL('/', Astro.site).toString();
@@ -60,6 +64,8 @@ const schema = [
   schema={schema}
   orgDescription="Azure Contracting has delivered over 500 fit-out and refurbishment projects across offices, hospitality, healthcare and public buildings in Ireland since 2012."
 >
+  {cover && <PageCover src={cover.src} alt={cover.alt} />}
+
   <FeaturedWork projects={projects} headingAs="h1" animated={false} class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
     <div slot="filters" class="pf-bar mb-[clamp(2rem,1rem+3vw,4rem)]" data-project-filters hidden>
       <div class="pf-chips" role="group" aria-label="Filter projects by sector">
