@@ -37,7 +37,7 @@ const paragraphs = bio?.split(/\n+/).filter(Boolean) ?? [];
     <div class="team-face team-back bg-white">
       {
         paragraphs.length > 0 && (
-          <div class="team-bio text-text-medium text-p2 space-y-[1.4em]">
+          <div class="team-bio text-text-medium text-p1 space-y-[1.4em]">
             {paragraphs.map((p) => <p>{p}</p>)}
           </div>
         )

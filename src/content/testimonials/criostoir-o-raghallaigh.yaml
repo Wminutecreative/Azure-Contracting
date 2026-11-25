@@ -1,7 +1,7 @@
 name: Criostóir Ó Raghallaigh
 role: Director/Architect
 company: QBB Architects
-# TODO: add the QBB Architects logo in Keystatic
+logo: ../../assets/testimonials/criostoir-o-raghallaigh/qbb-architects-logo.png
 quote: Azure Contracting proved to be an outstanding partner on the St Davids college project. Their team was proactive, highly organized, and communicative throughout the entire build, ensuring that complex design elements were delivered on time and within the specified parameters.
 rating: 5
 showOnPage: true

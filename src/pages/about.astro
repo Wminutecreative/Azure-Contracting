@@ -264,7 +264,7 @@ const orgExtra = {
     team.length > 0 && (
       <section class="pt-[clamp(4rem,2rem+6vw,8rem)]">
         <BigOutlineHeading text="Key Team Members">
-          {/* Slider: the row starts in line with the content column and runs off the right edge (three cards fit the
+          {/* Slider: the row starts in line with the content column and runs off the right edge (two cards fit the
               column, the next one peeks in). Prev / next arrows move one card; trackpads, touch and mouse drag also
               scroll it. */}
           <div class="team-track" role="region" aria-label="Team members" data-team-track>
@@ -842,8 +842,8 @@ const orgExtra = {
     display: none;
   }
   .team-track > :global(.team-card) {
-    /* Three across the content column on desktop, ~1.2 on phones */
-    width: clamp(16rem, calc((min(100vw - var(--gutter) * 2, var(--container-site)) - var(--team-gap) * 2) / 3), 100vw);
+    /* Two across the content column from tablet up, ~1.2 on phones */
+    width: clamp(16rem, calc((min(100vw - var(--gutter) * 2, var(--container-site)) - var(--team-gap)) / 2), 100vw);
     scroll-snap-align: start;
   }
   @media (max-width: 47.99rem) {
