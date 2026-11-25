@@ -1,8 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { sectors, type SectorId } from '@/data/sectors';
-import { getProjects } from '@/lib/content';
+import { sectors, projectsFilterHref, type SectorId } from '@/data/sectors';
 import PlayIcon from './PlayIcon.astro';
 import hospitality from '@/assets/sectors/hospitality.png'; // cropped 1× from the hover design — TODO: Figma export
 // TODO: real sector photos from the client/Figma — copies of project photos stand in for now.
@@ -12,9 +11,9 @@ import education from '@/assets/sectors/education.png';
 // TODO: real Healthcare / Public Buildings sector photos — project photos stand in (Hermitage Clinic, Wexford Co. Council)
 import healthcare from '@/assets/projects/hermitage-clinic/hermitage-4.jpg';
 import publicBuildings from '@/assets/projects/wexford-county-council/project-hero-wexfordcc.jpg';
+import industrial from '@/assets/projects/avid/project-hero-avid-slide-5.jpg';
 
-// Each card links to the closest project for that sector: its first project by Keystatic "Order" (or the Projects
-// page if the sector has none yet).
+// Each card opens the Projects page with that sector's filter switched on.
 // Four stacked white link cards (22px radius, 18px gap) with an arrow chip on the right.
 // Hover (design): the card turns neon, the arrow becomes a large white play icon, and a photo of that sector
 // fades in at a fixed spot over the card, overlapping the cards above and below. No movement.
@@ -31,12 +30,9 @@ const images: Record<SectorId, ImageMetadata> = {
   education,
   healthcare,
   'public-buildings': publicBuildings,
+  industrial,
 };
-const projects = await getProjects();
-const hrefFor = (id: SectorId) => {
-  const project = projects.find((p) => p.data.sector === id);
-  return project ? `/projects/${project.id}` : '/projects';
-};
+const hrefFor = projectsFilterHref;
 
 // Alt text for each sector photo (describes the photo, not just the sector name)
 const alts: Record<SectorId, string> = {
@@ -46,6 +42,7 @@ const alts: Record<SectorId, string> = {
   education: 'Education fit-out interior',
   healthcare: 'Clinic reception with a curved white desk and a window onto the grounds',
   'public-buildings': 'Double-height foyer with a timber reception desk and black seating under concrete panels',
+  industrial: 'Avid industrial fit-out interior',
 };
 ---
 

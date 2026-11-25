@@ -123,7 +123,8 @@ const { class: className } = Astro.props;
         return;
       }
       const o = stack.getBoundingClientRect();
-      const rects = cards.map((c) => {
+      // Rows hidden by the Projects filter take no space and are left out of the shape
+      const rects = cards.filter((c) => c.getClientRects().length > 0).map((c) => {
         const r = c.getBoundingClientRect();
         return {
           x0: Math.round(r.left - o.left),
@@ -147,5 +148,6 @@ const { class: className } = Astro.props;
     ro.observe(stack);
     cards.forEach((c) => ro.observe(c));
     desktop.addEventListener('change', layout);
+    stack.addEventListener('cs:layout', layout);
   });
 </script>

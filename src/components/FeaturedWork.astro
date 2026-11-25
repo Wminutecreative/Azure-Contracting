@@ -35,6 +35,7 @@ const {
 
   <BigOutlineHeading text={heading} as={headingAs}>
     <div class="container-site">
+      <slot name="filters" />
       <ConnectedStack>
         {projects.map((project, i) => <ProjectCard project={project} reverse={i % 2 === 1} eager={i === 0} headingLevel={headingAs === 'h1' ? 'h2' : 'h3'} />)}
       </ConnectedStack>

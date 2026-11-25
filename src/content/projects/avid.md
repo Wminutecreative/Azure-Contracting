@@ -1,7 +1,7 @@
 ---
 title: 'Avid'
 # TODO: confirm sector — warehouse / light industrial with offices
-sector: offices
+sector: industrial
 excerpt: 'The project involved changing the use of an existing 1071m2 warehouse to warehouse / light industrial use and associated offices'
 cover: ../../assets/projects/avid/project-hero-avid-slide-5.jpg
 coverAlt: 'Avid reception with the purple Avid logo on a white wall beside a revolving entrance door'

@@ -1,5 +1,5 @@
 import { config, fields, collection } from '@keystatic/core';
-import { sectors } from './src/data/sectors';
+import { projectCategories } from './src/data/sectors';
 
 // Keystatic CMS — admin at /keystatic.
 //
@@ -31,7 +31,7 @@ export default config({
         }),
         sector: fields.select({
           label: 'Sector',
-          options: sectors.map((s) => ({ label: s.label, value: s.id })),
+          options: projectCategories.map((c) => ({ label: c.label, value: c.id })),
           defaultValue: 'offices',
         }),
         excerpt: fields.text({

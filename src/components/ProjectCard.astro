@@ -8,7 +8,7 @@ import NavArrow from './NavArrow.astro';
 // sitting on the page background beside it, ~30px clear of the card and flush with the outer edge.
 // Inside FeaturedWork the text cards of consecutive rows overlap slightly and are drawn as ONE white
 // zig-zag shape (SVG path) with curved pocket corners around each photo. Mobile: photo above a white card.
-// `reverse` puts the text card on the left.
+// `reverse` puts the text card on the left (via data-reverse, so the Projects filter can re-alternate rows).
 interface Props {
   project: CollectionEntry<'projects'>;
   reverse?: boolean;
@@ -26,11 +26,11 @@ const multi = slides.length > 1;
 // `sizes` describes that drawn width (not the box width), or browsers pick a file that's too small and it blurs.
 ---
 
-<article class="fw-row group relative" data-fw-row>
+<article class="fw-row group relative" data-fw-row data-sector={project.data.sector} data-reverse={reverse ? '' : undefined}>
   <div
     class:list={[
       'fw-img relative block overflow-hidden rounded-[2rem] md:absolute md:top-[2.55rem] md:bottom-[2.55rem] md:w-[calc(50%-2.375rem)] md:rounded-[2.25rem]',
-      reverse ? 'md:right-0' : 'md:left-0',
+      'md:left-0 md:group-data-reverse:right-0 md:group-data-reverse:left-auto',
       multi && 'is-slider',
     ]}
     data-fw-img
@@ -72,7 +72,7 @@ const multi = slides.length > 1;
   <div
     class:list={[
       'fw-card mt-3 flex flex-col justify-between gap-10 rounded-[2rem] border border-[#e6e9eb] bg-white px-[clamp(1.75rem,4.5vw,4.1rem)] py-[clamp(2rem,6vw,6.25rem)] md:mt-0 md:min-h-[clamp(28rem,44vw,41rem)] md:w-[calc(50%+0.5rem)] md:pb-[clamp(2rem,5.5vw,5.5rem)]',
-      !reverse && 'md:ml-auto',
+      'md:ml-auto md:group-data-reverse:ml-0',
     ]}
     data-shape-rect
   >

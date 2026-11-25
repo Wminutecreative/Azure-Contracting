@@ -2,14 +2,19 @@
 // Projects listing — Figma 534:2019 (prototype 535:6519).
 // "Our Featured Work" title + every project in the connected-box layout (same component as the homepage
 // section, static here — no title/row animation), then client logos → footer.
+// Category chips above the rows filter them by sector; ?category=<slug> (homepage sector rows link here) opens
+// with that chip on. Click the active chip again to show everything. Without JS the chips stay hidden.
 // Projects are managed in Keystatic (/keystatic → Projects); "Order" sets the sequence.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import FeaturedWork from '@/components/FeaturedWork.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getProjects } from '@/lib/content';
 import { ogImageFor } from '@/lib/og';
+import { projectCategories } from '@/data/sectors';
 
 const projects = await getProjects();
+// Filter chips: only categories that have at least one project
+const categories = projectCategories.filter((c) => projects.some((p) => p.data.sector === c.id));
 const ogImage = projects[0] ? await ogImageFor(projects[0].data.cover) : undefined;
 
 // ---- JSON-LD (SEO brief): CollectionPage listing every project ----
@@ -55,7 +60,102 @@ const schema = [
   schema={schema}
   orgDescription="Azure Contracting has delivered over 500 fit-out and refurbishment projects across offices, hospitality, healthcare and public buildings in Ireland since 2012."
 >
-  <FeaturedWork projects={projects} headingAs="h1" animated={false} class="pt-[clamp(1.5rem,1rem+2vw,3rem)]" />
+  <FeaturedWork projects={projects} headingAs="h1" animated={false} class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
+    <div slot="filters" class="pf-bar mb-[clamp(2rem,1rem+3vw,4rem)]" data-project-filters hidden>
+      <div class="pf-chips" role="group" aria-label="Filter projects by sector">
+        {
+          categories.map((c) => (
+            <button type="button" class="pf-chip" aria-pressed="false" data-filter={c.id} data-slug={c.slug}>
+              {c.label}
+            </button>
+          ))
+        }
+      </div>
+      <p class="sr-only" aria-live="polite" data-filter-status></p>
+    </div>
+  </FeaturedWork>
 
   <LogoStrip class="mt-[clamp(3rem,6vw,6rem)]" />
 </BaseLayout>
+
+<style>
+  .pf-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(0.625rem, 0.3rem + 1vw, 1.875rem);
+  }
+  .pf-chip {
+    /* min-width: clamp(7rem, 5rem + 6vw, 12.25rem); */
+    padding: clamp(0.75rem, 0.6rem + 0.4vw, 1.125rem) clamp(1.25rem, 0.8rem + 1.2vw, 1.75rem);
+    border: 1px solid transparent;
+    border-radius: 0.875rem;
+    background: var(--color-white);
+    color: var(--color-text-dark);
+    font-size: clamp(.75rem, 0.9rem + 0.35vw, 1rem);
+    line-height: 1.2;
+    cursor: pointer;
+    transition:
+      border-color 0.25s ease,
+      transform 0.25s ease;
+  }
+  .pf-chip:hover {
+    border-color: color-mix(in srgb, var(--color-neon) 55%, transparent);
+  }
+  .pf-chip[aria-pressed='true'] {
+    border-color: var(--color-neon);
+  }
+  .pf-chip:focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: 3px;
+  }
+  @media (max-width: 47.99rem) {
+    /* Phones: smaller chips, wrapped and centred so every option stays visible */
+    .pf-chip {
+      min-width: 0;
+    }
+  }
+</style>
+
+<script>
+  // Projects filter: show only the chosen sector's rows, re-alternate them (photo left / right) and redraw the
+  // connected white shape. The choice is kept in the URL (?category=…) so it can be linked and shared.
+  const bar = document.querySelector<HTMLElement>('[data-project-filters]');
+  if (bar) {
+    const chips = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+    const status = bar.querySelector<HTMLElement>('[data-filter-status]');
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-fw-row]'));
+    const stack = rows[0]?.closest<HTMLElement>('[data-connected-stack]');
+    bar.hidden = false;
+
+    const apply = (id: string | null, updateUrl: boolean) => {
+      let n = 0;
+      rows.forEach((row) => {
+        const show = !id || row.dataset.sector === id;
+        row.hidden = !show;
+        if (show) row.toggleAttribute('data-reverse', n++ % 2 === 1);
+      });
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.filter === id)));
+      const chip = chips.find((c) => c.dataset.filter === id);
+      if (status) status.textContent = chip ? `Showing ${n} ${chip.textContent?.trim()} projects` : `Showing all ${n} projects`;
+      stack?.dispatchEvent(new Event('cs:layout'));
+      if (updateUrl) {
+        const url = new URL(location.href);
+        if (chip?.dataset.slug) url.searchParams.set('category', chip.dataset.slug);
+        else url.searchParams.delete('category');
+        history.replaceState(null, '', url);
+      }
+    };
+
+    chips.forEach((chip) =>
+      chip.addEventListener('click', () => {
+        const on = chip.getAttribute('aria-pressed') === 'true';
+        apply(on ? null : (chip.dataset.filter ?? null), true);
+      }),
+    );
+
+    const slug = new URLSearchParams(location.search).get('category');
+    const initial = chips.find((c) => c.dataset.slug === slug)?.dataset.filter ?? null;
+    if (initial) apply(initial, false);
+  }
+</script>

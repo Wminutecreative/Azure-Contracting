@@ -1,6 +1,6 @@
 ---
 title: 'Wexford County Council'
-sector: public-buildings
+sector: offices
 excerpt: 'The layout for these new offices features a single facility with six buildings around a public internal street, creating a townscape which is both open and easy for visitors to navigate.'
 cover: ../../assets/projects/wexford-county-council/project-hero-wexfordcc.jpg
 coverAlt: 'Double-height foyer with a timber reception desk and black seating under concrete panels'
