@@ -11,7 +11,6 @@ import LogoStrip from '@/components/LogoStrip.astro';
 import { contact } from '@/data/site';
 import { getFaqs, getProjectCover } from '@/lib/content';
 import { ogImageFor } from '@/lib/og';
-import PageCover from '@/components/PageCover.astro';
 
 const faqs = await getFaqs('contact');
 const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(contact.mapQuery)}&z=15&output=embed`;
@@ -32,7 +31,7 @@ const schema = [
     ],
   },
 ];
-// Page cover + share image: Phoenix House meeting room
+// Share image: Phoenix House meeting room
 const cover = await getProjectCover('phoenix-house');
 const ogImage = cover ? await ogImageFor(cover.src) : undefined;
 ---
@@ -41,9 +40,9 @@ const ogImage = cover ? await ogImageFor(cover.src) : undefined;
   title="Azure Contracting | Get in Touch for Your Next Project"
   description="Get in touch with Azure Contracting at our Naas, Co. Kildare office. We discuss fit-out, refurbishment and construction projects across Ireland."
   ogImage={ogImage}
+  ogImageAlt={cover?.alt}
   schema={schema}
 >
-  {cover && <PageCover src={cover.src} alt={cover.alt} />}
 
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">
     <BigOutlineHeading text="Be In Touch With Us" as="h1">

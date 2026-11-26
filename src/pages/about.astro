@@ -17,7 +17,6 @@ import { getTeam, getFaqs } from '@/lib/content';
 import { valueCards } from '@/data/site';
 import { termList } from '@/lib/schema';
 import { ogImageFor } from '@/lib/og';
-import PageCover from '@/components/PageCover.astro';
 import { getProjectCover } from '@/lib/content';
 // TODO: real photos from Figma / the client
 import about_hero_section from '@/assets/about/about-hero-section.png';
@@ -31,7 +30,7 @@ import process_handover from '@/assets/process/handover-aftercare.png';
 
 const team = await getTeam();
 const faqs = await getFaqs('about');
-// Page cover + share image: Morrison Hotel lobby
+// Share image: Morrison Hotel lobby
 const cover = (await getProjectCover('morrison-hotel')) ?? { src: about_building, alt: 'Azure Contracting building project' };
 const ogImage = await ogImageFor(cover.src);
 
@@ -125,11 +124,11 @@ const orgExtra = {
   title="Azure Contracting | Trusted Main Contractor Ireland"
   description="Azure Contracting has delivered fit-out, refurbishment and construction across Ireland since 2012, acting as main contractor and PSCS on every project."
   ogImage={ogImage}
+  ogImageAlt={cover.alt}
   schema={schema}
   orgDescription="Founded in 2012 by two chartered surveyors from Irish contractors. Main contractor and PSCS on every project we deliver. Experienced in hospitality, offices and live public buildings."
   orgExtra={orgExtra}
 >
-  <PageCover src={cover.src} alt={cover.alt} />
 
   <!-- 1. Hero -->
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]">

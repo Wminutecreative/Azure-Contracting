@@ -10,7 +10,6 @@ import BigOutlineHeading from '@/components/BigOutlineHeading.astro';
 import LogoStrip from '@/components/LogoStrip.astro';
 import { getServices } from '@/lib/content';
 import { ogImageFor } from '@/lib/og';
-import PageCover from '@/components/PageCover.astro';
 import ogSource from '@/assets/projects/iconic-offices/Hume_Atrium_Photo00001-scaled.jpg';
 import panelPhoto from '@/assets/services/panel/services-panel.jpg';
 
@@ -57,10 +56,10 @@ const schema = [
   title="Azure Contracting | Fit-Out & Refurbishment Services"
   description="Azure Contracting delivers fit-out and refurbishment across Ireland, covering partitions, glazing, mechanical, electrical, AV, joinery, flooring and more."
   ogImage={ogImage}
+  ogImageAlt="Glass-roofed atrium with glazed walkways and exposed brick at Iconic Offices"
   schema={schema}
   orgDescription="Azure Contracting is a fit-out and refurbishment contractor delivering hospitality, office, clinic and education projects across Ireland since 2012."
 >
-  <PageCover src={ogSource} alt="Glass-roofed atrium with glazed walkways and exposed brick at Iconic Offices" />
 
   <section class="pt-[clamp(1.5rem,1rem+2vw,3rem)]" data-services>
     <BigOutlineHeading text="Services We Offer" as="h1">
